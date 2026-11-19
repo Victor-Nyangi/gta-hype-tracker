@@ -643,6 +643,7 @@
     }
   },
   "required": [
+    "schema_version",
     "generated_at",
     "launch_at",
     "twitch",

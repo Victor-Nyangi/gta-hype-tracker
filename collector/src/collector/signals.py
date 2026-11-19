@@ -155,6 +155,9 @@ class WikipediaSignals(_Model):
 
 
 class Signals(_Model):
+    # Every key is always present in the output, so the schema marks them all required.
+    model_config = ConfigDict(extra="forbid", json_schema_serialization_defaults_required=True)
+
     schema_version: Literal[1] = SCHEMA_VERSION
     generated_at: datetime
     launch_at: datetime
