@@ -1,0 +1,371 @@
+{
+ "entities": {
+  "Q23648408": {
+   "type": "item",
+   "id": "Q23648408",
+   "sitelinks": {
+    "abstractwiki": {
+     "site": "abstractwiki",
+     "title": "Q23648408",
+     "badges": []
+    },
+    "afwiki": {
+     "site": "afwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "anwiki": {
+     "site": "anwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "arwiki": {
+     "site": "arwiki",
+     "title": "جراند ثفت أوتو 6",
+     "badges": []
+    },
+    "astwiki": {
+     "site": "astwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "azwiki": {
+     "site": "azwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "bewiki": {
+     "site": "bewiki",
+     "title": "Grand Theft Auto 6",
+     "badges": []
+    },
+    "bgwiki": {
+     "site": "bgwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "bnwiki": {
+     "site": "bnwiki",
+     "title": "গ্র্যান্ড থেফট অটো ৬",
+     "badges": []
+    },
+    "bswiki": {
+     "site": "bswiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "cawiki": {
+     "site": "cawiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "cswiki": {
+     "site": "cswiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "dawiki": {
+     "site": "dawiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "dewiki": {
+     "site": "dewiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "elwiki": {
+     "site": "elwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "enwiki": {
+     "site": "enwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "enwikiquote": {
+     "site": "enwikiquote",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "eowiki": {
+     "site": "eowiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "eswiki": {
+     "site": "eswiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "etwiki": {
+     "site": "etwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "euwiki": {
+     "site": "euwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "fawiki": {
+     "site": "fawiki",
+     "title": "جی‌تی‌ای ۶",
+     "badges": []
+    },
+    "fiwiki": {
+     "site": "fiwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "frwiki": {
+     "site": "frwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "glwiki": {
+     "site": "glwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "hewiki": {
+     "site": "hewiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "hiwiki": {
+     "site": "hiwiki",
+     "title": "ग्रैण्ड थेफ़्ट ऑटो ६",
+     "badges": []
+    },
+    "hrwiki": {
+     "site": "hrwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "huwiki": {
+     "site": "huwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "hywiki": {
+     "site": "hywiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "idwiki": {
+     "site": "idwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "iswiki": {
+     "site": "iswiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "itwiki": {
+     "site": "itwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "jawiki": {
+     "site": "jawiki",
+     "title": "グランド・セフト・オートVI",
+     "badges": []
+    },
+    "kawiki": {
+     "site": "kawiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "kkwiki": {
+     "site": "kkwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "kowiki": {
+     "site": "kowiki",
+     "title": "그랜드 테프트 오토 VI",
+     "badges": []
+    },
+    "kswiki": {
+     "site": "kswiki",
+     "title": "گرٛینٛڈ تھیٚفٹ آٹو VI",
+     "badges": []
+    },
+    "kuwiki": {
+     "site": "kuwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "ltwiki": {
+     "site": "ltwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "lvwiki": {
+     "site": "lvwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "mkwiki": {
+     "site": "mkwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "mswiki": {
+     "site": "mswiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "mtwiki": {
+     "site": "mtwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "nlwiki": {
+     "site": "nlwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "nnwiki": {
+     "site": "nnwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "nowiki": {
+     "site": "nowiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "pawiki": {
+     "site": "pawiki",
+     "title": "ਗ੍ਰੈਂਡ ਥੈਫ਼ਟ ਆਟੋ 6",
+     "badges": []
+    },
+    "plwiki": {
+     "site": "plwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "ptwiki": {
+     "site": "ptwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "rowiki": {
+     "site": "rowiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "ruwiki": {
+     "site": "ruwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "ruwikinews": {
+     "site": "ruwikinews",
+     "title": "Категория:Grand Theft Auto VI",
+     "badges": []
+    },
+    "ruwikiquote": {
+     "site": "ruwikiquote",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "sahwiki": {
+     "site": "sahwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "scowiki": {
+     "site": "scowiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "simplewiki": {
+     "site": "simplewiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "siwiki": {
+     "site": "siwiki",
+     "title": "ග්‍රෑන්ඩ් තෙෆ්ට් ඔටෝ VI",
+     "badges": []
+    },
+    "skwiki": {
+     "site": "skwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "sqwiki": {
+     "site": "sqwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "srwiki": {
+     "site": "srwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "svwiki": {
+     "site": "svwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "thwiki": {
+     "site": "thwiki",
+     "title": "แกรนด์เธฟต์ออโต VI",
+     "badges": []
+    },
+    "thwikiquote": {
+     "site": "thwikiquote",
+     "title": "แกรนด์เธฟต์ออโต VI",
+     "badges": []
+    },
+    "trwiki": {
+     "site": "trwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "ukwiki": {
+     "site": "ukwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "urwiki": {
+     "site": "urwiki",
+     "title": "گرینڈ تھیفٹ آٹو 6",
+     "badges": []
+    },
+    "uzwiki": {
+     "site": "uzwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "viwiki": {
+     "site": "viwiki",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "viwikiquote": {
+     "site": "viwikiquote",
+     "title": "Grand Theft Auto VI",
+     "badges": []
+    },
+    "zh_yuewiki": {
+     "site": "zh_yuewiki",
+     "title": "俠盜獵車手VI",
+     "badges": []
+    },
+    "zhwiki": {
+     "site": "zhwiki",
+     "title": "俠盜獵車手VI",
+     "badges": []
+    }
+   }
+  }
+ },
+ "success": 1
+}

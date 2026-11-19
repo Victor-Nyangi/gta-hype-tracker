@@ -1,0 +1,7 @@
+{
+  "type": "https://mediawiki.org/wiki/HyperSwitch/errors/not_found",
+  "title": "Not found.",
+  "method": "get",
+  "detail": "The date(s) you used are valid, but we either do not have data for those date(s), or the project you asked for is not loaded yet. Please check documentation for more information.",
+  "uri": "/analytics.wikimedia.org/v1/pageviews/per-article/sah.wikipedia/all-access/user/Grand_Theft_Auto_VI/daily/20261108/20261118"
+}

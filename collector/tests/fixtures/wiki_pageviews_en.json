@@ -1,0 +1,103 @@
+{
+    "items": [
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026110800",
+            "access": "all-access",
+            "agent": "user",
+            "views": 31048
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026110900",
+            "access": "all-access",
+            "agent": "user",
+            "views": 43270
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111000",
+            "access": "all-access",
+            "agent": "user",
+            "views": 64375
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111100",
+            "access": "all-access",
+            "agent": "user",
+            "views": 62961
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111200",
+            "access": "all-access",
+            "agent": "user",
+            "views": 73739
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111300",
+            "access": "all-access",
+            "agent": "user",
+            "views": 74974
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111400",
+            "access": "all-access",
+            "agent": "user",
+            "views": 72813
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111500",
+            "access": "all-access",
+            "agent": "user",
+            "views": 82149
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111600",
+            "access": "all-access",
+            "agent": "user",
+            "views": 106689
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111700",
+            "access": "all-access",
+            "agent": "user",
+            "views": 153037
+        },
+        {
+            "project": "en.wikipedia",
+            "article": "Grand_Theft_Auto_VI",
+            "granularity": "daily",
+            "timestamp": "2026111800",
+            "access": "all-access",
+            "agent": "user",
+            "views": 519632
+        }
+    ]
+}

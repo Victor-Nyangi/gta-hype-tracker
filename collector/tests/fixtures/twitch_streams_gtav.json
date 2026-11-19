@@ -1,0 +1,62 @@
+{
+  "data": [
+    {
+      "id": "41000000100",
+      "user_id": "10000100",
+      "user_login": "buddha",
+      "user_name": "Buddha",
+      "game_id": "32982",
+      "game_name": "Grand Theft Auto V",
+      "type": "live",
+      "title": "NoPixel 5.0 | day 412",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 14200,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_buddha-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000101",
+      "user_id": "10000101",
+      "user_login": "fanfan",
+      "user_name": "Fanfan",
+      "game_id": "32982",
+      "game_name": "Grand Theft Auto V",
+      "type": "live",
+      "title": "NoPixel 5.0 | day 412",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 6100,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_fanfan-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000102",
+      "user_id": "10000102",
+      "user_login": "ramee",
+      "user_name": "Ramee",
+      "game_id": "32982",
+      "game_name": "Grand Theft Auto V",
+      "type": "live",
+      "title": "NoPixel 5.0 | day 412",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 4800,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_ramee-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    }
+  ],
+  "pagination": {}
+}

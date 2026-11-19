@@ -1,0 +1,176 @@
+{
+  "data": [
+    {
+      "id": "41000000011",
+      "user_id": "10000011",
+      "user_login": "pokimane",
+      "user_name": "Pokimane",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !pokimane",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 21250,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_pokimane-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000012",
+      "user_id": "10000012",
+      "user_login": "jynxzi",
+      "user_name": "Jynxzi",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !jynxzi",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 18800,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_jynxzi-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000013",
+      "user_id": "10000013",
+      "user_login": "papaplatte",
+      "user_name": "Papaplatte",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !papaplatte",
+      "tags": [
+        "Deutsch"
+      ],
+      "viewer_count": 15400,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "de",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_papaplatte-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000014",
+      "user_id": "10000014",
+      "user_login": "otplol_",
+      "user_name": "Otplol_",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !otplol_",
+      "tags": [
+        "Français"
+      ],
+      "viewer_count": 12250,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "fr",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_otplol_-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000015",
+      "user_id": "10000015",
+      "user_login": "mande",
+      "user_name": "Mande",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !mande",
+      "tags": [
+        "Português"
+      ],
+      "viewer_count": 9800,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "pt",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_mande-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000016",
+      "user_id": "10000016",
+      "user_login": "kamet0",
+      "user_name": "Kamet0",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !kamet0",
+      "tags": [
+        "Français"
+      ],
+      "viewer_count": 8400,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "fr",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_kamet0-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000017",
+      "user_id": "10000017",
+      "user_login": "tarik",
+      "user_name": "Tarik",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !tarik",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 7600,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_tarik-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000018",
+      "user_id": "10000018",
+      "user_login": "sodapoppin",
+      "user_name": "Sodapoppin",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !sodapoppin",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 6100,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_sodapoppin-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    },
+    {
+      "id": "41000000019",
+      "user_id": "10000019",
+      "user_login": "lirik",
+      "user_name": "Lirik",
+      "game_id": "123456789",
+      "game_name": "Grand Theft Auto VI",
+      "type": "live",
+      "title": "GTA VI LAUNCH DAY | Leonida tour !lirik",
+      "tags": [
+        "English"
+      ],
+      "viewer_count": 5050,
+      "started_at": "2026-11-19T04:31:07Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_lirik-{width}x{height}.jpg",
+      "tag_ids": [],
+      "is_mature": true
+    }
+  ],
+  "pagination": {}
+}
