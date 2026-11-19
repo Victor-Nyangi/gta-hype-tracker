@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/victor-s-work-of-art-fa259736-569f-484e-a5f2-cf6f508b2477/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/victor-s-work-of-art-fa259736-569f-484e-a5f2-cf6f508b2477/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/victor-s-work-of-art-fa259736-569f-484e-a5f2-cf6f508b2477/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/victor-s-work-of-art-fa259736-569f-484e-a5f2-cf6f508b2477/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/victor-s-work-of-art-fa259736-569f-484e-a5f2-cf6f508b2477/styles.css">
+  <script src="_ds/victor-s-work-of-art-fa259736-569f-484e-a5f2-cf6f508b2477/_ds_bundle.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+  <script src="./image-slot.js"></script>
+  <style>
+    :root{--font-body:"Archivo", Arial, sans-serif;--font-display:"Archivo", Arial, sans-serif;--black:#120a14;--graphite:#1d1220;--graphite-2:#2a1a2e;--graphite-3:#3e2944;--surface-card:#1d1220;--surface-card-raised:#2a1a2e;--surface-border:#33223a;--text-secondary:oklch(0.82 0.02 330);--text-tertiary:oklch(0.70 0.03 330);}
+    body{margin:0;background:#120a14;}
+    @keyframes pan{0%{background-position:0% 35%}100%{background-position:100% 65%}}
+    a{color:oklch(0.78 0.16 55);text-decoration:none;}
+    a:hover{color:oklch(0.70 0.21 350);}
+    @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 oklch(0.70 0.21 350 / .7)}70%{box-shadow:0 0 0 12px oklch(0.70 0.21 350 / 0)}100%{box-shadow:0 0 0 0 oklch(0.70 0.21 350 / 0)}}
+    @keyframes sunset{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  </style>
+</helmet>
+<div ref="{{rootRef}}" style="min-height:100vh;background:#120a14;color:var(--text-primary);font-family:var(--font-body);overflow-x:hidden;">
+
+  <header style="position:sticky;top:0;z-index:20;background:#120a14;border-bottom:1px solid var(--surface-border);">
+    <div style="max-width:1280px;margin:0 auto;padding:12px 24px 0;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;padding-bottom:12px;">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg, oklch(0.78 0.16 55), oklch(0.70 0.21 350) 55%, #8B4FC9);background-size:200% 200%;animation:sunset 6s ease infinite;"></div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:900;font-stretch:80%;letter-spacing:0;">GTA <span style="color:oklch(0.70 0.21 350);">VI</span> Hype Tracker</div>
+      </div>
+      <x-import component-from-global-scope="VictorSWorkOfArt_fa2597.Tabs" items="{{tabs}}" active="{{page}}" on-change="{{setPage}}" hint-size="320px,42px"></x-import>
+      <div style="display:flex;align-items:center;gap:10px;padding-bottom:12px;font-size:13px;font-weight:700;color:var(--text-secondary);font-variant-numeric:tabular-nums;">
+        <span style="width:8px;height:8px;border-radius:50%;background:oklch(0.70 0.21 350);animation:pulse 1.6s infinite;"></span>
+        <span>{{statusLabel}}</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="launch" data-section="Launch">
+    <section data-screen-label="01 Launch" style="position:relative;min-height:clamp(560px, 80vh, 860px);display:flex;align-items:flex-end;overflow:hidden;">
+      <div data-par="heroImg" style="position:absolute;inset:0;transform-origin:70% 40%;will-change:transform;">
+        <image-slot id="hero-gif" shape="rect" src="../assets/gta-full-wide.png" placeholder="Drop key art or a trailer GIF"></image-slot>
+      </div>
+      <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg, #120a14 0%, rgba(18,10,20,0.88) 26%, rgba(18,10,20,0.3) 56%, rgba(18,10,20,0) 78%), linear-gradient(180deg, rgba(18,10,20,0) 50%, #120a14 98%);"></div>
+      <div style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;opacity:0.4;background:linear-gradient(120deg, oklch(0.78 0.16 55), oklch(0.70 0.21 350), #6B21A8, oklch(0.75 0.13 200));background-size:300% 300%;animation:sunset 14s ease infinite;"></div>
+      <div data-par="heroText" style="position:relative;max-width:1280px;width:100%;margin:0 auto;padding:48px 24px 64px;will-change:transform;display:flex;flex-direction:column;gap:28px;pointer-events:none;">
+        <div data-anim="1" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <x-import component-from-global-scope="VictorSWorkOfArt_fa2597.Badge" tone="{{liveTone}}" hint-size="140px,24px">{{badgeLabel}}</x-import>
+          <x-import component-from-global-scope="VictorSWorkOfArt_fa2597.Badge" tone="neutral" hint-size="140px,24px">PS5 · Xbox Series X|S</x-import>
+        </div>
+        <h1 data-anim="1" style="margin:0;font-family:var(--font-display);font-weight:900;font-stretch:68%;font-size:clamp(52px, 7.5vw, 116px);line-height:0.88;letter-spacing:-0.01em;max-width:8ch;">
+          <span>{{heroLead}}</span>
+          <span style="display:block;background:linear-gradient(90deg, oklch(0.80 0.16 60), oklch(0.70 0.21 350) 50%, #8B4FC9);background-size:200% 100%;animation:sunset 8s ease infinite;-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:0.08em;">{{heroTail}}</span>
+        </h1>
+        <div data-anim="1" style="display:grid;grid-template-columns:repeat(4, minmax(0, 150px));gap:12px;">
+          <sc-for list="{{clock}}" as="c" hint-placeholder-count="4">
+            <div style="background:rgba(29,18,32,0.72);border:1px solid var(--surface-border);border-radius:16px;padding:16px 14px 12px;display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:clamp(34px, 5vw, 56px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;">{{c.v}}</div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-secondary);">{{c.l}}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div data-anim="1" style="font-size:15px;color:var(--text-secondary);">{{clockCaption}}</div>
+      </div>
+    </section>
+
+    <div style="background:linear-gradient(90deg, oklch(0.78 0.16 55), oklch(0.70 0.21 350), #8B4FC9);color:#0A0A0C;overflow:hidden;white-space:nowrap;">
+      <div style="display:inline-flex;gap:48px;padding:14px 0;animation:marquee 38s linear infinite;font-weight:800;font-size:15px;letter-spacing:0.04em;text-transform:uppercase;">
+        <sc-for list="{{ticker}}" as="t" hint-placeholder-count="8">
+          <span style="display:inline-flex;gap:48px;">{{t}}<span>✦</span></span>
+        </sc-for>
+      </div>
+    </div>
+
+    <section style="max-width:1280px;margin:0 auto;padding:80px 24px 32px;display:flex;flex-direction:column;gap:32px;">
+      <div data-anim="1" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:oklch(0.78 0.16 55);">The wait, in days</div>
+        <h2 style="margin:0;font-family:var(--font-display);font-stretch:72%;font-size:clamp(36px, 5vw, 56px);font-weight:700;letter-spacing:-0.02em;">Thirteen years in the making.</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:16px;">
+        <sc-for list="{{waits}}" as="w" hint-placeholder-count="4">
+          <div data-anim="1" style="background:var(--surface-card);border:1px solid var(--surface-border);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-sm);">
+            <div style="font-size:13px;font-weight:700;color:var(--text-secondary);">{{w.label}}</div>
+            <div style="font-size:52px;font-weight:800;line-height:1;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;color:{{w.color}};">{{w.value}}</div>
+            <div style="font-size:13px;color:var(--text-tertiary);">{{w.date}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="max-width:1280px;margin:0 auto;padding:32px 24px 96px;display:flex;flex-direction:column;gap:24px;">
+      <div data-anim="1" style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:oklch(0.70 0.21 350);">Road to launch</div>
+      <div data-anim="1" style="position:relative;height:150px;">
+        <div style="position:absolute;left:0;right:0;top:74px;height:2px;background:var(--graphite-3);"></div>
+        <div data-reveal="1" style="position:absolute;left:0;right:0;top:73px;height:4px;border-radius:4px;background:linear-gradient(90deg, #6B21A8, oklch(0.70 0.21 350), oklch(0.78 0.16 55));"></div>
+        <sc-for list="{{milestones}}" as="m" hint-placeholder-count="7">
+          <div style="position:absolute;left:{{m.left}};top:{{m.top}};transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:120px;text-align:center;">
+            <sc-if value="{{m.below}}" hint-placeholder-val="{{ false }}">
+              <div style="width:14px;height:14px;border-radius:50%;background:{{m.dot}};border:3px solid #120a14;"></div>
+              <div style="font-size:12px;font-weight:800;">{{m.label}}</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">{{m.date}}</div>
+            </sc-if>
+            <sc-if value="{{m.above}}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:12px;font-weight:800;">{{m.label}}</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">{{m.date}}</div>
+              <div style="width:14px;height:14px;border-radius:50%;background:{{m.dot}};border:3px solid #120a14;"></div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div data-anim="1" style="display:flex;gap:12px;flex-wrap:wrap;padding-top:16px;">
+        <x-import component-from-global-scope="VictorSWorkOfArt_fa2597.Button" variant="primary" size="lg" on-click="{{goSignals}}" hint-size="180px,48px">See the live signals</x-import>
+        <x-import component-from-global-scope="VictorSWorkOfArt_fa2597.Button" variant="secondary" size="lg" on-click="{{goCompare}}" hint-size="180px,48px">Compare on Steam</x-import>
+      </div>
+    </section>
+  </div>
+
+  <div id="signals" data-section="Signals" style="background:#0c060e;">
+    <section data-screen-label="02 Signals" style="max-width:1280px;margin:0 auto;padding:96px 24px 96px;display:flex;flex-direction:column;gap:24px;">
+      <div data-anim="1" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:oklch(0.70 0.21 350);">Signals</div>
+        <div style="position:relative;">
+          <div aria-hidden="true" style="position:absolute;inset:0;font-family:var(--font-display);font-weight:900;font-stretch:68%;font-size:clamp(72px, 15vw, 240px);line-height:0.86;letter-spacing:-0.01em;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.18);transform:translate(6px, 6px);pointer-events:none;">The whole<br>internet is<br>watching.</div>
+          <h2 data-par="mesh" style="position:relative;margin:0;font-family:var(--font-display);font-weight:900;font-stretch:68%;font-size:clamp(72px, 15vw, 240px);line-height:0.86;letter-spacing:-0.01em;background-image:url('../assets/gta-full-wide.png');background-size:160% auto;background-position:0% 35%;-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:0.06em;">The whole<br>internet is<br>watching.</h2>
+        </div>
+      </div>
+
+      <div data-anim="1" style="background:var(--surface-card);border:1px solid var(--surface-border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:24px;">
+        <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-secondary);">Twitch concurrent viewers · GTA VI category</div>
+            <div style="display:flex;align-items:baseline;gap:12px;">
+              <div style="font-size:clamp(44px, 6vw, 68px);font-weight:800;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums;">{{twNow}}</div>
+              <div style="font-size:14px;font-weight:800;color:oklch(0.70 0.21 350);">watching now</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:32px;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);">Peak</div>
+              <div style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:oklch(0.78 0.16 55);">{{twPeak}}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);">Hours watched</div>
+              <div style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;">{{twHours}}</div>
+            </div>
+          </div>
+        </div>
+        <div onMouseMove="{{twMove}}" onMouseLeave="{{twLeave}}" style="position:relative;height:300px;cursor:crosshair;">
+          <div style="position:absolute;left:50%;top:0;bottom:0;border-left:1px dashed var(--graphite-3);"></div>
+          <div style="position:absolute;left:50%;top:0;transform:translateX(6px);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);">Doors open</div>
+          <div data-reveal="1" style="position:absolute;inset:0;">
+            <svg viewBox="0 0 1000 300" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">
+              <defs>
+                <linearGradient id="twFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="oklch(0.70 0.21 350)" stop-opacity="0.45"></stop>
+                  <stop offset="100%" stop-color="oklch(0.70 0.21 350)" stop-opacity="0"></stop>
+                </linearGradient>
+                <linearGradient id="twLine" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#8B4FC9"></stop>
+                  <stop offset="60%" stop-color="oklch(0.70 0.21 350)"></stop>
+                  <stop offset="100%" stop-color="oklch(0.78 0.16 55)"></stop>
+                </linearGradient>
+              </defs>
+              <path d="{{twArea}}" fill="url(#twFill)"></path>
+              <path d="{{twLinePath}}" fill="none" stroke="url(#twLine)" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div style="position:absolute;left:{{twDot.left}};top:{{twDot.top}};width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:oklch(0.78 0.16 55);animation:pulse 1.6s infinite;"></div>
+          <sc-if value="{{twHov.show}}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:{{twHov.left}};top:0;bottom:0;border-left:1px solid var(--bone);opacity:0.5;pointer-events:none;"></div>
+            <div style="position:absolute;left:{{twHov.left}};top:{{twHov.top}};width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--bone);pointer-events:none;"></div>
+            <div style="position:absolute;left:{{twHov.left}};top:8px;transform:translateX(-50%);background:var(--graphite-2);border:1px solid var(--graphite-3);border-radius:8px;padding:8px 12px;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow-md);">
+              <div style="font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;">{{twHov.v}}</div>
+              <div style="font-size:11px;color:var(--text-tertiary);">{{twHov.t}}</div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text-tertiary);letter-spacing:0.04em;">
+          <span>−24h</span><span>−12h</span><span>Launch</span><span>+12h</span><span>+24h</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 420px), 1fr));gap:24px;">
+        <div data-anim="1" style="background:var(--surface-card);border:1px solid var(--surface-border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-secondary);">Trailer views · first 30 days on YouTube</div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:13px;font-weight:700;">
+              <span style="display:flex;align-items:center;gap:8px;"><span style="width:14px;height:3px;border-radius:2px;background:#8B4FC9;"></span>Trailer 1 · {{t1End}}</span>
+              <span style="display:flex;align-items:center;gap:8px;"><span style="width:14px;height:3px;border-radius:2px;background:oklch(0.78 0.16 55);"></span>Trailer 2 · {{t2End}}</span>
+            </div>
+          </div>
+          <div style="position:relative;height:240px;">
+            <sc-for list="{{trGrid}}" as="g" hint-placeholder-count="4">
+              <div style="position:absolute;left:0;right:0;top:{{g.top}};border-top:1px solid var(--graphite-2);">
+                <span style="position:absolute;right:0;top:-16px;font-size:11px;color:var(--text-tertiary);">{{g.l}}</span>
+              </div>
+            </sc-for>
+            <div data-reveal="1" style="position:absolute;inset:0;">
+              <svg viewBox="0 0 1000 240" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">
+                <path d="{{t1Path}}" fill="none" stroke="#8B4FC9" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+                <path d="{{t2Path}}" fill="none" stroke="oklch(0.78 0.16 55)" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+              </svg>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text-tertiary);">
+            <span>Day 0</span><span>Day 10</span><span>Day 20</span><span>Day 30</span>
+          </div>
+        </div>
+        <div data-anim="1" style="position:relative;min-height:380px;border-radius:20px;overflow:hidden;border:1px solid var(--surface-border);">
+          <image-slot id="trailer-gif" shape="rect" placeholder="Drop a trailer GIF"></image-slot>
+        </div>
+      </div>
+
+      <div data-anim="1" style="background:var(--surface-card);border:1px solid var(--surface-border);border-radius:20px;padding:28px;display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr));gap:32px;align-items:center;">
+        <div style="grid-column:span 2;min-width:0;display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-secondary);">Wikipedia pageviews by language · last 7 days</div>
+            <div style="font-size:14px;color:var(--text-tertiary);">Each language edition is mapped to where it is mostly read. Hover a language.</div>
+          </div>
+          <svg viewBox="0 0 960 470" style="width:100%;height:auto;display:block;">
+            <sc-for list="{{mapPaths}}" as="c" hint-placeholder-count="0">
+              <path d="{{c.d}}" fill="{{c.fill}}" stroke="#0c060e" stroke-width="0.6" style="transition:fill 320ms cubic-bezier(0.22,1,0.36,1);"></path>
+            </sc-for>
+          </svg>
+          <sc-if value="{{mapLoading}}" hint-placeholder-val="{{ true }}">
+            <div style="font-size:13px;color:var(--text-tertiary);">Loading map…</div>
+          </sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
+          <sc-for list="{{langs}}" as="l" hint-placeholder-count="10">
+            <div onMouseEnter="{{l.enter}}" onMouseLeave="{{langLeave}}" style="display:grid;grid-template-columns:92px 1fr 56px;gap:12px;align-items:center;padding:6px 8px;border-radius:8px;cursor:default;background:{{l.bg}};transition:background 120ms;">
+              <span style="font-size:13px;font-weight:700;">{{l.name}}</span>
+              <span style="height:8px;border-radius:999px;background:var(--graphite-2);overflow:hidden;">
+                <span style="display:block;height:100%;width:{{l.w}};border-radius:999px;background:linear-gradient(90deg, #8B4FC9, oklch(0.70 0.21 350));transition:width 900ms cubic-bezier(0.22,1,0.36,1);"></span>
+              </span>
+              <span style="font-size:13px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--text-secondary);">{{l.v}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="compare" data-section="Compare">
+    <section data-screen-label="03 Compare" style="max-width:1280px;margin:0 auto;padding:96px 24px 96px;display:flex;flex-direction:column;gap:24px;">
+      <div data-anim="1" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:oklch(0.78 0.16 55);">Compare</div>
+        <h2 style="margin:0;font-family:var(--font-display);font-stretch:72%;font-size:clamp(40px, 6vw, 72px);font-weight:800;letter-spacing:-0.03em;line-height:1;">Who else is still playing?</h2>
+        <div style="font-size:15px;color:var(--text-secondary);max-width:60ch;">GTA VI launches on console only, so it has no Steam count. Pick a title to see its Steam players over the last 24 hours.</div>
+      </div>
+      <div data-anim="1" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <sc-for list="{{games}}" as="g" hint-placeholder-count="6">
+          <button onClick="{{g.pick}}" style="{{g.chip}}">{{g.name}}</button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 340px), 1fr));gap:24px;">
+        <div data-anim="1" style="grid-column:span 2;min-width:0;background:var(--surface-card);border:1px solid var(--surface-border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:20px;">
+          <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end;">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:13px;font-weight:700;color:var(--text-secondary);">{{game.name}} · in-game now on Steam</div>
+              <div style="font-size:clamp(44px, 6vw, 68px);font-weight:800;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums;">{{gNow}}</div>
+            </div>
+            <div style="display:flex;gap:32px;">
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);">24h peak</div>
+                <div style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;">{{gDayPeak}}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);">All-time peak</div>
+                <div style="font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:oklch(0.78 0.16 55);">{{gPeak}}</div>
+              </div>
+            </div>
+          </div>
+          <div style="position:relative;height:260px;">
+            <svg viewBox="0 0 1000 260" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">
+              <defs>
+                <linearGradient id="stFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="oklch(0.78 0.16 55)" stop-opacity="0.4"></stop>
+                  <stop offset="100%" stop-color="oklch(0.78 0.16 55)" stop-opacity="0"></stop>
+                </linearGradient>
+              </defs>
+              <path d="{{stArea}}" style="{{stAreaStyle}}" fill="url(#stFill)"></path>
+              <path d="{{stLine}}" style="{{stLineStyle}}" fill="none" stroke="oklch(0.78 0.16 55)" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+            </svg>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text-tertiary);">
+            <span>24h ago</span><span>18h</span><span>12h</span><span>6h</span><span>Now</span>
+          </div>
+        </div>
+        <div data-anim="1" style="position:relative;min-height:340px;border-radius:20px;overflow:hidden;border:1px solid var(--surface-border);">
+          <image-slot id="{{game.slot}}" shape="rect" placeholder="{{game.slotLabel}}"></image-slot>
+        </div>
+      </div>
+      <div data-anim="1" style="background:var(--surface-card);border:1px solid var(--surface-border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-secondary);">All-time Steam peaks</div>
+        <sc-for list="{{peaks}}" as="p" hint-placeholder-count="6">
+          <div onClick="{{p.pick}}" style="display:grid;grid-template-columns:minmax(120px, 200px) 1fr 90px;gap:16px;align-items:center;cursor:pointer;">
+            <span style="font-size:14px;font-weight:700;color:{{p.color}};">{{p.name}}</span>
+            <span style="height:12px;border-radius:999px;background:var(--graphite-2);overflow:hidden;">
+              <span style="display:block;height:100%;width:{{p.w}};border-radius:999px;background:{{p.bar}};transition:width 900ms cubic-bezier(0.22,1,0.36,1), background 300ms;"></span>
+            </span>
+            <span style="font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;color:var(--text-secondary);">{{p.v}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+
+  <footer style="border-top:1px solid var(--surface-border);">
+    <div style="max-width:1280px;margin:0 auto;padding:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-tertiary);">
+      <span>Fan-made tracker. Not affiliated with Rockstar Games or Take-Two.</span>
+      <span>Twitch, trailer, Wikipedia and 24h Steam curves are illustrative. Steam all-time peaks are approximate.</span>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LAUNCH = Date.UTC(2026, 10, 19, 5, 0, 0);
+const DAY = 86400000;
+const PINK = 'oklch(0.70 0.21 350)', ORANGE = 'oklch(0.78 0.16 55)', VIOLET = '#8B4FC9', TEAL = 'oklch(0.75 0.13 200)';
+const rnd = (s) => { let x = Math.sin(s * 9301 + 49297) * 233280; return x - Math.floor(x); };
+const fmt = (n) => n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1e4 ? Math.round(n / 1e3) + 'K' : Math.round(n).toLocaleString('en-US');
+const comma = (n) => Math.round(n).toLocaleString('en-US');
+const pad = (n) => String(n).padStart(2, '0');
+
+const TW = Array.from({ length: 49 }, (_, i) => {
+  const h = i - 24;
+  let v = h <= 0 ? 0.32 + 2.3 * Math.exp(h / 4.5) : 1.7 + 3.6 * Math.exp(-Math.max(0, h - 1.5) / 7) * (h < 1.5 ? 0.85 + h * 0.1 : 1);
+  v += 0.25 * Math.sin((h + 6) / 24 * Math.PI * 2) * (h > 0 ? 1 : 0.3);
+  return Math.max(0.1, v * (1 + (rnd(i) - 0.5) * 0.08)) * 1e6;
+});
+const T1 = Array.from({ length: 31 }, (_, d) => (93 + 57 * Math.log(1 + d) / Math.log(31) + (rnd(d + 7) - 0.5) * 1.5) * 1e6);
+const T2 = Array.from({ length: 31 }, (_, d) => (112 + 66 * Math.log(1 + d) / Math.log(31) + (rnd(d + 70) - 0.5) * 1.5) * 1e6);
+
+const GAMES = [
+  { id: 'gtav', name: 'Grand Theft Auto V', peak: 364548, base: 115000, amp: 0.32, ph: 2 },
+  { id: 'rdr2', name: 'Red Dead Redemption 2', peak: 92000, base: 24000, amp: 0.35, ph: 3 },
+  { id: 'cs2', name: 'Counter-Strike 2', peak: 1862531, base: 1250000, amp: 0.28, ph: 8 },
+  { id: 'cp77', name: 'Cyberpunk 2077', peak: 1054388, base: 38000, amp: 0.4, ph: 1 },
+  { id: 'er', name: 'Elden Ring', peak: 953426, base: 52000, amp: 0.38, ph: 4 },
+  { id: 'bg3', name: "Baldur's Gate 3", peak: 875343, base: 68000, amp: 0.36, ph: 0 },
+].map((g, gi) => ({ ...g, curve: Array.from({ length: 25 }, (_, i) => g.base * (1 + g.amp * Math.sin((i - 6 - g.ph) / 24 * Math.PI * 2) + (rnd(i + gi * 40) - 0.5) * 0.1)) }));
+
+const LANGS = [
+  ['English', 4200, [840, 826, 124, 36, 372, 554, 356, 710, 566]],
+  ['Spanish', 1120, [724, 484, 32, 170, 152, 604, 862, 218, 68, 600, 858, 320, 340, 222, 558, 188, 591, 214, 192]],
+  ['Portuguese', 760, [76, 620, 24, 508]],
+  ['German', 640, [276, 40, 756]],
+  ['Russian', 590, [643, 112, 398]],
+  ['French', 520, [250, 56, 384, 686, 120, 450]],
+  ['Japanese', 410, [392]],
+  ['Polish', 330, [616]],
+  ['Italian', 300, [380]],
+  ['Turkish', 260, [792]],
+  ['Chinese', 240, [156, 158]],
+  ['Korean', 210, [410]],
+  ['Arabic', 190, [682, 818, 784, 504, 12, 368, 400, 788, 434, 760, 887, 512]],
+  ['Ukrainian', 150, [804]],
+  ['Dutch', 140, [528]],
+];
+const C2L = {}; LANGS.forEach(([n, v, cs]) => cs.forEach(c => { C2L[c] = n; }));
+const LMAX = LANGS[0][1];
+
+const MILESTONES = [
+  ['GTA V release', '2013-09-17', VIOLET],
+  ['VI confirmed', '2022-02-04', VIOLET],
+  ['Trailer 1', '2023-12-05', PINK],
+  ['Delay → May 26', '2025-05-02', 'var(--graphite-3)'],
+  ['Trailer 2', '2025-05-06', PINK],
+  ['Delay → Nov 19', '2025-11-06', 'var(--graphite-3)'],
+  ['Launch', '2026-11-19', ORANGE],
+];
+
+function linePath(vals, w, h, max, top = 10) {
+  return vals.map((v, i) => (i ? 'L' : 'M') + (i / (vals.length - 1) * w).toFixed(1) + ' ' + (h - v / max * (h - top)).toFixed(1)).join(' ');
+}
+
+class Component extends DCLogic {
+  state = { page: 'Launch', now: Date.now(), hov: null, lang: null, game: 'gtav', geo: null, seen: {} };
+  rootRef = React.createRef();
+  tw = {};
+
+  componentDidMount() {
+    this.iv = setInterval(() => this.setState({ now: Date.now() }), 1000);
+    setTimeout(() => this.setupObs(), 30);
+    this.onScroll = () => {
+      const root = this.rootRef.current; if (!root) return;
+      let cur = 'Launch';
+      root.querySelectorAll('[data-section]').forEach(s => { if (s.getBoundingClientRect().top <= 160) cur = s.dataset.section; });
+      if (cur !== this.state.page) this.setState({ page: cur });
+      if (!this.parRaf) this.parRaf = requestAnimationFrame(() => { this.parRaf = null; this.parallax(); });
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    this.loadMap();
+  }
+  componentWillUnmount() { clearInterval(this.iv); cancelAnimationFrame(this.raf); window.removeEventListener('scroll', this.onScroll); this.io && this.io.disconnect(); this.io2 && this.io2.disconnect(); this.io3 && this.io3.disconnect(); }
+  parallax() {
+    const root = this.rootRef.current; if (!root) return;
+    const y = window.scrollY, vh = window.innerHeight, p = Math.min(1, y / vh);
+    const hi = root.querySelector('[data-par="heroImg"]');
+    if (hi) { hi.style.transform = 'translateY(' + (p * 18) + '%) scale(' + (1 + p * 0.18) + ')'; hi.style.filter = 'brightness(' + (1 - p * 0.55) + ')'; }
+    const ht = root.querySelector('[data-par="heroText"]');
+    if (ht) { ht.style.transform = 'translateY(' + (-y * 0.3) + 'px)'; ht.style.opacity = String(Math.max(0, 1 - y / (vh * 0.75))); }
+    const m = root.querySelector('[data-par="mesh"]');
+    if (m) {
+      const r = m.getBoundingClientRect();
+      const q = Math.max(0, Math.min(1, (vh - r.top) / (vh + r.height)));
+      m.style.backgroundPosition = (q * 100).toFixed(1) + '% ' + (25 + q * 50).toFixed(1) + '%';
+      m.style.backgroundSize = (230 - q * 90).toFixed(0) + '% auto';
+    }
+  }
+  setupObs() {
+    this.parallax();
+    const root = this.rootRef.current; if (!root) return;
+    const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    this.io = new IntersectionObserver(es => {
+      es.filter(e => e.isIntersecting).forEach((e, i) => {
+        const el = e.target; this.io.unobserve(el);
+        if (el.hasAttribute('data-reveal')) {
+          el.style.clipPath = '';
+          el.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], { duration: 1800, delay: 200, easing: ease, fill: 'backwards' });
+        } else {
+          el.style.opacity = '';
+          el.animate([{ opacity: 0, transform: 'translateY(80px) scale(0.96)', clipPath: 'inset(100% 0 0 0)' }, { opacity: 1, transform: 'none', clipPath: 'inset(0% 0 0 0)' }], { duration: 1200, delay: Math.min(i, 8) * 110, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' });
+        }
+      });
+    }, { threshold: 0.12 });
+    const vh = window.innerHeight;
+    root.querySelectorAll('[data-anim]').forEach((el, i) => {
+      if (el.getBoundingClientRect().top < vh) {
+        el.animate([{ opacity: 0, transform: 'translateY(80px) scale(0.96)', clipPath: 'inset(100% 0 0 0)' }, { opacity: 1, transform: 'none', clipPath: 'inset(0% 0 0 0)' }], { duration: 1200, delay: Math.min(i, 8) * 110, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' });
+      } else { el.style.opacity = '0'; this.io.observe(el); }
+    });
+    setTimeout(() => {
+      root.querySelectorAll('[data-anim],[data-reveal]').forEach(el => { if (el.style.opacity === '0') el.style.opacity = ''; if (el.style.clipPath) el.style.clipPath = ''; });
+      this.setState({ seen: { Launch: true, Signals: true, Compare: true } });
+    }, 2500);
+    this.io3 = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      this.io3.unobserve(e.target);
+      const el = e.target._rv; el.style.clipPath = '';
+      el.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], { duration: 1800, delay: 200, easing: ease, fill: 'backwards' });
+    }), { threshold: 0.2 });
+    root.querySelectorAll('[data-reveal]').forEach(el => {
+      if (el.getBoundingClientRect().top < vh) { el.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], { duration: 1800, delay: 400, easing: ease, fill: 'backwards' }); return; }
+      el.style.clipPath = 'inset(0 100% 0 0)'; const p = el.parentElement; p._rv = el; this.io3.observe(p);
+    });
+    if (vh > 0) this.setState(st => ({ seen: { ...st.seen, Launch: true } }));
+    this.io2 = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { const k = e.target.dataset.section; this.setState(s => s.seen[k] ? null : { seen: { ...s.seen, [k]: true } }); }
+    }), { threshold: 0.08 });
+    root.querySelectorAll('[data-section]').forEach(el => this.io2.observe(el));
+  }
+
+  async loadMap() {
+    try {
+      const [geo, topo, world] = await Promise.all([
+        import('https://esm.sh/d3-geo@3'),
+        import('https://esm.sh/topojson-client@3'),
+        fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(r => r.json()),
+      ]);
+      const fc = topo.feature(world, world.objects.countries);
+      fc.features = fc.features.filter(f => f.id !== '010');
+      const proj = geo.geoNaturalEarth1().fitSize([960, 470], fc);
+      const path = geo.geoPath(proj);
+      this.setState({ geo: fc.features.map(f => ({ id: +f.id, d: path(f) })).filter(c => c.d) });
+    } catch (e) { this.setState({ geo: [] }); }
+  }
+
+  _enterUnused() {
+    const root = this.rootRef.current; if (!root) return;
+    const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    root.querySelectorAll('[data-anim]').forEach((el, i) => el.animate(
+      [{ opacity: 0, transform: 'translateY(28px)', filter: 'blur(10px)' }, { opacity: 1, transform: 'none', filter: 'blur(0px)' }],
+      { duration: 800, delay: Math.min(i, 10) * 70, easing: ease, fill: 'backwards' }));
+    root.querySelectorAll('[data-reveal]').forEach(el => el.animate(
+      [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }],
+      { duration: 1800, delay: 250, easing: ease, fill: 'backwards' }));
+  }
+
+  val(key, to, dur = 1500, sec) {
+    if (sec && !this.state.seen[sec]) return 0;
+    const now = performance.now();
+    let t = this.tw[key];
+    if (!t) { t = this.tw[key] = { from: 0, to, start: now, dur }; this.kick(); }
+    else if (t.to !== to) { t = this.tw[key] = { from: this.cur(t, now), to, start: now, dur: 700 }; this.kick(); }
+    return this.cur(t, now);
+  }
+  cur(t, now) { const p = Math.min(1, (now - t.start) / t.dur); return t.from + (t.to - t.from) * (1 - Math.pow(1 - p, 4)); }
+  kick() {
+    if (this.raf) return;
+    const step = () => {
+      const now = performance.now();
+      const active = Object.values(this.tw).some(t => now - t.start < t.dur);
+      this.forceUpdate();
+      this.raf = active ? requestAnimationFrame(step) : null;
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+
+  setPage = (p) => {
+    const el = this.rootRef.current && this.rootRef.current.querySelector('[data-section="' + p + '"]');
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: 'smooth' });
+  };
+
+  renderVals() {
+    const { page, now, hov, lang, game: gid, geo } = this.state;
+    const diff = now - LAUNCH, live = diff >= 0, a = Math.abs(diff);
+    const dd = Math.floor(a / DAY), hh = Math.floor(a / 3600000) % 24, mm = Math.floor(a / 60000) % 60, ss = Math.floor(a / 1000) % 60;
+
+    // Twitch
+    const hrs = Math.max(-24, Math.min(24, diff / 3600000));
+    const nShow = Math.max(2, Math.min(49, Math.floor(hrs) + 25));
+    const shown = TW.slice(0, nShow).map((v, i) => i === nShow - 1 && nShow < 49 ? v * (1 + Math.sin(now / 1300) * 0.004) : v);
+    const twMax = Math.max(...TW) * 1.12;
+    const xs = (i) => i / 48 * 1000, ys = (v) => 300 - v / twMax * 290;
+    const twLinePath = shown.map((v, i) => (i ? 'L' : 'M') + xs(i).toFixed(1) + ' ' + ys(v).toFixed(1)).join(' ');
+    const twArea = twLinePath + ` L${xs(nShow - 1).toFixed(1)} 300 L0 300 Z`;
+    const lastV = shown[nShow - 1];
+    const twPeakV = Math.max(...shown.slice(24).concat([0]));
+    const hoursWatched = shown.slice(24).reduce((s, v) => s + v, 0);
+    let twHov = { show: false, left: '0%', top: '0%', v: '', t: '' };
+    if (hov != null && hov < nShow) {
+      const h = hov - 24;
+      twHov = { show: true, left: (xs(hov) / 10) + '%', top: (ys(shown[hov]) / 3) + '%', v: comma(shown[hov]) + ' viewers', t: h === 0 ? 'Launch' : (h > 0 ? 'Launch +' : 'Launch ') + h + 'h' };
+    }
+
+    // Trailers
+    const trMax = 200e6;
+    const trGrid = [50, 100, 150, 200].map(m => ({ top: (240 - m * 1e6 / trMax * 230) / 2.4 + '%', l: m + 'M' }));
+
+    // Map
+    const langMap = {}; LANGS.forEach(([n, v]) => { langMap[n] = v; });
+    const mapPaths = (geo || []).map(c => {
+      const l = C2L[c.id];
+      let fill = 'var(--graphite-2)';
+      if (l) {
+        const k = Math.sqrt(langMap[l] / LMAX);
+        if (lang) fill = l === lang ? ORANGE : `color-mix(in oklch, ${PINK} ${Math.round(12 + k * 20)}%, #2A1A2E)`;
+        else fill = `color-mix(in oklch, ${PINK} ${Math.round(25 + k * 75)}%, #2A1A2E)`;
+      }
+      return { d: c.d, fill };
+    });
+    const langs = LANGS.slice(0, 12).map(([n, v]) => ({
+      name: n, v: fmt(this.val('lang-' + n, v * 1000, 1600, 'Signals')), w: (this.val('langw-' + n, v / LMAX * 100, 1600, 'Signals')).toFixed(1) + '%',
+      bg: lang === n ? 'var(--graphite-2)' : 'transparent', enter: () => this.setState({ lang: n }),
+    }));
+
+    // Steam
+    const g = GAMES.find(x => x.id === gid);
+    const stMax = Math.max(...g.curve) * 1.15;
+    const stLine = linePath(g.curve, 1000, 260, stMax);
+    const stArea = stLine + ' L1000 260 L0 260 Z';
+    const morph = 'd 750ms cubic-bezier(0.22, 1, 0.36, 1)';
+    const maxPeak = Math.max(...GAMES.map(x => x.peak));
+    const games = GAMES.map(x => ({
+      name: x.name, pick: () => this.setState({ game: x.id }),
+      chip: {
+        fontFamily: 'var(--font-body)', fontSize: 13.5, fontWeight: 800, padding: '10px 16px', borderRadius: 999, cursor: 'pointer',
+        border: '1px solid ' + (x.id === gid ? 'transparent' : 'var(--graphite-3)'),
+        background: x.id === gid ? 'linear-gradient(90deg, oklch(0.78 0.16 55), oklch(0.70 0.21 350))' : 'transparent',
+        color: x.id === gid ? '#0A0A0C' : 'var(--text-secondary)', transition: 'all 180ms cubic-bezier(0.22,1,0.36,1)',
+      },
+    }));
+    const peaks = [...GAMES].sort((p, q) => q.peak - p.peak).map(x => ({
+      name: x.name, v: fmt(x.peak), w: (this.val('pk-' + x.id, x.peak / maxPeak * 100, 1600, 'Compare')).toFixed(1) + '%',
+      color: x.id === gid ? 'var(--text-primary)' : 'var(--text-tertiary)',
+      bar: x.id === gid ? `linear-gradient(90deg, ${ORANGE}, ${PINK})` : 'var(--graphite-3)',
+      pick: () => this.setState({ game: x.id }),
+    }));
+
+    const daysSince = (iso) => Math.floor((now - Date.parse(iso + 'T05:00:00Z')) / DAY);
+    const t0 = Date.parse('2013-09-17'), t1 = Date.parse('2026-11-19');
+    const milestones = MILESTONES.map(([label, iso, dot], i) => {
+      const p = (Date.parse(iso) - t0) / (t1 - t0);
+      const below = i % 2 === 0;
+      return { label, dot, below, above: !below, date: new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        left: `calc(60px + (100% - 120px) * ${p.toFixed(4)})`, top: below ? '67px' : '6px' };
+    });
+    const waits = [
+      ['Since GTA V came out', '2013-09-17', VIOLET],
+      ['Since VI was confirmed', '2022-02-04', PINK],
+      ['Since Trailer 1', '2023-12-05', ORANGE],
+      ['Since Trailer 2', '2025-05-06', TEAL],
+    ].map(([label, iso, color]) => ({ label, color, value: comma(this.val('w-' + iso, daysSince(iso), 1800, 'Launch')), date: new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) }));
+
+    return {
+      rootRef: this.rootRef, tabs: ['Launch', 'Signals', 'Compare'], page, setPage: this.setPage,
+      isLaunch: page === 'Launch', isSignals: page === 'Signals', isCompare: page === 'Compare',
+      goSignals: () => this.setPage('Signals'), goCompare: () => this.setPage('Compare'),
+      statusLabel: live ? `Live · day ${dd + 1} · ${pad(hh)}:${pad(mm)}:${pad(ss)}` : `T-minus ${dd}d ${pad(hh)}:${pad(mm)}:${pad(ss)}`,
+      liveTone: live ? 'success' : 'warning', badgeLabel: live ? 'Out now · Nov 19, 2026' : 'Launching Nov 19, 2026',
+      heroLead: 'Miami,', heroTail: 'here we come.',
+      clock: [[dd, 'Days'], [hh, 'Hours'], [mm, 'Minutes'], [ss, 'Seconds']].map(([v, l]) => ({ v: pad(v), l })),
+      clockCaption: live ? 'Time since doors opened at midnight Eastern.' : 'Until doors open at midnight Eastern.',
+      ticker: [`${fmt(lastV)} on Twitch right now`, `Peak ${fmt(twPeakV)} viewers`, `Trailer 2: ${fmt(T2[0])} views in 24h`, `${comma(daysSince('2013-09-17'))} days since GTA V`, `Wikipedia: ${LANGS.length} languages tracked`, 'Vice City, Leonida', `${fmt(T1[0])} Trailer 1 views day one`, 'PS5 · Xbox Series X|S']
+        .concat([`${fmt(lastV)} on Twitch right now`, `Peak ${fmt(twPeakV)} viewers`, `Trailer 2: ${fmt(T2[0])} views in 24h`, `${comma(daysSince('2013-09-17'))} days since GTA V`, `Wikipedia: ${LANGS.length} languages tracked`, 'Vice City, Leonida', `${fmt(T1[0])} Trailer 1 views day one`, 'PS5 · Xbox Series X|S']),
+      waits, milestones,
+      twNow: comma(this.val('twNow', lastV, 1600, 'Signals')), twPeak: fmt(this.val('twPeak', twPeakV, 1500, 'Signals')), twHours: fmt(this.val('twHrs', hoursWatched, 1500, 'Signals')),
+      twLinePath, twArea, twDot: { left: xs(nShow - 1) / 10 + '%', top: ys(lastV) / 3 + '%' }, twHov,
+      twMove: (e) => { const r = e.currentTarget.getBoundingClientRect(); const i = Math.round((e.clientX - r.left) / r.width * 48); this.setState({ hov: Math.max(0, Math.min(48, i)) }); },
+      twLeave: () => this.setState({ hov: null }),
+      t1Path: linePath(T1, 1000, 240, trMax), t2Path: linePath(T2, 1000, 240, trMax), trGrid,
+      t1End: fmt(this.val('t1', T1[30], 1500, 'Signals')), t2End: fmt(this.val('t2', T2[30], 1500, 'Signals')),
+      mapPaths, mapLoading: !geo, langs, langLeave: () => this.setState({ lang: null }),
+      game: { ...g, slot: 'cover-' + g.id, slotLabel: 'Drop ' + g.name + ' art or GIF' }, games, peaks,
+      gNow: comma(this.val('gNow', g.curve[24], 1200, 'Compare')), gDayPeak: fmt(this.val('gDay', Math.max(...g.curve), 1200, 'Compare')), gPeak: comma(this.val('gPeak', g.peak, 1200, 'Compare')),
+      stLine, stArea, stLineStyle: { d: `path("${stLine}")`, transition: morph }, stAreaStyle: { d: `path("${stArea}")`, transition: morph },
+    };
+  }
+}
+</script>
+</body>
+</html>

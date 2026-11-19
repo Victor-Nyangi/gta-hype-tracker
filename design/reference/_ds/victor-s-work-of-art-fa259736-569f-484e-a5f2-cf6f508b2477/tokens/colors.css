@@ -1,0 +1,54 @@
+:root{
+/* Base palette — Midnight Orchid */
+--black:#0A0A0C;
+--graphite:#1C1C20;
+--graphite-2:#2A2A2F;
+--graphite-3:#3A3A3E;
+--emerald-dark:#158055;
+--emerald:#1FAA6B;
+--emerald-light:#4BC98C;
+--orchid-dark:#4C1778;
+--orchid:#6B21A8;
+--orchid-light:#8B4FC9;
+--bone:#F4F1EA;
+--white:#FFFFFF;
+--danger:oklch(0.58 0.19 25);
+--danger-light:oklch(0.93 0.05 25);
+--warning:oklch(0.78 0.15 82);
+--warning-ink:oklch(0.32 0.06 82);
+
+/* Neutral ramp (oklch, tuned toward graphite's slight warmth) */
+--gray-50:oklch(0.98 0.002 90);
+--gray-100:oklch(0.95 0.003 90);
+--gray-200:oklch(0.90 0.004 90);
+--gray-300:oklch(0.82 0.005 90);
+--gray-400:oklch(0.68 0.006 90);
+--gray-500:oklch(0.54 0.006 90);
+--gray-600:oklch(0.42 0.006 90);
+--gray-700:oklch(0.30 0.006 90);
+--gray-800:oklch(0.20 0.005 90);
+--gray-900:oklch(0.12 0.004 90);
+
+/* Semantic — dark shell (default; SaaS/tech surfaces) */
+--surface-canvas:var(--black);
+--surface-card:var(--graphite);
+--surface-card-raised:var(--graphite-2);
+--surface-border:var(--graphite-3);
+--text-primary:var(--bone);
+--text-secondary:oklch(0.72 0.006 90);
+--text-tertiary:oklch(0.54 0.006 90);
+--accent-primary:var(--emerald);
+--accent-primary-hover:var(--emerald-light);
+--accent-primary-ink:#06170F;
+--accent-secondary:var(--orchid);
+--accent-secondary-hover:var(--orchid-light);
+--accent-secondary-ink:#F3E8FF;
+
+/* Semantic — light shell (editorial/marketing surfaces) */
+--surface-canvas-light:var(--bone);
+--surface-card-light:var(--white);
+--surface-border-light:var(--gray-200);
+--text-primary-light:oklch(0.16 0.006 90);
+--text-secondary-light:oklch(0.42 0.006 90);
+--text-tertiary-light:oklch(0.58 0.006 90);
+}
