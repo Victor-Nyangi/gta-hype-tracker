@@ -4,7 +4,7 @@ Two containers on the shared box, behind snapcount's existing Traefik:
 
 - `collector`: `collector run`, writing to the `gta-data` volume
   (`raw/` snapshots, `cache/`, `signals.duckdb`, `public/signals.json`).
-- `data`: Caddy serving only `/data/public` from that volume, read-only, with
+- `data`: Caddy serving only the volume's `public/` directory, read-only, with
   `Access-Control-Allow-Origin: *` and `Cache-Control: public, max-age=60` (mounted at
   `/srv/gta`, because the Caddy image keeps its own state in `/data`).
   Traefik routes `https://$DATA_DOMAIN/` to it with the `le` cert resolver.
