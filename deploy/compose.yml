@@ -1,0 +1,58 @@
+# GTA VI hype tracker: the collector and a static server for its signals.json.
+#
+# Runs on the shared box next to snapcount, behind snapcount's Traefik. That proxy is not
+# on a named external network: it sits on snapcount's compose project network, so
+# TRAEFIK_NETWORK must name that network (see deploy/README.md for how to find it).
+# Labels follow snapcount's compose.deploy.yml: entrypoints http/https, certresolver le.
+name: gta-hype-tracker
+
+services:
+  collector:
+    build:
+      context: ../collector
+    image: gta-hype-tracker-collector:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - gta-data:/data
+    networks:
+      - default
+
+  data:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      - collector
+    volumes:
+      # The whole volume, read-only; the Caddyfile roots at /srv/gta/public so raw
+      # snapshots, the cache and the DuckDB file are never served. Not mounted at /data:
+      # the Caddy image keeps its own state there.
+      - gta-data:/srv/gta:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      # The container is reachable on one network only, but say which so Traefik never guesses.
+      - traefik.docker.network=${TRAEFIK_NETWORK:?Variable not set}
+      - traefik.http.services.gta-data.loadbalancer.server.port=80
+      # HTTP (the entrypoint redirects to HTTPS, as for snapcount)
+      - traefik.http.routers.gta-data-http.rule=Host(`${DATA_DOMAIN:?Variable not set}`)
+      - traefik.http.routers.gta-data-http.entrypoints=http
+      # HTTPS with the Let's Encrypt resolver
+      - traefik.http.routers.gta-data-https.rule=Host(`${DATA_DOMAIN:?Variable not set}`)
+      - traefik.http.routers.gta-data-https.entrypoints=https
+      - traefik.http.routers.gta-data-https.tls=true
+      - traefik.http.routers.gta-data-https.tls.certresolver=le
+
+volumes:
+  gta-data:
+
+networks:
+  default:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:?Variable not set}

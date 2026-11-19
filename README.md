@@ -26,10 +26,10 @@ cd collector
 uv sync
 uv run pytest              # parsers, raw writer, derive, runner
 uv run ruff check .
-cp ../.env.example .env    # fill in what you have; sources without keys are skipped
+set -a; . ../deploy/.env; set +a   # optional: keys; sources without them are skipped
 uv run collector run       # long-running scheduler (5 min / hourly / daily jobs)
 uv run collector derive    # rebuild DuckDB tables + public/signals.json from raw
-uv run collector backfill  # one-off Wikipedia daily pageviews since 2023-12-01
+uv run collector backfill  # one-off Wikipedia daily pageviews since 2022-02-01
 uv run collector schema    # re-export schema/signals.schema.json
 ```
 
@@ -41,7 +41,8 @@ signals.duckdb                             derived analysis tables
 public/signals.json                        what the page reads
 ```
 
-See `deploy/README.md` for running it on the box.
+Configuration lives in `deploy/.env.example` (copy to `deploy/.env`). See `collector/README.md`
+for the sources and `deploy/README.md` for running it on the box.
 
 ## Web
 

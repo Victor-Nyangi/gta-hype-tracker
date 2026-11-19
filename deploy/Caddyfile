@@ -1,0 +1,32 @@
+# Serves only <volume>/public (signals.json) from the collector's volume, mounted read-only
+# at /srv/gta. (Not /data: the Caddy image keeps its own state there.)
+# TLS is Traefik's job; this listens on plain :80 inside the Docker network.
+{
+	admin off
+	auto_https off
+}
+
+:80 {
+	root * /srv/gta/public
+	encode zstd gzip
+
+	@preflight method OPTIONS
+	@readonly method GET HEAD
+	@other not method GET HEAD OPTIONS
+
+	header {
+		Access-Control-Allow-Origin "*"
+		Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+		Access-Control-Max-Age "86400"
+		X-Content-Type-Options "nosniff"
+		defer
+		-Server
+	}
+	header @readonly Cache-Control "public, max-age=60"
+
+	respond @preflight 204
+	respond @other 405
+	respond /healthz 200
+
+	file_server
+}
