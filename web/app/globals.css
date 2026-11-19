@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens (design/README.md "Design tokens"). In Tailwind v4 `@theme` is the
+ * config: each token becomes a CSS variable on :root and a utility (bg-canvas,
+ * text-pink, rounded-card, ...). Base values come from the design system
+ * (design/reference/_ds/.../tokens/*.css); the GTA page overrides the DS neutrals with
+ * its plum-tinted ones, exactly as the prototype's :root does.
+ */
+@theme {
+  /* surfaces */
+  --color-canvas: #120a14;
+  --color-band: #0c060e; /* Signals band */
+  --color-card: #1d1220;
+  --color-card-raised: #2a1a2e; /* also map land */
+  --color-border: #33223a;
+  --color-track: #3e2944;
+
+  /* text */
+  --color-fg: #f4f1ea; /* DS --bone */
+  --color-fg-2: oklch(0.82 0.02 330);
+  --color-fg-3: oklch(0.7 0.03 330);
+  --color-ink: #0a0a0c; /* text on bright fills (ticker, chips) */
+
+  /* accents */
+  --color-pink: oklch(0.7 0.21 350);
+  --color-orange: oklch(0.78 0.16 55);
+  --color-violet: #8b4fc9; /* DS --orchid-light */
+  --color-orchid: #6b21a8; /* DS --orchid */
+  --color-teal: oklch(0.75 0.13 200);
+  --color-emerald: #1faa6b; /* DS --emerald: tabs, primary button */
+  --color-emerald-hover: #4bc98c; /* DS --emerald-light */
+  --color-emerald-ink: #06170f; /* DS --accent-primary-ink */
+  --color-warning: oklch(0.78 0.15 82);
+  --color-warning-ink: oklch(0.32 0.06 82);
+
+  /* type: Archivo for everything (variable wdth 62-125, wght 100-900) */
+  --font-sans: var(--font-archivo), Arial, sans-serif;
+  --font-display: var(--font-archivo), Arial, sans-serif;
+  --text-micro: 11px;
+  --text-micro--line-height: 1.4;
+  --tracking-eyebrow: 0.06em;
+  --tracking-badge: 0.04em;
+
+  /* radii */
+  --radius-button: 8px;
+  --radius-clock: 16px;
+  --radius-card: 20px;
+  --radius-pill: 999px;
+
+  /* shadows: soft ambient only (DS --shadow-sm/md) */
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.24);
+  --shadow-md: 0 8px 24px oklch(0 0 0 / 0.32);
+
+  /* layout: a 1280px content column plus 24px gutters each side (the prototype's
+     content-box max-width:1280px + padding:24px; Tailwind boxes are border-box) */
+  --container-content: 1328px;
+
+  /* motion */
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --animate-sunset: sunset 6s ease infinite;
+  --animate-sunset-slow: sunset 14s ease infinite;
+  --animate-sunset-text: sunset 8s ease infinite;
+  --animate-pulse-ring: pulse-ring 1.6s infinite;
+
+  @keyframes sunset {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 oklch(0.7 0.21 350 / 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 12px oklch(0.7 0.21 350 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 oklch(0.7 0.21 350 / 0);
+    }
+  }
+}
+
+/* Gradients used in several places (design/README.md "Sunset gradient"). */
+:root {
+  --gradient-sunset: linear-gradient(90deg, var(--color-orange), var(--color-pink), var(--color-violet));
+  --gradient-hero-line: linear-gradient(90deg, oklch(0.8 0.16 60), var(--color-pink) 50%, var(--color-violet));
+  --gradient-tile: linear-gradient(135deg, var(--color-orange), var(--color-pink) 55%, var(--color-violet));
+  --gradient-hero-overlay: linear-gradient(120deg, var(--color-orange), var(--color-pink), var(--color-orchid), var(--color-teal));
+  --header-h: 64px;
+  color-scheme: dark;
+}
+
+/* Element defaults sit in the base layer so Tailwind utilities can override them. */
+@layer base {
+  html {
+    background: var(--color-canvas);
+    /* Anchor jumps without JS land below the sticky header (the README's 64px offset). */
+    scroll-padding-top: var(--header-h);
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    /* the prototype's metrics assume the browser default, not preflight's 1.5 */
+    line-height: normal;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  a {
+    color: var(--color-orange);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-pink);
+  }
+
+  ::selection {
+    background: oklch(0.7 0.21 350 / 0.45);
+    color: var(--color-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-orange);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/*
+ * Entrance (design/README.md "Section entrance"). Only when JS has run (the `js` class is
+ * set by an inline script before paint) and motion is allowed, so content is always
+ * visible without JS, with reduced motion, and in print.
+ */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(80px) scale(0.96);
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-enter] {
+    animation: enter 1200ms var(--ease-entrance) backwards;
+    animation-delay: calc(min(var(--i, 0), 8) * 110ms);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+  }
+  header[data-site-header] {
+    position: static;
+  }
+}
