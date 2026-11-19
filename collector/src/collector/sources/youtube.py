@@ -2,7 +2,8 @@
 
 One call per run costs 1 quota unit regardless of how many ids (up to 50) it carries, so
 hourly sampling uses 24 of the default 10,000 daily units. The API key is never written to
-the raw store: the stored request meta carries the endpoint and ids only.
+the raw store: the stored request meta carries the endpoint and ids only. It travels in
+the ``X-goog-api-key`` header, not the query string, so it is never part of a logged URL.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict
 
 from collector.config import Config
+from collector.http import api_message
 from collector.sources import Fetched
 
 URL = "https://www.googleapis.com/youtube/v3/videos"
@@ -78,12 +80,16 @@ class YouTubeSource:
 
     def fetch(self, client: httpx.Client, now: datetime) -> Fetched:
         ids = list(self.cfg.youtube_videos)
+        # The key goes in the X-goog-api-key header rather than ?key=, so it is never part of
+        # a URL that could end up in an error message or a log line.
         r = client.get(
-            URL, params={"part": "statistics", "id": ",".join(ids), "key": self.cfg.youtube_api_key}
+            URL,
+            params={"part": "statistics", "id": ",".join(ids)},
+            headers={"X-goog-api-key": self.cfg.youtube_api_key},
         )
         if r.status_code != 200:
-            # Do not let httpx's message (which includes the URL, and so the key) reach logs.
-            raise RuntimeError(f"youtube: HTTP {r.status_code}")
+            detail = api_message(r)
+            raise RuntimeError(f"youtube: HTTP {r.status_code}" + (f": {detail}" if detail else ""))
         body = r.json()
         stats = parse({"body": body}, self.cfg.youtube_videos)
         return Fetched(

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from urllib.parse import parse_qs
 
 import httpx
 import pytest
@@ -34,7 +35,8 @@ def twitch_handler(remaining: str = "799", *, fail_first_streams_401: bool = Fal
 
     def handler(req: httpx.Request) -> httpx.Response:
         if req.url.host == "id.twitch.tv":
-            assert req.url.params["grant_type"] == "client_credentials"
+            assert parse_qs(req.content.decode())["grant_type"] == ["client_credentials"]
+            assert req.url.query == b""
             return httpx.Response(200, json=load("twitch_token.json"))
         assert req.headers["Client-Id"] == "test-client"
         assert req.headers["Authorization"].startswith("Bearer ")
@@ -128,7 +130,8 @@ def test_missing_credentials(tmp_path):
 
 def test_youtube_never_stores_the_key(cfg: Config):
     def handler(req):
-        assert req.url.params["key"] == "test-yt-key"
+        assert req.headers["X-goog-api-key"] == "test-yt-key"
+        assert "key" not in req.url.params
         assert req.url.params["id"] == "QdBZY2fkU-0,VQRLujxTm3c"
         return httpx.Response(200, json=load("youtube_videos.json"))
 
