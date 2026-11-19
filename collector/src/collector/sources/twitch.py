@@ -201,9 +201,11 @@ class TwitchSource:
     def _get_token(self, client: httpx.Client) -> str:
         if self._token and self.clock() < self._token_expires_at - 300:
             return self._token
+        # Credentials go in the form body, never the query string: httpx error messages
+        # carry the full URL, and those messages end up in the logs.
         r = client.post(
             TOKEN_URL,
-            params={
+            data={
                 "client_id": self.cfg.twitch_client_id,
                 "client_secret": self.cfg.twitch_client_secret,
                 "grant_type": "client_credentials",

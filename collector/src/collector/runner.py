@@ -28,7 +28,7 @@ import httpx
 from collector import rawstore
 from collector.config import Config
 from collector.derive import derive
-from collector.http import make_client
+from collector.http import describe_error, make_client
 from collector.sources import Source, SourceUnavailable
 from collector.sources.steam import SteamSource
 from collector.sources.twitch import TwitchSource
@@ -136,7 +136,7 @@ class Runner:
                 ingested or "nothing new",
             )
         except Exception as e:
-            log.error("derive FAILED in %.1fs: %s: %s", time.monotonic() - t0, type(e).__name__, e)
+            log.error("derive FAILED in %.1fs: %s", time.monotonic() - t0, describe_error(e))
 
     def run_job(self, job: Job, now: datetime) -> bool:
         """Run one job, logging exactly one line. Returns True if it succeeded."""
@@ -149,9 +149,8 @@ class Runner:
                 self._skip_logged.add(job.name)
             return False
         except Exception as e:
-            log.error(
-                "%s FAILED in %.1fs: %s: %s", job.name, time.monotonic() - t0, type(e).__name__, e
-            )
+            # Never log str(e) for HTTP errors: httpx includes the URL and its query string.
+            log.error("%s FAILED in %.1fs: %s", job.name, time.monotonic() - t0, describe_error(e))
             return False
         log.info("%s ok in %.1fs: %s", job.name, time.monotonic() - t0, summary)
         return True
