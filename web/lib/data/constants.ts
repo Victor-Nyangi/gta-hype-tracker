@@ -43,8 +43,8 @@ export const COVERS = {
   },
   rdr2: {
     src: "/assets/covers/rdr2.jpg",
-    alt: "Red Dead Redemption 2 cover: Arthur Morgan aiming a revolver, riders on the horizon behind him",
-    position: "50% 8%",
+    alt: "Red Dead Redemption 2 art: Arthur Morgan aiming a revolver at the viewer under the title, against a red and gold sun",
+    position: "50% 10%",
   },
   cs2: {
     src: "/assets/covers/cs2.jpg",
@@ -63,8 +63,8 @@ export const COVERS = {
   },
   bg3: {
     src: "/assets/covers/bg3.jpg",
-    alt: "Baldur's Gate 3 cover: Astarion leads the companions under a stormy sky",
-    position: "50% 30%",
+    alt: "Baldur's Gate 3 cover: Astarion, dagger in hand, in front of his companions, the title and dragons in a stormy sky",
+    position: "78% 30%",
   },
 } satisfies Record<string, CoverArt>;
 
