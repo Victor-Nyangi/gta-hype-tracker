@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "gen:signals": "node scripts/gen-signals.mjs",
     "screenshots": "node scripts/screenshots.mjs",
     "test": "vitest run"
