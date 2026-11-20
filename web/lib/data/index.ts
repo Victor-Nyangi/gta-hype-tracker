@@ -4,10 +4,6 @@ export * from "./constants";
 // under a namespace: SignalsSchema.SteamGame vs SteamGame.
 export type { Signals } from "./signals.generated";
 export type * as SignalsSchema from "./signals.generated";
-export { mockHypeData, mockSignals } from "./mock";
-
-import { mockHypeData } from "./mock";
-import type { HypeData } from "./types";
-
-/** The adapter the page uses. Swap for a signals.json-backed one when the collector is live. */
-export const hypeData: HypeData = mockHypeData;
+export { TRAILERS } from "./trailers";
+export { checkSignals, isSignals } from "./guard";
+export { adaptSteam, adaptTwitch, adaptWikipedia, adaptYouTube, mergeLive, resolvePageData } from "./adapt";
