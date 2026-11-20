@@ -146,6 +146,8 @@ def test_derive_writes_schema_valid_signals(populated: Config):
         assert all(p.players is not None for p in g.series_24h)
         assert g.current_at == NOW
         assert g.observed_peak >= g.peak_24h >= g.current_players
+        assert g.peak_24h_partial is False  # 30 h of readings cover the whole window
+        assert g.peak_24h_since == NOW - timedelta(hours=23, minutes=55)
     assert st.games[0].key == "gtav"
 
     yt = s.youtube
@@ -200,3 +202,63 @@ def test_exported_schema_is_current():
     assert json.loads(SCHEMA_FILE.read_text()) == json_schema(), (
         "schema/signals.schema.json is stale: run `uv run collector schema`"
     )
+
+
+def _steam_counts(counts: dict[int, int | None]) -> dict:
+    apps = {}
+    for app, n in counts.items():
+        body = copy.deepcopy(load("steam_1086940.json"))
+        if n is None:
+            body["response"] = {"result": 42}
+        else:
+            body["response"]["player_count"] = n
+        apps[str(app)] = {"status": 200, "body": body}
+    return {"apps": apps}
+
+
+def test_steam_peak_24h_is_the_max_over_the_window_not_the_first_reading(cfg: Config):
+    cs2, gtav = 730, 271590
+    # Readings over the last 30 h. cs2 peaks mid-window; gtav's biggest reading is 26 h old
+    # (outside the window), and its in-window peak is a tie, so the earliest one counts.
+    readings = [
+        (NOW - timedelta(hours=26), {cs2: 2_000_000, gtav: 99_000}),
+        (NOW - timedelta(hours=23, minutes=55), {cs2: 900_000, gtav: 40_000}),
+        (NOW - timedelta(hours=14), {cs2: 1_400_000, gtav: 70_000}),
+        (NOW - timedelta(hours=9), {cs2: 1_550_000, gtav: 70_000}),
+        (NOW - timedelta(hours=8), {cs2: None, gtav: 50_000}),
+        (NOW - timedelta(minutes=3), {cs2: 600_000, gtav: 45_000}),
+    ]
+    for ts, counts in readings:
+        rawstore.write_raw(cfg.raw_dir, "steam", ts, {}, _steam_counts(counts))
+    games = {g.key: g for g in derive(cfg, now=NOW).signals.steam.games}
+
+    c = games["cs2"]
+    assert c.peak_24h == 1_550_000  # neither the first reading nor the latest
+    assert c.peak_24h_at == NOW - timedelta(hours=9)
+    assert c.current_players == 600_000
+    assert c.observed_peak == 2_000_000  # all-time still sees the 26 h old reading
+    assert c.peak_24h_since == NOW - timedelta(hours=23, minutes=55)
+    assert c.peak_24h_partial is False  # oldest in-window reading is 5 min after the start
+
+    g = games["gtav"]
+    assert g.peak_24h == 70_000
+    assert g.peak_24h_at == NOW - timedelta(hours=14)
+
+
+def test_steam_peak_24h_is_marked_partial_when_tracking_is_younger_than_24h(cfg: Config):
+    # Tracking began 13.5 h ago at the evening high, then the count fell and recovered.
+    start = NOW - timedelta(hours=13, minutes=30)
+    counts = [963_728, 955_000, 650_000, 430_000, 500_000, 990_000, 536_000]
+    for i, n in enumerate(counts):
+        ts = start + timedelta(hours=2 * i)
+        rawstore.write_raw(cfg.raw_dir, "steam", ts, {}, _steam_counts({730: n}))
+    s = derive(cfg, now=NOW).signals.steam
+    c = next(g for g in s.games if g.key == "cs2")
+    assert c.peak_24h == 990_000
+    assert c.peak_24h_at == start + timedelta(hours=10)
+    assert c.peak_24h_since == start == s.tracking_since
+    assert c.peak_24h_partial is True
+    body = json.loads((cfg.public_dir / "signals.json").read_text())
+    cs2 = next(g for g in body["steam"]["games"] if g["key"] == "cs2")
+    assert cs2["peak_24h_since"] == start.isoformat().replace("+00:00", "Z")
+    assert cs2["peak_24h_partial"] is True

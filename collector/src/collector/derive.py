@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS wiki_daily (
 """
 
 HOURS_WATCHED_MAX_GAP = timedelta(minutes=15)
+# A Steam 24h window whose oldest reading is later than this after its start is partial.
+STEAM_WINDOW_TOLERANCE = timedelta(minutes=15)
 
 
 @dataclass
@@ -344,11 +346,16 @@ def _steam(con: duckdb.DuckDBPyConnection, now: datetime) -> SteamSignals | None
             " ORDER BY player_count DESC, fetched_at LIMIT 1",
             [g.app_id],
         ).fetchone()
-        (pk24,) = con.execute(
-            "SELECT max(player_count) FROM steam_players WHERE app_id = ? AND fetched_at > ?"
-            " AND fetched_at <= ?",
-            [g.app_id, now_n - timedelta(hours=24), now_n],
+        # The 24h peak is the max over every reading in (now - 24h, now]; the earliest
+        # reading in that window says how much of the 24 hours it really covers.
+        window_start = now_n - timedelta(hours=24)
+        pk24, pk24_at, since = con.execute(
+            "SELECT max(player_count), arg_min(fetched_at, (-player_count, fetched_at)),"
+            " min(fetched_at) FROM steam_players"
+            " WHERE app_id = ? AND player_count IS NOT NULL AND fetched_at > ? AND fetched_at <= ?",
+            [g.app_id, window_start, now_n],
         ).fetchone()
+        partial = since is None or since - window_start > STEAM_WINDOW_TOLERANCE
         buckets = dict(
             con.execute(
                 "SELECT date_trunc('hour', fetched_at) h, avg(player_count) FROM steam_players"
@@ -370,6 +377,9 @@ def _steam(con: duckdb.DuckDBPyConnection, now: datetime) -> SteamSignals | None
                 current_players=cur[0],
                 current_at=_aware(cur[1]),
                 peak_24h=pk24,
+                peak_24h_at=_aware(pk24_at),
+                peak_24h_since=_aware(since),
+                peak_24h_partial=partial,
                 observed_peak=pk[0] if pk else None,
                 observed_peak_at=_aware(pk[1]) if pk else None,
                 series_24h=series,
