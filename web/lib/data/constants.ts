@@ -27,6 +27,17 @@ export const STEAM_GAMES = [
   { id: "cp77", appId: 1091500, name: "Cyberpunk 2077", allTimePeak: 1054388 },
   { id: "er", appId: 1245620, name: "Elden Ring", allTimePeak: 953426 },
   { id: "bg3", appId: 1086940, name: "Baldur's Gate 3", allTimePeak: 875343 },
+  // GTA V has been split across two Steam apps since March 2025; the collector samples
+  // both (collector/src/collector/sources/steam.py). Same game, so the same cover.
+  // data: no all-time peak for Enhanced yet (the 364,548 above predates the split, and
+  // the collector only records peaks it has observed), so the page shows a dash for now.
+  {
+    id: "gtav_enhanced",
+    appId: 3240220,
+    name: "Grand Theft Auto V Enhanced",
+    allTimePeak: null,
+    cover: "/assets/cover-gtav.webp",
+  },
 ] as const;
 
 /**

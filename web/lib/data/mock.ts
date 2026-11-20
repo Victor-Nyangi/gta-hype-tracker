@@ -13,7 +13,11 @@ export const rnd = (s: number) => {
   return x - Math.floor(x);
 };
 
-/** Twitch viewers for hours -24..+24 around launch (49 points). */
+/**
+ * Twitch viewers for hours -24..+24 around launch (49 points).
+ * data: the real series starts when the collector did (launch +14.6h, 19:39 UTC on launch
+ * day), so the -24h..+14h part of this curve can never come from live data.
+ */
 export const TW: number[] = Array.from({ length: 49 }, (_, i) => {
   const h = i - 24;
   let v =
@@ -24,7 +28,11 @@ export const TW: number[] = Array.from({ length: 49 }, (_, i) => {
   return Math.max(0.1, v * (1 + (rnd(i) - 0.5) * 0.08)) * 1e6;
 });
 
-/** Cumulative trailer views, days 0..30 since release. */
+/**
+ * Cumulative trailer views, days 0..30 since release.
+ * data: YouTube's API only returns today's total, so real first-30-day curves would be
+ * curated milestones (press-reported day-1/week-1 figures), not samples.
+ */
 export const T1: number[] = Array.from(
   { length: 31 },
   (_, d) => (93 + (57 * Math.log(1 + d)) / Math.log(31) + (rnd(d + 7) - 0.5) * 1.5) * 1e6,
@@ -42,6 +50,8 @@ const CURVES: Record<string, { base: number; amp: number; ph: number }> = {
   cp77: { base: 38000, amp: 0.4, ph: 1 },
   er: { base: 52000, amp: 0.38, ph: 4 },
   bg3: { base: 68000, amp: 0.36, ph: 0 },
+  // data: not in the prototype; an illustrative curve in the same style.
+  gtav_enhanced: { base: 58000, amp: 0.33, ph: 2 },
 };
 
 export const GAMES: SteamGame[] = STEAM_GAMES.map((g, gi) => {
@@ -63,7 +73,11 @@ export const GAMES: SteamGame[] = STEAM_GAMES.map((g, gi) => {
   };
 });
 
-/** Wikipedia views by language, in thousands in the prototype; stored here as views. */
+/**
+ * Wikipedia views by language, in thousands in the prototype; stored here as views.
+ * data: a language edition is not a country; the map's language -> country join
+ * (LANGUAGE_COUNTRIES) is an approximation of where each edition is mostly read.
+ */
 const LANG_VIEWS_K: [code: string, thousands: number][] = [
   ["en", 4200],
   ["es", 1120],
