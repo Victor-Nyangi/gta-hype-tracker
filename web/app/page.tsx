@@ -21,7 +21,7 @@ export default async function Home() {
           <Timeline />
         </div>
         <Signals data={data} />
-        <Compare games={data.steam} />
+        <Compare steam={data.steam} twitch={data.twitch} />
       </main>
       <Footer />
     </>
