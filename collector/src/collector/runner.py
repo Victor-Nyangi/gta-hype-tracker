@@ -11,6 +11,9 @@ Schedule (UTC, aligned to the wall clock, no jitter):
                                   00/06/12/18 by default), then derive. Wikimedia publishes a
                                   day's pageviews some hours after it ends, so each run
                                   re-fetches the trailing days and picks up late ones.
+  every 6 h     steam_reviews    (STEAM_REVIEWS_EVERY_HOURS, anchored on
+                                  STEAM_REVIEWS_AT_HOUR_UTC:00: 03/09/15/21 by default), then
+                                  derive. Review totals move slowly; four reads a day is plenty.
   daily         compact          (00:10, gzips yesterday's raw partitions)
 
 Every job also runs once at startup, so a fresh deploy (or a restart after downtime) has
@@ -34,6 +37,7 @@ from collector.derive import derive
 from collector.http import describe_error, make_client
 from collector.sources import Source, SourceUnavailable
 from collector.sources.steam import SteamSource
+from collector.sources.steam_reviews import SteamReviewsSource
 from collector.sources.twitch import TwitchSource
 from collector.sources.wikipedia import WikipediaSource
 from collector.sources.youtube import YouTubeSource
@@ -66,6 +70,7 @@ def build_sources(cfg: Config) -> list[Source]:
         "steam": lambda: SteamSource(cfg),
         "youtube": lambda: YouTubeSource(cfg),
         "wikipedia": lambda: WikipediaSource(cfg),
+        "steam_reviews": lambda: SteamReviewsSource(cfg),
     }
     return [factories[name]() for name in cfg.sources]
 
@@ -100,11 +105,20 @@ class Runner:
     # jobs
 
     def _build_jobs(self, sources: list[Source]) -> list[Job]:
+        # Sources that run every N hours on slots anchored at an hour of the day: (every, at).
+        anchored = {
+            "wikipedia": (self.cfg.wiki_every_hours, self.cfg.wiki_at_hour_utc),
+            "steam_reviews": (
+                self.cfg.steam_reviews_every_hours,
+                self.cfg.steam_reviews_at_hour_utc,
+            ),
+        }
         jobs = []
         for src in sources:
-            if src.name == "wikipedia":
-                period = self.cfg.wiki_every_hours * HOUR
-                offset = (self.cfg.wiki_at_hour_utc * HOUR) % period
+            if src.name in anchored:
+                every, at = anchored[src.name]
+                period = every * HOUR
+                offset = (at * HOUR) % period
                 trig = True
             else:
                 period, offset, trig = SCHEDULE.get(src.name, (FIVE_MIN, 0, True))

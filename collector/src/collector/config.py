@@ -7,13 +7,17 @@ runner (one log line), it never stops the other sources.
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
 LAUNCH_AT = datetime(2026, 11, 19, 5, 0, 0, tzinfo=UTC)
 
-ALL_SOURCES = ("twitch", "steam", "youtube", "wikipedia")
+ALL_SOURCES = ("twitch", "steam", "youtube", "wikipedia", "steam_reviews")
+
+# Hand-curated Take-Two figures, shipped with the package (see that file for sources).
+DEFAULT_OFFICIAL_FIGURES = Path(__file__).resolve().parent / "curated" / "official_figures.json"
 
 # Rockstar Games' official uploads, confirmed against YouTube oEmbed on 2026-11-19.
 DEFAULT_YOUTUBE_VIDEOS = {
@@ -63,6 +67,13 @@ def _csv(value: str | None) -> list[str]:
     return [v.strip() for v in (value or "").split(",") if v.strip()]
 
 
+def _divisor_of_24(e: Mapping[str, str], name: str, default: int) -> int:
+    n = int(e.get(name) or default)
+    if n < 1 or 24 % n:
+        raise ValueError(f"{name} must divide 24 (1, 2, 3, 4, 6, 8, 12 or 24)")
+    return n
+
+
 @dataclass(frozen=True)
 class Config:
     data_dir: Path
@@ -79,6 +90,9 @@ class Config:
     wiki_langs: tuple[str, ...] = tuple(DEFAULT_WIKI_LANGS)
     wiki_at_hour_utc: int = 6
     wiki_every_hours: int = 6
+    steam_reviews_every_hours: int = 6
+    steam_reviews_at_hour_utc: int = 3
+    official_figures_path: Path = DEFAULT_OFFICIAL_FIGURES
     contact_url: str = DEFAULT_CONTACT
 
     @property
@@ -120,9 +134,8 @@ class Config:
 
         langs = tuple(_csv(e.get("WIKI_LANGS"))) or tuple(DEFAULT_WIKI_LANGS)
 
-        wiki_every = int(e.get("WIKI_EVERY_HOURS") or 6)
-        if wiki_every < 1 or 24 % wiki_every:
-            raise ValueError("WIKI_EVERY_HOURS must divide 24 (1, 2, 3, 4, 6, 8, 12 or 24)")
+        wiki_every = _divisor_of_24(e, "WIKI_EVERY_HOURS", 6)
+        reviews_every = _divisor_of_24(e, "STEAM_REVIEWS_EVERY_HOURS", 6)
 
         return cls(
             data_dir=Path(e.get("DATA_DIR") or "./data").resolve(),
@@ -137,5 +150,8 @@ class Config:
             wiki_langs=langs,
             wiki_at_hour_utc=int(e.get("WIKI_AT_HOUR_UTC") or 6),
             wiki_every_hours=wiki_every,
+            steam_reviews_every_hours=reviews_every,
+            steam_reviews_at_hour_utc=int(e.get("STEAM_REVIEWS_AT_HOUR_UTC") or 3),
+            official_figures_path=Path(e.get("OFFICIAL_FIGURES_PATH") or DEFAULT_OFFICIAL_FIGURES),
             contact_url=e.get("CONTACT_URL") or DEFAULT_CONTACT,
         )
