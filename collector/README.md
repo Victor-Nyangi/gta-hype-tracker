@@ -8,7 +8,7 @@ Samples the GTA VI launch signals on a schedule, keeps every raw response, and d
 | `twitch` | 5 min | Helix `/streams?game_id=`, every page, GTA VI and GTA V | `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` |
 | `steam` | 5 min | `GetNumberOfCurrentPlayers` for 7 apps | none |
 | `youtube` | hourly | `videos?part=statistics` for the trailers | `YOUTUBE_API_KEY` |
-| `wikipedia` | daily 06:00 UTC | Pageviews per-article, 30 editions, trailing 10 days | none |
+| `wikipedia` | 6 h (00/06/12/18 UTC) | Pageviews per-article, 30 editions, trailing 10 days | none |
 
 Every job also runs once at startup. After each 5-minute cycle, `derive` loads new raw
 files into DuckDB and rewrites `signals.json`. A failing source logs one line and the loop
@@ -55,6 +55,11 @@ The database is disposable: `derive --rebuild` recreates it from raw.
   snapshots, ignoring gaps longer than 15 minutes, since `tracking_since`.
 - **YouTube ids** default to Rockstar's uploads `QdBZY2fkU-0` (Trailer 1) and `VQRLujxTm3c`
   (Trailer 2), confirmed via YouTube oEmbed. The key never reaches the raw store or logs.
+- **Wikipedia pageviews are published late**: a day's numbers appear some hours after it
+  ends in UTC. Every run (`WIKI_EVERY_HOURS`, default 6, anchored on `WIKI_AT_HOUR_UTC`)
+  re-fetches the last 10 days into a new raw file; derive keeps the latest fetch per
+  (edition, day). Until the launch day is published, `since_launch_pending` is true (per
+  edition and overall) and the since-launch ints are 0 meaning "not published yet".
 - **Wikipedia titles** come from the Wikidata item's sitelinks (item id from the English
   article's `pageprops`), cached for a week. `WIKI_LANGS=all` takes every edition.
 - **Steam 24h peak** is the max of every reading in the 24 h before `generated_at`.

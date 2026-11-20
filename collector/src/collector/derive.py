@@ -131,7 +131,14 @@ class _Buffer:
 
     def add(self, table: str, row: list) -> None:
         width = COLUMNS[table][1]
-        key = (row[0], row[3]) if table == "wiki_daily" else tuple(row[:width])
+        if table == "wiki_daily":
+            # One row per (edition, day): the most recent fetch wins, it has the settled number.
+            key = (row[0], row[3])
+            prev = self.rows[table].get(key)
+            if prev is not None and prev[5] > row[5]:
+                return
+        else:
+            key = tuple(row[:width])
         self.rows[table][key] = row  # later rows (later files) win
 
     def flush(self, con: duckdb.DuckDBPyConnection) -> None:
@@ -142,11 +149,13 @@ class _Buffer:
             cols = [list(c) for c in zip(*rows.values(), strict=True)]
             select = ", ".join(f"unnest(${i + 1}::{t}[])" for i, t in enumerate(types))
             if table == "wiki_daily":
-                # A later fetch of the same day wins: it carries the settled number.
+                # A later fetch of the same day wins (it carries the settled number); an older
+                # one, e.g. a backfill file ingested after newer reads, never overwrites it.
                 sql = (
                     f"INSERT INTO wiki_daily SELECT {select} ON CONFLICT (project, day) DO UPDATE"
                     " SET lang = excluded.lang, title = excluded.title, views = excluded.views,"
                     " fetched_at = excluded.fetched_at"
+                    " WHERE excluded.fetched_at >= wiki_daily.fetched_at"
                 )
             else:
                 sql = f"INSERT OR REPLACE INTO {table} SELECT {select}"
@@ -418,11 +427,14 @@ def _wikipedia(con: duckdb.DuckDBPyConnection, item_id: str | None) -> Wikipedia
     rows = con.execute(
         """SELECT project, arg_max(lang, fetched_at), arg_max(title, fetched_at),
                   coalesce(sum(views) FILTER (WHERE day BETWEEN ? AND ?), 0),
-                  coalesce(sum(views) FILTER (WHERE day >= ?), 0),
+                  sum(views) FILTER (WHERE day >= ?),
                   max(day)
            FROM wiki_daily GROUP BY project""",
         [window_start, window_end, launch_day],
     ).fetchall()
+    # A NULL since-launch sum means no day from launch_day on is in the table for that
+    # edition: Wikimedia has not published it yet (or that edition's fetch failed). The
+    # contract keeps the field an int, so it is 0 with since_launch_pending set.
     editions = sorted(
         (
             WikiEdition(
@@ -430,8 +442,9 @@ def _wikipedia(con: duckdb.DuckDBPyConnection, item_id: str | None) -> Wikipedia
                 project=p,
                 title=t,
                 views_last_7d=int(w),
-                views_since_launch=int(s),
+                views_since_launch=int(s or 0),
                 latest_day=d,
+                since_launch_pending=s is None,
             )
             for p, lang, t, w, s, d in rows
         ),
@@ -444,6 +457,8 @@ def _wikipedia(con: duckdb.DuckDBPyConnection, item_id: str | None) -> Wikipedia
         total_last_7d=sum(e.views_last_7d for e in editions),
         total_since_launch=sum(e.views_since_launch for e in editions),
         editions=editions,
+        launch_day=launch_day,
+        since_launch_pending=window_end < launch_day,
     )
 
 

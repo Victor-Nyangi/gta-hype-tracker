@@ -7,7 +7,10 @@ queue, no worker pool: a handful of small HTTP jobs do not need one.
 Schedule (UTC, aligned to the wall clock, no jitter):
   every 5 min   twitch, steam    then derive
   hourly        youtube          (at :00)
-  daily         wikipedia        (at WIKI_AT_HOUR_UTC:00, default 06:00, after the day settles)
+  every 6 h     wikipedia        (WIKI_EVERY_HOURS, slots anchored on WIKI_AT_HOUR_UTC:00:
+                                  00/06/12/18 by default), then derive. Wikimedia publishes a
+                                  day's pageviews some hours after it ends, so each run
+                                  re-fetches the trailing days and picks up late ones.
   daily         compact          (00:10, gzips yesterday's raw partitions)
 
 Every job also runs once at startup, so a fresh deploy (or a restart after downtime) has
@@ -100,7 +103,9 @@ class Runner:
         jobs = []
         for src in sources:
             if src.name == "wikipedia":
-                period, offset, trig = DAY, self.cfg.wiki_at_hour_utc * HOUR, False
+                period = self.cfg.wiki_every_hours * HOUR
+                offset = (self.cfg.wiki_at_hour_utc * HOUR) % period
+                trig = True
             else:
                 period, offset, trig = SCHEDULE.get(src.name, (FIVE_MIN, 0, True))
             jobs.append(Job(src.name, period, offset, self._source_job(src), trig))

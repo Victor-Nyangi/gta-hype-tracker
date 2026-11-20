@@ -4,6 +4,7 @@ import logging
 from datetime import UTC, datetime, timedelta
 
 import httpx
+import pytest
 
 from collector.config import Config
 from collector.runner import DAY, FIVE_MIN, HOUR, Job, Runner
@@ -122,7 +123,7 @@ def test_hourly_and_daily_jobs_run_on_their_slots(cfg: Config):
     runner.loop(max_cycles=13, install_signals=False)  # 22:00 ... 23:00
     assert len(steam.calls) == 14
     assert [c.strftime("%H:%M") for c in yt.calls] == ["21:58", "22:00", "23:00"]
-    assert len(wiki.calls) == 1  # startup only; the next daily slot is 06:00
+    assert len(wiki.calls) == 1  # startup only; the next 6-hourly slot is 00:00
 
 
 def test_source_unavailable_mid_run_is_a_skip(cfg: Config):
@@ -133,3 +134,21 @@ def test_source_unavailable_mid_run_is_a_skip(cfg: Config):
     s = LateNoCategory("twitch")
     runner, _, _ = make(cfg, [s], datetime(2026, 11, 19, 21, 0, tzinfo=UTC))
     assert runner.run_due(runner.clock(), all_jobs=True) == ["twitch", "compact"]
+
+
+def test_wikipedia_runs_every_six_hours_and_triggers_derive(cfg: Config):
+    wiki = OkSource("wikipedia")
+    runner, _clock, derives = make(cfg, [wiki], datetime(2026, 11, 19, 21, 30, tzinfo=UTC))
+    runner.loop(max_cycles=4, install_signals=False)
+    times = [c.strftime("%d %H:%M") for c in wiki.calls]
+    assert times == ["19 21:30", "20 00:00", "20 06:00", "20 12:00"]
+    assert len(derives) == 4
+
+
+def test_wikipedia_cadence_is_configurable(tmp_path):
+    cfg = Config.from_env({"DATA_DIR": str(tmp_path), "WIKI_EVERY_HOURS": "24"})
+    runner, _, _ = make(cfg, [OkSource("wikipedia")], datetime(2026, 11, 19, 21, 0, tzinfo=UTC))
+    wiki_job = next(j for j in runner.jobs if j.name == "wikipedia")
+    assert (wiki_job.period_s, wiki_job.offset_s) == (DAY, 6 * HOUR)  # the old daily 06:00
+    with pytest.raises(ValueError, match="WIKI_EVERY_HOURS"):
+        Config.from_env({"DATA_DIR": str(tmp_path), "WIKI_EVERY_HOURS": "5"})
