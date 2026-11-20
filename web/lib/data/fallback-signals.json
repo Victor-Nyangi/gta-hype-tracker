@@ -1371,5 +1371,180 @@
         "latest_day": "2026-11-18"
       }
     ]
+  },
+  "business": {
+    "steam_reviews": {
+      "tracking_since": "2026-11-20T12:24:13.418279Z",
+      "updated_at": "2026-11-20T12:24:13.418279Z",
+      "method": {
+        "name": "Boxleiter method: estimated sales = all-time Steam reviews x 30 to x 55",
+        "multiplier_low": 30,
+        "multiplier_high": 55,
+        "sources": [
+          "https://www.gamedeveloper.com/business/using-steam-reviews-to-estimate-sales",
+          "https://gamedeveloper.com/business/how-to-estimate-steam-video-game-sales-in-2021-"
+        ]
+      },
+      "games": [
+        {
+          "key": "gtav",
+          "app_id": 271590,
+          "name": "Grand Theft Auto V",
+          "total_reviews": 2044766,
+          "positive": 1785541,
+          "negative": 259225,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 1637,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": 61342980,
+          "estimated_sales_high": 112462130,
+          "no_estimate_reason": null
+        },
+        {
+          "key": "rdr2",
+          "app_id": 1174180,
+          "name": "Red Dead Redemption 2",
+          "total_reviews": 916536,
+          "positive": 838130,
+          "negative": 78406,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 1792,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": 27496080,
+          "estimated_sales_high": 50409480,
+          "no_estimate_reason": null
+        },
+        {
+          "key": "cs2",
+          "app_id": 730,
+          "name": "Counter-Strike 2",
+          "total_reviews": 10773436,
+          "positive": 9268858,
+          "negative": 1504578,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 16021,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": null,
+          "estimated_sales_high": null,
+          "no_estimate_reason": "Free to play: reviews do not track sales"
+        },
+        {
+          "key": "cp77",
+          "app_id": 1091500,
+          "name": "Cyberpunk 2077",
+          "total_reviews": 972541,
+          "positive": 820902,
+          "negative": 151639,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 2698,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": 29176230,
+          "estimated_sales_high": 53489755,
+          "no_estimate_reason": null
+        },
+        {
+          "key": "er",
+          "app_id": 1245620,
+          "name": "Elden Ring",
+          "total_reviews": 887951,
+          "positive": 800038,
+          "negative": 87913,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 610,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": 26638530,
+          "estimated_sales_high": 48837305,
+          "no_estimate_reason": null
+        },
+        {
+          "key": "bg3",
+          "app_id": 1086940,
+          "name": "Baldur's Gate 3",
+          "total_reviews": 788559,
+          "positive": 753046,
+          "negative": 35513,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 702,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": 23656770,
+          "estimated_sales_high": 43370745,
+          "no_estimate_reason": null
+        },
+        {
+          "key": "gtav_enhanced",
+          "app_id": 3240220,
+          "name": "Grand Theft Auto V Enhanced",
+          "total_reviews": 236351,
+          "positive": 195410,
+          "negative": 40941,
+          "fetched_at": "2026-11-20T12:24:13.418279Z",
+          "new_reviews_7d": 2736,
+          "change_7d": null,
+          "change_7d_since": null,
+          "estimated_sales_low": null,
+          "estimated_sales_high": null,
+          "no_estimate_reason": "A free upgrade for GTA V owners: its reviews are not new sales"
+        }
+      ]
+    },
+    "official": {
+      "updated_at": "2026-11-20T12:00:00Z",
+      "figures": [
+        {
+          "key": "gtav_units",
+          "label": "Grand Theft Auto V, units sold",
+          "value": 235000000,
+          "value_max": null,
+          "qualifier": "nearly",
+          "unit": "units",
+          "as_of": "2026-11",
+          "source_title": "Take-Two Interactive investor presentation, November 2026 (slide 11)",
+          "source_url": "https://ir.take2games.com/static-files/c4c4f7f0-6a7c-4159-b97f-089a76580c38",
+          "quote": "Nearly 235 million units sold to date"
+        },
+        {
+          "key": "gta_series_units",
+          "label": "Grand Theft Auto series, units sold",
+          "value": 480000000,
+          "value_max": null,
+          "qualifier": "nearly",
+          "unit": "units",
+          "as_of": "2026-11",
+          "source_title": "Take-Two Interactive investor presentation, November 2026 (slide 11)",
+          "source_url": "https://ir.take2games.com/static-files/c4c4f7f0-6a7c-4159-b97f-089a76580c38",
+          "quote": "Franchise has sold nearly 480 million units"
+        },
+        {
+          "key": "rdr2_units",
+          "label": "Red Dead Redemption 2, units sold",
+          "value": 89000000,
+          "value_max": null,
+          "qualifier": "over",
+          "unit": "units",
+          "as_of": "2026-11",
+          "source_title": "Take-Two Interactive investor presentation, November 2026 (slide 12)",
+          "source_url": "https://ir.take2games.com/static-files/c4c4f7f0-6a7c-4159-b97f-089a76580c38",
+          "quote": "Red Dead Redemption 2 sold over 89M units"
+        },
+        {
+          "key": "fy27_net_bookings_outlook",
+          "label": "Take-Two Net Bookings outlook, fiscal 2027",
+          "value": 8000000000,
+          "value_max": 8200000000,
+          "qualifier": null,
+          "unit": "usd",
+          "as_of": "2026-11-09",
+          "source_title": "Take-Two Interactive Software, Inc. Reports Results for Fiscal Second Quarter 2027",
+          "source_url": "https://www.take2games.com/ir/news/take-two-interactive-software-inc-reports-results-fiscal-4",
+          "quote": "Company updates fiscal year 2027 outlook and reiterates expectation for Net Bookings of $8.0 to $8.2 billion"
+        }
+      ]
+    }
   }
 }
