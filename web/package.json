@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "gen:signals": "node scripts/gen-signals.mjs",
     "screenshots": "node scripts/screenshots.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "snapshot:signals": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/snapshot-signals.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.2",

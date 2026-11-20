@@ -1,0 +1,1375 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-20T05:30:11.786368Z",
+  "launch_at": "2026-11-19T05:00:00Z",
+  "twitch": {
+    "game_id": "1867279146",
+    "game_name": "Grand Theft Auto VI",
+    "tracking_since": "2026-11-19T19:39:47.733374Z",
+    "updated_at": "2026-11-20T05:30:00.001354Z",
+    "current_viewers": 791189,
+    "current_streams": 8275,
+    "current_truncated": true,
+    "peak_viewers": 2392628,
+    "peak_at": "2026-11-19T21:25:00.000399Z",
+    "hours_watched": 16308928,
+    "hourly": [
+      {
+        "hour": "2026-11-19T19:00:00Z",
+        "hours_from_launch": 14,
+        "avg_viewers": 2347497,
+        "max_viewers": 2369459,
+        "samples": 5
+      },
+      {
+        "hour": "2026-11-19T20:00:00Z",
+        "hours_from_launch": 15,
+        "avg_viewers": 2342584,
+        "max_viewers": 2370296,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-19T21:00:00Z",
+        "hours_from_launch": 16,
+        "avg_viewers": 2349013,
+        "max_viewers": 2392628,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-19T22:00:00Z",
+        "hours_from_launch": 17,
+        "avg_viewers": 2197900,
+        "max_viewers": 2292356,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-19T23:00:00Z",
+        "hours_from_launch": 18,
+        "avg_viewers": 1977264,
+        "max_viewers": 2123091,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-20T00:00:00Z",
+        "hours_from_launch": 19,
+        "avg_viewers": 1717373,
+        "max_viewers": 1835151,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-20T01:00:00Z",
+        "hours_from_launch": 20,
+        "avg_viewers": 1431680,
+        "max_viewers": 1658905,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-20T02:00:00Z",
+        "hours_from_launch": 21,
+        "avg_viewers": 1156434,
+        "max_viewers": 1252794,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-20T03:00:00Z",
+        "hours_from_launch": 22,
+        "avg_viewers": 1056875,
+        "max_viewers": 1122418,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-20T04:00:00Z",
+        "hours_from_launch": 23,
+        "avg_viewers": 935314,
+        "max_viewers": 1032548,
+        "samples": 12
+      },
+      {
+        "hour": "2026-11-20T05:00:00Z",
+        "hours_from_launch": 24,
+        "avg_viewers": 830100,
+        "max_viewers": 860261,
+        "samples": 7
+      }
+    ],
+    "by_language": [
+      {
+        "language": "en",
+        "viewers": 574730,
+        "streams": 5888,
+        "share": 0.7264
+      },
+      {
+        "language": "es",
+        "viewers": 65146,
+        "streams": 1141,
+        "share": 0.0823
+      },
+      {
+        "language": "pt",
+        "viewers": 47147,
+        "streams": 599,
+        "share": 0.0596
+      },
+      {
+        "language": "de",
+        "viewers": 32383,
+        "streams": 185,
+        "share": 0.0409
+      },
+      {
+        "language": "ru",
+        "viewers": 21007,
+        "streams": 85,
+        "share": 0.0266
+      },
+      {
+        "language": "fr",
+        "viewers": 15619,
+        "streams": 173,
+        "share": 0.0197
+      },
+      {
+        "language": "ja",
+        "viewers": 12983,
+        "streams": 38,
+        "share": 0.0164
+      },
+      {
+        "language": "zh",
+        "viewers": 9880,
+        "streams": 36,
+        "share": 0.0125
+      },
+      {
+        "language": "it",
+        "viewers": 5039,
+        "streams": 21,
+        "share": 0.0064
+      },
+      {
+        "language": "uk",
+        "viewers": 1756,
+        "streams": 4,
+        "share": 0.0022
+      },
+      {
+        "language": "da",
+        "viewers": 1585,
+        "streams": 8,
+        "share": 0.002
+      },
+      {
+        "language": "fi",
+        "viewers": 1008,
+        "streams": 9,
+        "share": 0.0013
+      },
+      {
+        "language": "ar",
+        "viewers": 650,
+        "streams": 27,
+        "share": 0.0008
+      },
+      {
+        "language": "pl",
+        "viewers": 623,
+        "streams": 11,
+        "share": 0.0008
+      },
+      {
+        "language": "other",
+        "viewers": 613,
+        "streams": 16,
+        "share": 0.0008
+      },
+      {
+        "language": "hu",
+        "viewers": 276,
+        "streams": 4,
+        "share": 0.0003
+      },
+      {
+        "language": "no",
+        "viewers": 166,
+        "streams": 5,
+        "share": 0.0002
+      },
+      {
+        "language": "cs",
+        "viewers": 135,
+        "streams": 2,
+        "share": 0.0002
+      },
+      {
+        "language": "th",
+        "viewers": 131,
+        "streams": 3,
+        "share": 0.0002
+      },
+      {
+        "language": "zh-hk",
+        "viewers": 88,
+        "streams": 3,
+        "share": 0.0001
+      },
+      {
+        "language": "bg",
+        "viewers": 58,
+        "streams": 2,
+        "share": 0.0001
+      },
+      {
+        "language": "el",
+        "viewers": 50,
+        "streams": 2,
+        "share": 0.0001
+      },
+      {
+        "language": "nl",
+        "viewers": 48,
+        "streams": 2,
+        "share": 0.0001
+      },
+      {
+        "language": "ro",
+        "viewers": 18,
+        "streams": 2,
+        "share": 0
+      },
+      {
+        "language": "tl",
+        "viewers": 18,
+        "streams": 2,
+        "share": 0
+      },
+      {
+        "language": "tr",
+        "viewers": 18,
+        "streams": 3,
+        "share": 0
+      },
+      {
+        "language": "sv",
+        "viewers": 8,
+        "streams": 2,
+        "share": 0
+      },
+      {
+        "language": "asl",
+        "viewers": 4,
+        "streams": 1,
+        "share": 0
+      },
+      {
+        "language": "sk",
+        "viewers": 2,
+        "streams": 1,
+        "share": 0
+      }
+    ],
+    "top_streams": [
+      {
+        "user_login": "caseoh_",
+        "viewer_count": 90840,
+        "language": "en"
+      },
+      {
+        "user_login": "theburntpeanut",
+        "viewer_count": 56942,
+        "language": "en"
+      },
+      {
+        "user_login": "xqc",
+        "viewer_count": 32011,
+        "language": "en"
+      },
+      {
+        "user_login": "kaicenat",
+        "viewer_count": 29514,
+        "language": "en"
+      },
+      {
+        "user_login": "elmariana",
+        "viewer_count": 25819,
+        "language": "es"
+      },
+      {
+        "user_login": "vanillamace",
+        "viewer_count": 19883,
+        "language": "en"
+      },
+      {
+        "user_login": "ishowspeed",
+        "viewer_count": 19597,
+        "language": "en"
+      },
+      {
+        "user_login": "yourragegaming",
+        "viewer_count": 12794,
+        "language": "en"
+      },
+      {
+        "user_login": "jerma985",
+        "viewer_count": 11783,
+        "language": "en"
+      },
+      {
+        "user_login": "lacy",
+        "viewer_count": 11673,
+        "language": "en"
+      }
+    ],
+    "comparison": [
+      {
+        "key": "gtav",
+        "game_id": "32982",
+        "name": "Grand Theft Auto V",
+        "current_viewers": 10095,
+        "current_streams": 1241,
+        "peak_viewers": 31824,
+        "peak_at": "2026-11-19T20:40:00.000575Z"
+      }
+    ]
+  },
+  "steam": {
+    "tracking_since": "2026-11-19T18:47:01.653755Z",
+    "updated_at": "2026-11-20T05:30:10.866926Z",
+    "games": [
+      {
+        "key": "gtav",
+        "app_id": 271590,
+        "name": "Grand Theft Auto V",
+        "current_players": 33611,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 71763,
+        "observed_peak": 71763,
+        "observed_peak_at": "2026-11-19T18:47:01.653755Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 71538
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 68523
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 61583
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 53274
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 44862
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 38182
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 33916
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 32357
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 31871
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 31460
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 31387
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 33095
+          }
+        ]
+      },
+      {
+        "key": "rdr2",
+        "app_id": 1174180,
+        "name": "Red Dead Redemption 2",
+        "current_players": 24359,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 30236,
+        "observed_peak": 30236,
+        "observed_peak_at": "2026-11-19T19:00:00.169674Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 30132
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 30197
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 29557
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 27268
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 24754
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 22805
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 21901
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 22969
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 24201
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 24700
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 24455
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 24456
+          }
+        ]
+      },
+      {
+        "key": "cs2",
+        "app_id": 730,
+        "name": "Counter-Strike 2",
+        "current_players": 451744,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 963728,
+        "observed_peak": 963728,
+        "observed_peak_at": "2026-11-19T18:47:01.653755Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 963728
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 955049
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 895128
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 774702
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 650042
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 543446
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 455884
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 422792
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 430439
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 433497
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 430918
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 450320
+          }
+        ]
+      },
+      {
+        "key": "cp77",
+        "app_id": 1091500,
+        "name": "Cyberpunk 2077",
+        "current_players": 54833,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 72198,
+        "observed_peak": 72198,
+        "observed_peak_at": "2026-11-19T19:55:11.612739Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 70922
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 71472
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 71974
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 69351
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 64873
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 60100
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 57722
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 58510
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 59932
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 59781
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 57528
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 55508
+          }
+        ]
+      },
+      {
+        "key": "er",
+        "app_id": 1245620,
+        "name": "Elden Ring",
+        "current_players": 15765,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 18046,
+        "observed_peak": 18046,
+        "observed_peak_at": "2026-11-19T19:45:13.181866Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 17764
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 17825
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 17841
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 17107
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 15791
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 14535
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 14143
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 14933
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 15898
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 16199
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 16017
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 16022
+          }
+        ]
+      },
+      {
+        "key": "bg3",
+        "app_id": 1086940,
+        "name": "Baldur's Gate 3",
+        "current_players": 23582,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 35754,
+        "observed_peak": 35754,
+        "observed_peak_at": "2026-11-19T20:25:12.608124Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 32000
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 33705
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 35618
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 34523
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 30951
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 27469
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 27002
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 28947
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 30876
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 30197
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 27240
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 24495
+          }
+        ]
+      },
+      {
+        "key": "gtav_enhanced",
+        "app_id": 3240220,
+        "name": "Grand Theft Auto V Enhanced",
+        "current_players": 48179,
+        "current_at": "2026-11-20T05:30:10.866926Z",
+        "peak_24h": 61657,
+        "observed_peak": 61657,
+        "observed_peak_at": "2026-11-19T18:47:01.653755Z",
+        "series_24h": [
+          {
+            "hour": "2026-11-19T05:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T06:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T07:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T08:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T09:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T10:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T11:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T12:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T13:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T14:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T15:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T16:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T17:00:00Z",
+            "players": null
+          },
+          {
+            "hour": "2026-11-19T18:00:00Z",
+            "players": 61657
+          },
+          {
+            "hour": "2026-11-19T19:00:00Z",
+            "players": 59948
+          },
+          {
+            "hour": "2026-11-19T20:00:00Z",
+            "players": 55760
+          },
+          {
+            "hour": "2026-11-19T21:00:00Z",
+            "players": 48519
+          },
+          {
+            "hour": "2026-11-19T22:00:00Z",
+            "players": 42489
+          },
+          {
+            "hour": "2026-11-19T23:00:00Z",
+            "players": 38092
+          },
+          {
+            "hour": "2026-11-20T00:00:00Z",
+            "players": 36102
+          },
+          {
+            "hour": "2026-11-20T01:00:00Z",
+            "players": 37526
+          },
+          {
+            "hour": "2026-11-20T02:00:00Z",
+            "players": 40322
+          },
+          {
+            "hour": "2026-11-20T03:00:00Z",
+            "players": 42834
+          },
+          {
+            "hour": "2026-11-20T04:00:00Z",
+            "players": 45027
+          },
+          {
+            "hour": "2026-11-20T05:00:00Z",
+            "players": 48025
+          }
+        ]
+      }
+    ]
+  },
+  "youtube": null,
+  "wikipedia": {
+    "updated_at": "2026-11-19T19:39:59.981059Z",
+    "item_id": "Q23648408",
+    "window_end": "2026-11-18",
+    "total_last_7d": 1709502,
+    "total_since_launch": 0,
+    "editions": [
+      {
+        "lang": "en",
+        "project": "en.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 1083033,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "de",
+        "project": "de.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 116369,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "ru",
+        "project": "ru.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 115640,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "fr",
+        "project": "fr.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 69140,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "es",
+        "project": "es.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 50589,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "it",
+        "project": "it.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 48850,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "zh",
+        "project": "zh.wikipedia",
+        "title": "俠盜獵車手VI",
+        "views_last_7d": 39370,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "fa",
+        "project": "fa.wikipedia",
+        "title": "جی‌تی‌ای ۶",
+        "views_last_7d": 32511,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "ja",
+        "project": "ja.wikipedia",
+        "title": "グランド・セフト・オートVI",
+        "views_last_7d": 28683,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "pl",
+        "project": "pl.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 18627,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "pt",
+        "project": "pt.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 17624,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "ar",
+        "project": "ar.wikipedia",
+        "title": "جراند ثفت أوتو 6",
+        "views_last_7d": 11430,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "fi",
+        "project": "fi.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 9884,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "tr",
+        "project": "tr.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 9220,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "nl",
+        "project": "nl.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 9212,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "uk",
+        "project": "uk.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 7696,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "he",
+        "project": "he.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 7173,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "sv",
+        "project": "sv.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 4979,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "hu",
+        "project": "hu.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 4618,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "cs",
+        "project": "cs.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 4595,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "id",
+        "project": "id.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 4069,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "el",
+        "project": "el.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 3253,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "vi",
+        "project": "vi.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 3156,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "ro",
+        "project": "ro.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 2907,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "no",
+        "project": "no.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 2016,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "bg",
+        "project": "bg.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 1582,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "da",
+        "project": "da.wikipedia",
+        "title": "Grand Theft Auto VI",
+        "views_last_7d": 1385,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "th",
+        "project": "th.wikipedia",
+        "title": "แกรนด์เธฟต์ออโต VI",
+        "views_last_7d": 1056,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "ko",
+        "project": "ko.wikipedia",
+        "title": "그랜드 테프트 오토 VI",
+        "views_last_7d": 433,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      },
+      {
+        "lang": "hi",
+        "project": "hi.wikipedia",
+        "title": "ग्रैण्ड थेफ़्ट ऑटो ६",
+        "views_last_7d": 402,
+        "views_since_launch": 0,
+        "latest_day": "2026-11-18"
+      }
+    ]
+  }
+}
