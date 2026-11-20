@@ -1,5 +1,186 @@
 {
   "$defs": {
+    "BusinessSignals": {
+      "additionalProperties": false,
+      "properties": {
+        "steam_reviews": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SteamReviewSignals"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Steam review counts and estimated-sales ranges; null until first sampled"
+        },
+        "official": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OfficialFigures"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Hand-curated Take-Two figures, each with its source; null if unavailable"
+        }
+      },
+      "required": [
+        "steam_reviews",
+        "official"
+      ],
+      "title": "BusinessSignals",
+      "type": "object"
+    },
+    "OfficialFigure": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "Stable id, e.g. gtav_units",
+          "title": "Key",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "description": "The figure as reported (units, or US dollars)",
+          "title": "Value",
+          "type": "integer"
+        },
+        "value_max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Upper end when the report gives a range",
+          "title": "Value Max"
+        },
+        "qualifier": {
+          "anyOf": [
+            {
+              "enum": [
+                "nearly",
+                "over"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The report's own hedge: 'nearly 235 million' is value 235000000, 'nearly'",
+          "title": "Qualifier"
+        },
+        "unit": {
+          "enum": [
+            "units",
+            "usd"
+          ],
+          "title": "Unit",
+          "type": "string"
+        },
+        "as_of": {
+          "description": "YYYY-MM or YYYY-MM-DD, as precise as the source",
+          "pattern": "^\\d{4}-\\d{2}(-\\d{2})?$",
+          "title": "As Of",
+          "type": "string"
+        },
+        "source_title": {
+          "title": "Source Title",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "quote": {
+          "description": "The source's own words for the figure",
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "value",
+        "value_max",
+        "qualifier",
+        "unit",
+        "as_of",
+        "source_title",
+        "source_url",
+        "quote"
+      ],
+      "title": "OfficialFigure",
+      "type": "object"
+    },
+    "OfficialFigures": {
+      "additionalProperties": false,
+      "properties": {
+        "updated_at": {
+          "description": "When the curated list was last checked",
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "figures": {
+          "items": {
+            "$ref": "#/$defs/OfficialFigure"
+          },
+          "title": "Figures",
+          "type": "array"
+        }
+      },
+      "required": [
+        "updated_at",
+        "figures"
+      ],
+      "title": "OfficialFigures",
+      "type": "object"
+    },
+    "SalesEstimateMethod": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "One line: how reviews become an estimated-sales range",
+          "title": "Name",
+          "type": "string"
+        },
+        "multiplier_low": {
+          "description": "Low multiple of all-time reviews",
+          "title": "Multiplier Low",
+          "type": "integer"
+        },
+        "multiplier_high": {
+          "description": "High multiple of all-time reviews",
+          "title": "Multiplier High",
+          "type": "integer"
+        },
+        "sources": {
+          "description": "Where the multiples come from (URLs)",
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "multiplier_low",
+        "multiplier_high",
+        "sources"
+      ],
+      "title": "SalesEstimateMethod",
+      "type": "object"
+    },
     "SteamGame": {
       "additionalProperties": false,
       "properties": {
@@ -161,6 +342,165 @@
         "players"
       ],
       "title": "SteamPoint",
+      "type": "object"
+    },
+    "SteamReviewGame": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "Same keys as steam.games (gtav, rdr2, cs2, ...)",
+          "title": "Key",
+          "type": "string"
+        },
+        "app_id": {
+          "title": "App Id",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "total_reviews": {
+          "description": "All-time Steam user reviews, every language",
+          "title": "Total Reviews",
+          "type": "integer"
+        },
+        "positive": {
+          "title": "Positive",
+          "type": "integer"
+        },
+        "negative": {
+          "title": "Negative",
+          "type": "integer"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "new_reviews_7d": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Reviews posted in the 7 complete UTC days before fetched_at's day, from Steam's own daily counts; null if Steam sent none",
+          "title": "New Reviews 7D"
+        },
+        "change_7d": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "total_reviews minus the total at the latest reading at least 7 days older; null until the tracker has a reading that old",
+          "title": "Change 7D"
+        },
+        "change_7d_since": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "When that older reading was taken",
+          "title": "Change 7D Since"
+        },
+        "estimated_sales_low": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "total_reviews x method.multiplier_low. An estimate, not a reported figure; null where the method does not apply (see no_estimate_reason)",
+          "title": "Estimated Sales Low"
+        },
+        "estimated_sales_high": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "total_reviews x method.multiplier_high",
+          "title": "Estimated Sales High"
+        },
+        "no_estimate_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Why there is no estimate (free to play, a free upgrade), else null",
+          "title": "No Estimate Reason"
+        }
+      },
+      "required": [
+        "key",
+        "app_id",
+        "name",
+        "total_reviews",
+        "positive",
+        "negative",
+        "fetched_at",
+        "new_reviews_7d",
+        "change_7d",
+        "change_7d_since",
+        "estimated_sales_low",
+        "estimated_sales_high",
+        "no_estimate_reason"
+      ],
+      "title": "SteamReviewGame",
+      "type": "object"
+    },
+    "SteamReviewSignals": {
+      "additionalProperties": false,
+      "properties": {
+        "tracking_since": {
+          "format": "date-time",
+          "title": "Tracking Since",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "method": {
+          "$ref": "#/$defs/SalesEstimateMethod"
+        },
+        "games": {
+          "items": {
+            "$ref": "#/$defs/SteamReviewGame"
+          },
+          "title": "Games",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tracking_since",
+        "updated_at",
+        "method",
+        "games"
+      ],
+      "title": "SteamReviewSignals",
       "type": "object"
     },
     "SteamSignals": {
@@ -702,6 +1042,18 @@
           "type": "null"
         }
       ]
+    },
+    "business": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BusinessSignals"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Money signals: Steam review counts, curated Take-Two figures"
     }
   },
   "required": [
