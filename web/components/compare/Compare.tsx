@@ -3,13 +3,15 @@
 import { m } from "motion/react";
 import Image from "next/image";
 import { useId, useState } from "react";
-import type { SteamGame, TwitchSeries } from "@/lib/data";
+import type { SteamGame } from "@/lib/data";
 import { steamPaths } from "@/lib/charts";
-import { type CompareGame, compareGames } from "@/lib/compare";
-import { comma, fmt } from "@/lib/format";
+import { COMPARE_POINTS, type CompareGame, compareGames, leadingGaps } from "@/lib/compare";
+import { comma, fmt, utcStamp } from "@/lib/format";
 import { EASE_REVEAL, useReducedMotion } from "@/lib/motion";
 import { useCountUp } from "@/lib/use-count-up";
-import { useNow } from "@/lib/use-now";
+import { CardBoundary, Unavailable } from "../live/CardBoundary";
+import { Freshness } from "../live/Freshness";
+import { useLive } from "../live/LiveSignals";
 import { Reveal } from "../Reveal";
 import { SeenScope } from "../SeenScope";
 import { CARD, EYEBROW, Kpi } from "../ui";
@@ -45,11 +47,11 @@ function Chips({ games, selected, onPick }: { games: CompareGame[]; selected: st
 }
 
 const LABELS = {
-  steam: { now: "in-game now on Steam", ever: "All-time peak", chart: "Steam players" },
-  twitch: { now: "watching on Twitch now", ever: "Peak since tracking", chart: "Twitch viewers" },
+  steam: { now: "in-game now on Steam", chart: "Steam players" },
+  twitch: { now: "watching on Twitch now", chart: "Twitch viewers" },
 } as const;
 
-function GameCard({ game }: { game: CompareGame }) {
+function GameCard({ game, pending }: { game: CompareGame; pending: boolean }) {
   const reduced = useReducedMotion();
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const label = LABELS[game.source];
@@ -59,6 +61,9 @@ function GameCard({ game }: { game: CompareGame }) {
   const { line, area } = steamPaths(game.series24h, W, H);
   // design/README.md: the path morphs over 750ms, cubic-bezier(.22,1,.36,1)
   const morph = { duration: reduced ? 0 : 0.75, ease: EASE_REVEAL };
+  // Hours before tracking began are flat-started by steamPaths (the point count must not
+  // change); this veil marks that stretch as untracked and says when tracking began.
+  const untracked = (Math.min(leadingGaps(game.series24h), COMPARE_POINTS - 1) / (COMPARE_POINTS - 1)) * 100;
 
   return (
     <div className="flex flex-col gap-5">
@@ -70,10 +75,15 @@ function GameCard({ game }: { game: CompareGame }) {
           <p className="m-0 text-[clamp(44px,6vw,68px)] leading-none font-extrabold tracking-[-0.03em] tabular-nums">
             {game.current === null ? "—" : comma(now)}
           </p>
+          <Freshness origin={game.origin} updatedAt={game.updatedAt} pending={pending} />
         </div>
         <dl className="m-0 flex gap-8">
           <Kpi label="24h peak" value={game.peak24h === null ? "—" : fmt(day)} />
-          <Kpi label={label.ever} value={game.allTimePeak === null ? "—" : comma(ever)} className="text-orange" />
+          <Kpi
+            label={game.peakSinceTracking ? "Peak since tracking" : "All-time peak"}
+            value={game.allTimePeak === null ? "—" : comma(ever)}
+            className="text-orange"
+          />
         </dl>
       </div>
       <div
@@ -81,6 +91,17 @@ function GameCard({ game }: { game: CompareGame }) {
         aria-label={`Chart: ${game.name} ${label.chart} over the last 24 hours.`}
         className="relative h-[260px]"
       >
+        <div
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 z-10 flex items-center justify-center overflow-hidden bg-card/70 transition-[width] duration-[750ms] ease-reveal"
+          style={{ width: `${untracked}%` }}
+        >
+          {untracked >= 18 && (
+            <span className="px-3 text-center text-micro font-bold tracking-[0.04em] text-fg-3">
+              Tracking since {utcStamp(game.trackingSince)}
+            </span>
+          )}
+        </div>
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block size-full overflow-visible">
           <defs>
             <linearGradient id={uid} x1="0" y1="0" x2="0" y2="1">
@@ -170,6 +191,12 @@ function PeakRow({
         </span>
         <span className="col-start-2 row-start-1 text-right text-sm font-bold text-fg-2 tabular-nums sm:col-start-3">
           {game.allTimePeak === null ? "—" : fmt(game.allTimePeak)}
+          {game.allTimePeakSource === "observed" && (
+            <>
+              <span aria-hidden="true">*</span>
+              <span className="sr-only"> (the tracker&rsquo;s own reading)</span>
+            </>
+          )}
         </span>
       </button>
     </li>
@@ -181,11 +208,13 @@ function PeakRow({
  * GTA VI leads and is selected by default; it is not on Steam, so its card shows the
  * Signals section's Twitch viewers. The all-time list stays Steam-only.
  */
-export function Compare({ steam, twitch }: { steam: SteamGame[]; twitch: TwitchSeries }) {
-  const games = compareGames(steam, twitch, useNow());
-  const [selected, setSelected] = useState(games[0].id);
+export function Compare() {
+  const { data, pending } = useLive();
+  const games = compareGames(data.steam, data.twitch);
+  const steam = data.steam?.data.games ?? [];
+  const [selected, setSelected] = useState<string | null>(null);
   const game = games.find((g) => g.id === selected) ?? games[0];
-  const maxPeak = Math.max(...steam.map((g) => g.allTimePeak ?? 0));
+  const maxPeak = Math.max(1, ...steam.map((g) => g.allTimePeak ?? 0));
   const byPeak = [...steam].sort((a, b) => (b.allTimePeak ?? -1) - (a.allTimePeak ?? -1));
 
   return (
@@ -205,36 +234,45 @@ export function Compare({ steam, twitch }: { steam: SteamGame[]; twitch: TwitchS
         </Reveal>
 
         <Reveal className="flex flex-col gap-3">
-          <Chips games={games} selected={game.id} onPick={setSelected} />
+          {game && <Chips games={games} selected={game.id} onPick={setSelected} />}
           <p className="m-0 text-[13px] text-fg-3">GTA VI isn&rsquo;t on Steam (it&rsquo;s console-only), so it shows Twitch viewers.</p>
         </Reveal>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-6">
           <Reveal className={`${CARD} min-w-0 min-[752px]:col-span-2`}>
             <SeenScope>
-              <GameCard game={game} />
+              <CardBoundary name="Compare">
+                {game ? <GameCard game={game} pending={pending} /> : <Unavailable name="Compare" />}
+              </CardBoundary>
             </SeenScope>
           </Reveal>
           <Reveal index={1} className="relative min-h-[340px] overflow-hidden rounded-card border border-border">
-            <Cover game={game} />
+            {game && <Cover game={game} />}
           </Reveal>
         </div>
 
         <Reveal className={`${CARD} flex flex-col gap-3.5`}>
           <h3 className="m-0 text-[13px] font-bold text-fg-2">All-time Steam peaks</h3>
           <SeenScope>
-            <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
-              {byPeak.map((g) => (
-                <PeakRow
-                  key={g.id}
-                  game={g}
-                  max={maxPeak}
-                  on={g.id === game.id}
-                  onPick={() => setSelected(g.id)}
-                />
-              ))}
-            </ul>
+            <CardBoundary name="All-time Steam peaks">
+              <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
+                {byPeak.map((g) => (
+                  <PeakRow
+                    key={g.id}
+                    game={g}
+                    max={maxPeak}
+                    on={g.id === game?.id}
+                    onPick={() => setSelected(g.id)}
+                  />
+                ))}
+              </ul>
+            </CardBoundary>
           </SeenScope>
+          <p className="m-0 text-micro text-fg-3">
+            Approximate all-time peaks from SteamDB and SteamCharts. If the tracker has seen more
+            players than that, its own reading replaces it.
+            {byPeak.some((g) => g.allTimePeakSource === "observed") && " * The tracker’s own highest reading since it started."}
+          </p>
         </Reveal>
       </div>
     </section>

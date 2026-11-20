@@ -83,7 +83,10 @@ export const SHORT_NAMES: Record<string, string> = {
   bg3: "Baldur's Gate 3",
 };
 
-/** Steam games to compare. All-time peaks are approximate (design/README.md). */
+/**
+ * Steam games to compare. All-time peaks are approximate (design/README.md, from
+ * SteamDB/SteamCharts); the adapter swaps in the collector's observed peak if it is higher.
+ */
 export const STEAM_GAMES = [
   { id: "gtav", appId: 271590, name: "Grand Theft Auto V", allTimePeak: 364548, cover: COVERS.gtav },
   { id: "rdr2", appId: 1174180, name: "Red Dead Redemption 2", allTimePeak: 92000, cover: COVERS.rdr2 },
@@ -93,8 +96,8 @@ export const STEAM_GAMES = [
   { id: "bg3", appId: 1086940, name: "Baldur's Gate 3", allTimePeak: 875343, cover: COVERS.bg3 },
   // GTA V has been split across two Steam apps since March 2025; the collector samples
   // both (collector/src/collector/sources/steam.py).
-  // data: no all-time peak for Enhanced yet (the 364,548 above predates the split, and
-  // the collector only records peaks it has observed), so the page shows a dash for now.
+  // data: no curated all-time peak for Enhanced (the 364,548 above predates the split), so
+  // the page shows the collector's observed peak, labelled as a peak since tracking.
   {
     id: "gtav_enhanced",
     appId: 3240220,
@@ -106,7 +109,10 @@ export const STEAM_GAMES = [
 
 /**
  * Where each language is mostly read (ISO 3166-1 numeric, as in world-atlas). Keyed by
- * Wikipedia language code so collector data joins on it. From the prototype's LANGS.
+ * Wikipedia language code so collector data joins on it. The first 15 are the prototype's
+ * LANGS; the rest cover the other editions the collector tracks (it follows every
+ * Wikidata sitelink of the article, 30 today). A country already claimed by a bigger
+ * edition keeps that one's colour (India: English, not Hindi); see WorldMap.
  */
 export const LANGUAGE_COUNTRIES: Record<string, { name: string; countries: number[] }> = {
   en: { name: "English", countries: [840, 826, 124, 36, 372, 554, 356, 710, 566] },
@@ -127,4 +133,19 @@ export const LANGUAGE_COUNTRIES: Record<string, { name: string; countries: numbe
   ar: { name: "Arabic", countries: [682, 818, 784, 504, 12, 368, 400, 788, 434, 760, 887, 512] },
   uk: { name: "Ukrainian", countries: [804] },
   nl: { name: "Dutch", countries: [528] },
+  fa: { name: "Persian", countries: [364, 4, 762] },
+  fi: { name: "Finnish", countries: [246] },
+  he: { name: "Hebrew", countries: [376] },
+  sv: { name: "Swedish", countries: [752] },
+  hu: { name: "Hungarian", countries: [348] },
+  cs: { name: "Czech", countries: [203] },
+  id: { name: "Indonesian", countries: [360] },
+  el: { name: "Greek", countries: [300, 196] },
+  vi: { name: "Vietnamese", countries: [704] },
+  ro: { name: "Romanian", countries: [642, 498] },
+  no: { name: "Norwegian", countries: [578] },
+  bg: { name: "Bulgarian", countries: [100] },
+  da: { name: "Danish", countries: [208, 304] },
+  th: { name: "Thai", countries: [764] },
+  hi: { name: "Hindi", countries: [356] },
 };

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { scrollToSection } from "@/lib/scroll";
 import { launchClock, statusLabel } from "@/lib/time";
 import { useNow } from "@/lib/use-now";
+import { useLive } from "./live/LiveSignals";
 import { LiveDot } from "./LiveDot";
 
 export const SECTIONS = [
@@ -20,6 +21,10 @@ const SPY_THRESHOLD = 160;
 export function Header() {
   const [active, setActive] = useState<SectionId>("launch");
   const now = useNow();
+  // The status dot pulses while the live numbers are live; if the latest data is the
+  // fallback snapshot (or the last refresh failed) it stops and the header says so.
+  const { data } = useLive();
+  const lastKnown = data.twitch?.origin !== "live" || data.steam?.origin !== "live";
 
   useEffect(() => {
     let raf = 0;
@@ -88,10 +93,11 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2.5 pb-3 text-[13px] font-bold text-fg-2 tabular-nums">
-          <LiveDot />
+          <LiveDot className={lastKnown ? "animate-none! bg-warning!" : ""} />
           <span aria-live="off">
             {clock ? statusLabel(clock) : "Live · day – · --:--:--"}
           </span>
+          {lastKnown && <span className="text-warning">· last known data</span>}
         </div>
       </div>
     </header>

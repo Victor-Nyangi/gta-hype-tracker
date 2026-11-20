@@ -1,16 +1,41 @@
 /*
- * View models the page renders. Every adapter (the mocks today, signals.json later)
- * produces these, so components never see an API's shape.
+ * View models the page renders. The signals.json adapter (`adapt.ts`) produces these, so
+ * components never see the collector's shape.
  */
 
-/** Concurrent viewers in the GTA VI Twitch category, hourly around launch. */
+/** Where a card's numbers came from: this fetch, or the last good snapshot. */
+export type Origin = "live" | "fallback";
+
+/** One source's view model plus how fresh it is. */
+export interface Sourced<T> {
+  data: T;
+  /** "fallback": the live fetch failed or was malformed; the card says "last known". */
+  origin: Origin;
+  /** The source's own updated_at (ISO). */
+  updatedAt: string;
+}
+
+/** One hourly bucket of the GTA VI Twitch category. */
+export interface TwitchPoint {
+  /** Start of the UTC hour, in whole hours from launch. */
+  hoursFromLaunch: number;
+  /** Mean of the snapshots in the hour (what the chart draws). */
+  viewers: number;
+  /** Highest single snapshot in the hour (what peaks are taken from). */
+  maxViewers: number;
+}
+
+/** Concurrent viewers in the GTA VI Twitch category, since the collector started. */
 export interface TwitchSeries {
-  /** Hours relative to launch, ascending; the chart spans -24..+24. */
-  points: { hoursFromLaunch: number; viewers: number }[];
-  /** First real sample, or null for illustrative data. */
-  trackingSince: string | null;
+  /** Hourly, ascending. Nothing exists before `trackingSince`. */
+  points: TwitchPoint[];
+  /** First snapshot (ISO). */
+  trackingSince: string;
   currentViewers: number;
+  /** Highest single snapshot since tracking began, and when (ISO). */
   peakViewers: number;
+  peakAt: string;
+  /** The collector's estimate since tracking began. */
   hoursWatched: number;
   byLanguage: { language: string; viewers: number }[];
 }
@@ -22,7 +47,12 @@ export interface TrailerSeries {
   color: "violet" | "orange";
   /** Cumulative views by day since release, day 0 first. */
   viewsByDay: number[];
-  currentViews: number;
+}
+
+/** Live YouTube totals, when the collector samples YouTube. */
+export interface YouTubeTotals {
+  totalViews: number;
+  videos: { id: string; label: string; views: number }[];
 }
 
 /** Wikipedia views of the GTA VI article for one language, with where it is mostly read. */
@@ -35,6 +65,14 @@ export interface LanguageViews {
   countries: number[];
 }
 
+export interface WikipediaViews {
+  /** Last-7-days views per edition, descending. */
+  languages: LanguageViews[];
+  total7d: number;
+  /** Last day in the 7-day window (YYYY-MM-DD). */
+  windowEnd: string;
+}
+
 export interface SteamGame {
   /** Stable id shared with the collector (gtav, rdr2, cs2, cp77, er, bg3, gtav_enhanced). */
   id: string;
@@ -42,12 +80,23 @@ export interface SteamGame {
   name: string;
   currentPlayers: number | null;
   peak24h: number | null;
-  /** All-time peak (SteamDB/SteamCharts, approximate), or null when not known. */
+  /**
+   * The higher of the curated all-time peak (SteamDB/SteamCharts, approximate) and the
+   * highest reading the collector has seen; null when neither is known.
+   */
   allTimePeak: number | null;
-  /** 25 hourly points, oldest first, ending now. */
+  /** Which of the two `allTimePeak` is. */
+  allTimePeakSource: "curated" | "observed" | null;
+  /** 25 hourly points, oldest first, ending with the current hour; null = no reading. */
   series24h: (number | null)[];
   /** Cover art under /public, if we have one. */
   cover?: CoverArt;
+}
+
+export interface SteamData {
+  /** First Steam reading (ISO); the 24h series is empty before it. */
+  trackingSince: string;
+  games: SteamGame[];
 }
 
 /** A cover-art master under /public, cropped into the Compare tile with object-fit: cover. */
@@ -59,6 +108,19 @@ export interface CoverArt {
    * the tile is not, so this keeps the faces or the title in frame.
    */
   position: string;
+}
+
+/** Everything the page renders. A null source is unavailable live and in the fallback. */
+export interface PageData {
+  /** The payload's generated_at (ISO). */
+  generatedAt: string;
+  twitch: Sourced<TwitchSeries> | null;
+  steam: Sourced<SteamData> | null;
+  wikipedia: Sourced<WikipediaViews> | null;
+  /** null while the collector's YouTube sampling is off. */
+  youtube: Sourced<YouTubeTotals> | null;
+  /** Curated first-30-day curves; not a feed. */
+  trailers: TrailerSeries[];
 }
 
 export interface Milestone {
@@ -73,12 +135,4 @@ export interface WaitCounter {
   /** YYYY-MM-DD */
   since: string;
   color: "violet" | "pink" | "orange" | "teal";
-}
-
-/** The page's data access. Implementations: `mockHypeData` (now), signals.json (later). */
-export interface HypeData {
-  twitch(): Promise<TwitchSeries>;
-  trailers(): Promise<TrailerSeries[]>;
-  wikipedia(): Promise<LanguageViews[]>;
-  steam(): Promise<SteamGame[]>;
 }

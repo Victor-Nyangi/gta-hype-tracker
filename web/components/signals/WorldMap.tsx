@@ -10,7 +10,7 @@ const MIX = (pct: number) => `color-mix(in oklch, var(--color-pink) ${Math.round
  * dimmed while another language is hovered: (12 + k*20)%. See `.lang-map` in globals.css.
  */
 export function WorldMap({ languages }: { languages: LanguageViews[] }) {
-  const max = Math.max(...languages.map((l) => l.views));
+  const max = Math.max(1, ...languages.map((l) => l.views));
   // data: language -> country is approximate; a country takes the first language listing it.
   const byCountry = new Map<number, LanguageViews>();
   for (const l of languages) for (const c of l.countries) if (!byCountry.has(c)) byCountry.set(c, l);
