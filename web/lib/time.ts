@@ -36,3 +36,12 @@ export function statusLabel(c: LaunchClock): string {
   const hms = `${pad2(c.hours)}:${pad2(c.minutes)}:${pad2(c.seconds)}`;
   return c.live ? `Live · day ${c.days + 1} · ${hms}` : `T-minus ${c.days}d ${hms}`;
 }
+
+/**
+ * Whole days since a YYYY-MM-DD date (taken at 05:00Z, midnight Eastern, as the prototype
+ * does). Before the clock is known (server render), counts to the launch moment instead,
+ * so the HTML carries a stable number.
+ */
+export function daysSince(iso: string, now: number | null): number {
+  return Math.floor(((now ?? LAUNCH_MS) - Date.parse(`${iso}T05:00:00Z`)) / DAY);
+}
