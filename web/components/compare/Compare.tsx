@@ -3,11 +3,13 @@
 import { m } from "motion/react";
 import Image from "next/image";
 import { useId, useState } from "react";
-import type { SteamGame } from "@/lib/data";
+import type { SteamGame, TwitchSeries } from "@/lib/data";
 import { steamPaths } from "@/lib/charts";
+import { type CompareGame, compareGames } from "@/lib/compare";
 import { comma, fmt } from "@/lib/format";
 import { EASE_REVEAL, useReducedMotion } from "@/lib/motion";
 import { useCountUp } from "@/lib/use-count-up";
+import { useNow } from "@/lib/use-now";
 import { Reveal } from "../Reveal";
 import { SeenScope } from "../SeenScope";
 import { CARD, EYEBROW, Kpi } from "../ui";
@@ -15,7 +17,7 @@ import { CARD, EYEBROW, Kpi } from "../ui";
 const W = 1000;
 const H = 260;
 
-function Chips({ games, selected, onPick }: { games: SteamGame[]; selected: string; onPick: (id: string) => void }) {
+function Chips({ games, selected, onPick }: { games: CompareGame[]; selected: string; onPick: (id: string) => void }) {
   return (
     <div role="group" aria-label="Pick a game" className="flex flex-wrap gap-2">
       {games.map((g) => {
@@ -40,10 +42,16 @@ function Chips({ games, selected, onPick }: { games: SteamGame[]; selected: stri
   );
 }
 
-function GameCard({ game }: { game: SteamGame }) {
+const LABELS = {
+  steam: { now: "in-game now on Steam", ever: "All-time peak", chart: "Steam players" },
+  twitch: { now: "watching on Twitch now", ever: "Peak since tracking", chart: "Twitch viewers" },
+} as const;
+
+function GameCard({ game }: { game: CompareGame }) {
   const reduced = useReducedMotion();
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const now = useCountUp(game.currentPlayers ?? 0);
+  const label = LABELS[game.source];
+  const now = useCountUp(game.current ?? 0);
   const day = useCountUp(game.peak24h ?? 0);
   const ever = useCountUp(game.allTimePeak ?? 0);
   const { line, area } = steamPaths(game.series24h, W, H);
@@ -54,19 +62,21 @@ function GameCard({ game }: { game: SteamGame }) {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="flex flex-col gap-1.5">
-          <h3 className="m-0 text-[13px] font-bold text-fg-2">{game.name} · in-game now on Steam</h3>
+          <h3 className="m-0 text-[13px] font-bold text-fg-2">
+            {game.name} · {label.now}
+          </h3>
           <p className="m-0 text-[clamp(44px,6vw,68px)] leading-none font-extrabold tracking-[-0.03em] tabular-nums">
-            {game.currentPlayers === null ? "—" : comma(now)}
+            {game.current === null ? "—" : comma(now)}
           </p>
         </div>
         <dl className="m-0 flex gap-8">
           <Kpi label="24h peak" value={game.peak24h === null ? "—" : fmt(day)} />
-          <Kpi label="All-time peak" value={game.allTimePeak === null ? "—" : comma(ever)} className="text-orange" />
+          <Kpi label={label.ever} value={game.allTimePeak === null ? "—" : comma(ever)} className="text-orange" />
         </dl>
       </div>
       <div
         role="img"
-        aria-label={`Chart: ${game.name} Steam players over the last 24 hours.`}
+        aria-label={`Chart: ${game.name} ${label.chart} over the last 24 hours.`}
         className="relative h-[260px]"
       >
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block size-full overflow-visible">
@@ -99,7 +109,7 @@ function GameCard({ game }: { game: SteamGame }) {
   );
 }
 
-function Cover({ game }: { game: SteamGame }) {
+function Cover({ game }: { game: CompareGame }) {
   if (game.cover) {
     return (
       <Image
@@ -164,12 +174,17 @@ function PeakRow({
   );
 }
 
-/** Compare (design/README.md §3): chips, the selected game's card and cover, all-time peaks. */
-export function Compare({ games }: { games: SteamGame[] }) {
+/**
+ * Compare (design/README.md §3): chips, the selected game's card and cover, all-time peaks.
+ * GTA VI leads and is selected by default; it is not on Steam, so its card shows the
+ * Signals section's Twitch viewers. The all-time list stays Steam-only.
+ */
+export function Compare({ steam, twitch }: { steam: SteamGame[]; twitch: TwitchSeries }) {
+  const games = compareGames(steam, twitch, useNow());
   const [selected, setSelected] = useState(games[0].id);
   const game = games.find((g) => g.id === selected) ?? games[0];
-  const maxPeak = Math.max(...games.map((g) => g.allTimePeak ?? 0));
-  const byPeak = [...games].sort((a, b) => (b.allTimePeak ?? -1) - (a.allTimePeak ?? -1));
+  const maxPeak = Math.max(...steam.map((g) => g.allTimePeak ?? 0));
+  const byPeak = [...steam].sort((a, b) => (b.allTimePeak ?? -1) - (a.allTimePeak ?? -1));
 
   return (
     <section id="compare" aria-labelledby="compare-title">
@@ -183,13 +198,13 @@ export function Compare({ games }: { games: SteamGame[] }) {
             Who else is still playing?
           </h2>
           <p className="m-0 max-w-[60ch] text-[15px] text-fg-2">
-            GTA VI launches on console only, so it has no Steam count. Pick a title to see its Steam players over the
-            last 24 hours.
+            Pick a title to see how many people are on it right now, and over the last 24 hours.
           </p>
         </Reveal>
 
-        <Reveal>
+        <Reveal className="flex flex-col gap-3">
           <Chips games={games} selected={game.id} onPick={setSelected} />
+          <p className="m-0 text-[13px] text-fg-3">GTA VI isn&rsquo;t on Steam (it&rsquo;s console-only), so it shows Twitch viewers.</p>
         </Reveal>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-6">
