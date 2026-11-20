@@ -1,4 +1,5 @@
 import { Badge } from "./Badge";
+import { ParallaxImage, ParallaxText } from "./HeroParallax";
 import { ClockCaption, LaunchBadge, LaunchClockBoxes } from "./HeroLive";
 import { KeyArt } from "./KeyArt";
 
@@ -12,10 +13,10 @@ export function Hero() {
       aria-labelledby="hero-title"
       className="relative flex min-h-[clamp(560px,80vh,860px)] items-end overflow-hidden"
     >
-      {/* key art; transform-origin is where the scroll parallax will zoom from */}
-      <div aria-hidden="true" className="absolute inset-0 origin-[70%_40%] will-change-transform">
+      {/* key art; the scroll parallax zooms from 70% 40% */}
+      <ParallaxImage className="absolute inset-0 origin-[70%_40%] will-change-transform">
         <KeyArt />
-      </div>
+      </ParallaxImage>
 
       {/* scrim */}
       <div
@@ -29,7 +30,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 bg-(image:--gradient-hero-overlay) bg-size-[300%_300%] opacity-40 mix-blend-soft-light animate-sunset-slow"
       />
 
-      <div className="relative mx-auto flex w-full max-w-content flex-col gap-7 px-6 pt-12 pb-16">
+      <ParallaxText className="relative mx-auto flex w-full max-w-content flex-col gap-7 px-6 pt-12 pb-16 will-change-transform">
         <div data-enter style={{ "--i": 0 } as React.CSSProperties} className="flex flex-wrap gap-2">
           <LaunchBadge />
           <Badge>PS5 · Xbox Series X|S</Badge>
@@ -54,7 +55,7 @@ export function Hero() {
         <div data-enter style={{ "--i": 3 } as React.CSSProperties}>
           <ClockCaption />
         </div>
-      </div>
+      </ParallaxText>
     </section>
   );
 }
