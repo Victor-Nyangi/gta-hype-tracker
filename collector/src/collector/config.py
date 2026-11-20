@@ -78,6 +78,7 @@ class Config:
     youtube_videos: dict[str, str] = field(default_factory=lambda: dict(DEFAULT_YOUTUBE_VIDEOS))
     wiki_langs: tuple[str, ...] = tuple(DEFAULT_WIKI_LANGS)
     wiki_at_hour_utc: int = 6
+    wiki_every_hours: int = 6
     contact_url: str = DEFAULT_CONTACT
 
     @property
@@ -119,6 +120,10 @@ class Config:
 
         langs = tuple(_csv(e.get("WIKI_LANGS"))) or tuple(DEFAULT_WIKI_LANGS)
 
+        wiki_every = int(e.get("WIKI_EVERY_HOURS") or 6)
+        if wiki_every < 1 or 24 % wiki_every:
+            raise ValueError("WIKI_EVERY_HOURS must divide 24 (1, 2, 3, 4, 6, 8, 12 or 24)")
+
         return cls(
             data_dir=Path(e.get("DATA_DIR") or "./data").resolve(),
             sources=sources,
@@ -131,5 +136,6 @@ class Config:
             youtube_videos=videos,
             wiki_langs=langs,
             wiki_at_hour_utc=int(e.get("WIKI_AT_HOUR_UTC") or 6),
+            wiki_every_hours=wiki_every,
             contact_url=e.get("CONTACT_URL") or DEFAULT_CONTACT,
         )

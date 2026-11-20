@@ -162,8 +162,21 @@ class WikiEdition(_Model):
     project: str = Field(description="e.g. en.wikipedia")
     title: str
     views_last_7d: int
-    views_since_launch: int
+    views_since_launch: int = Field(
+        description=(
+            "Sum of daily views from launch_day on. 0 while since_launch_pending is true: that"
+            " 0 means 'not published yet', not 'no views'"
+        )
+    )
     latest_day: date | None
+    # Added after schema v1 shipped: optional, so older payloads still validate.
+    since_launch_pending: bool = Field(
+        default=False,
+        description=(
+            "True while no day from launch_day on has been fetched for this edition (Wikimedia"
+            " publishes a day's views some hours after it ends)"
+        ),
+    )
 
 
 class WikipediaSignals(_Model):
@@ -171,8 +184,24 @@ class WikipediaSignals(_Model):
     item_id: str | None = Field(description="Wikidata item of the GTA VI article")
     window_end: date = Field(description="Last day included in the 7-day window")
     total_last_7d: int
-    total_since_launch: int
+    total_since_launch: int = Field(
+        description=(
+            "Sum of views_since_launch. 0 while since_launch_pending is true: that 0 means"
+            " 'not published yet', not 'no views'"
+        )
+    )
     editions: list[WikiEdition] = Field(description="views_last_7d desc")
+    # Added after schema v1 shipped: optional, so older payloads still validate.
+    launch_day: date | None = Field(
+        default=None, description="First UTC day counted in the since-launch sums"
+    )
+    since_launch_pending: bool = Field(
+        default=False,
+        description=(
+            "True until Wikimedia has published launch_day for any edition. Show 'pending',"
+            " not total_since_launch"
+        ),
+    )
 
 
 # --- root ------------------------------------------------------------------------------

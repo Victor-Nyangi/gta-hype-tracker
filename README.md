@@ -27,7 +27,7 @@ uv sync
 uv run pytest              # parsers, raw writer, derive, runner
 uv run ruff check .
 set -a; . ../deploy/.env; set +a   # optional: keys; sources without them are skipped
-uv run collector run       # long-running scheduler (5 min / hourly / daily jobs)
+uv run collector run       # long-running scheduler (5 min / hourly / 6-hourly / daily jobs)
 uv run collector derive    # rebuild DuckDB tables + public/signals.json from raw
 uv run collector backfill  # one-off Wikipedia daily pageviews since 2022-02-01
 uv run collector schema    # re-export schema/signals.schema.json

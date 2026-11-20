@@ -5,9 +5,11 @@ are resolved from the Wikidata item's sitelinks: the English article's ``pagepro
 the item id, ``wbgetentities`` gives every edition's title. The mapping is cached in
 ``cache/wiki_titles.json`` and refreshed weekly.
 
-Daily runs fetch a trailing window (pageviews for a day settle a few hours after UTC
-midnight, so re-fetching recent days lets derive pick up the final numbers). ``backfill``
-fetches a long range once.
+Wikimedia publishes a day's pageviews late: some hours after the day ends in UTC, and on
+a bad day later still. So every run (every 6 h by default) re-fetches a trailing window of
+``REFETCH_DAYS`` days through today. A day not yet published is simply absent from the
+response; a later run brings it, as a new raw file, and derive keeps the latest fetch per
+(edition, day). ``backfill`` fetches a long range once.
 """
 
 from __future__ import annotations
@@ -33,7 +35,8 @@ EN_API = "https://en.wikipedia.org/w/api.php"
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 PAGEVIEWS = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
 TITLE_CACHE_MAX_AGE = timedelta(days=7)
-DAILY_WINDOW_DAYS = 10
+# The 7-day window plus a few days of slack for late publication or a missed run.
+REFETCH_DAYS = 10
 BACKFILL_START = date(2022, 2, 1)  # the month Rockstar confirmed VI
 
 
@@ -219,4 +222,4 @@ class WikipediaSource:
 
     def fetch(self, client: httpx.Client, now: datetime) -> Fetched:
         today = now.astimezone(UTC).date()
-        return self.fetch_range(client, now, today - timedelta(days=DAILY_WINDOW_DAYS), today)
+        return self.fetch_range(client, now, today - timedelta(days=REFETCH_DAYS), today)

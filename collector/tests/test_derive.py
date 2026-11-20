@@ -5,6 +5,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import duckdb
 import pytest
 from conftest import load
 
@@ -165,7 +166,11 @@ def test_derive_writes_schema_valid_signals(populated: Config):
     last7[-1] = 600000  # the later, settled read replaced the last day
     assert en.views_last_7d == sum(last7)
     assert str(wk.window_end) == "2026-11-18"
-    assert en.views_since_launch == 0  # fixture ends the day before launch
+    # The fixture ends the day before launch: since-launch is pending, not a real zero.
+    assert str(wk.launch_day) == "2026-11-19"
+    assert wk.since_launch_pending is True
+    assert all(e.since_launch_pending for e in wk.editions)
+    assert en.views_since_launch == 0 and wk.total_since_launch == 0  # legacy ints stay ints
     assert wk.total_last_7d == sum(e.views_last_7d for e in wk.editions)
 
 
@@ -262,3 +267,73 @@ def test_steam_peak_24h_is_marked_partial_when_tracking_is_younger_than_24h(cfg:
     cs2 = next(g for g in body["steam"]["games"] if g["key"] == "cs2")
     assert cs2["peak_24h_since"] == start.isoformat().replace("+00:00", "Z")
     assert cs2["peak_24h_partial"] is True
+
+
+def _wiki_with_days(days: dict[str, dict[str, int]]) -> dict:
+    """A wikipedia payload whose en/ja bodies are the fixtures plus extra days."""
+    payload = _wiki_payload()
+    for lang, extra in days.items():
+        body = payload["editions"][lang]["body"]
+        proto = body["items"][-1]
+        body["items"] += [{**proto, "timestamp": f"{d}00", "views": v} for d, v in extra.items()]
+    return payload
+
+
+def test_wikipedia_since_launch_appears_when_a_later_run_finds_the_launch_day(cfg: Config):
+    raw = cfg.raw_dir
+    # Morning after launch: the launch day is not published yet.
+    rawstore.write_raw(raw, "wikipedia", NOW - timedelta(hours=12), {}, _wiki_payload())
+    first = derive(cfg, now=NOW - timedelta(hours=12)).signals.wikipedia
+    assert first.since_launch_pending is True and first.total_since_launch == 0
+
+    # Six hours later Wikimedia has published 2026-11-19 for en only.
+    rawstore.write_raw(
+        raw,
+        "wikipedia",
+        NOW - timedelta(hours=6),
+        {},
+        _wiki_with_days({"en": {"20261119": 750_227}}),
+    )
+    wk = derive(cfg, now=NOW).signals.wikipedia
+    en, ja = (next(e for e in wk.editions if e.lang == k) for k in ("en", "ja"))
+    assert wk.since_launch_pending is False
+    assert str(wk.window_end) == "2026-11-19"
+    assert en.views_since_launch == 750_227 and en.since_launch_pending is False
+    assert ja.views_since_launch == 0 and ja.since_launch_pending is True  # not fetched yet
+    assert wk.total_since_launch == 750_227
+
+
+def test_wikipedia_refetches_dedupe_per_edition_and_day_latest_wins(cfg: Config):
+    raw = cfg.raw_dir
+    day = {"20261119": 700_000}
+    later = {"20261119": 750_227, "20261120": 400_000}
+    rawstore.write_raw(
+        raw, "wikipedia", NOW - timedelta(hours=12), {}, _wiki_with_days({"en": day})
+    )
+    rawstore.write_raw(
+        raw, "wikipedia", NOW - timedelta(hours=6), {}, _wiki_with_days({"en": later})
+    )
+    en = derive(cfg, now=NOW).signals.wikipedia.editions[0]
+    assert en.views_since_launch == 750_227 + 400_000  # each day once, the later read
+
+    # An older file that lands after the newer ones were ingested (e.g. copied in, or a
+    # backfill from elsewhere) never overwrites the newer number.
+    rawstore.write_raw(
+        raw, "wikipedia", NOW - timedelta(days=2), {}, _wiki_with_days({"en": {"20261119": 1}})
+    )
+    res = derive(cfg, now=NOW)
+    assert res.ingested == {"wikipedia": 1}
+    assert res.signals.wikipedia.editions[0].views_since_launch == 750_227 + 400_000
+    # and a rebuild over every raw file agrees
+    rebuilt = derive(cfg, now=NOW, rebuild=True).signals.wikipedia
+    assert rebuilt.editions[0].views_since_launch == 750_227 + 400_000
+    rows = duckdb_rows(cfg, "SELECT count(*) FROM wiki_daily WHERE project = 'en.wikipedia'")
+    assert rows == [(13,)]  # 11 fixture days + 19th + 20th, one row each
+
+
+def duckdb_rows(cfg: Config, sql: str) -> list[tuple]:
+    con = duckdb.connect(str(cfg.db_path), read_only=True)
+    try:
+        return con.execute(sql).fetchall()
+    finally:
+        con.close()

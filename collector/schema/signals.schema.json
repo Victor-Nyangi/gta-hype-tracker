@@ -453,6 +453,7 @@
           "type": "integer"
         },
         "views_since_launch": {
+          "description": "Sum of daily views from launch_day on. 0 while since_launch_pending is true: that 0 means 'not published yet', not 'no views'",
           "title": "Views Since Launch",
           "type": "integer"
         },
@@ -467,6 +468,12 @@
             }
           ],
           "title": "Latest Day"
+        },
+        "since_launch_pending": {
+          "default": false,
+          "description": "True while no day from launch_day on has been fetched for this edition (Wikimedia publishes a day's views some hours after it ends)",
+          "title": "Since Launch Pending",
+          "type": "boolean"
         }
       },
       "required": [
@@ -511,6 +518,7 @@
           "type": "integer"
         },
         "total_since_launch": {
+          "description": "Sum of views_since_launch. 0 while since_launch_pending is true: that 0 means 'not published yet', not 'no views'",
           "title": "Total Since Launch",
           "type": "integer"
         },
@@ -521,6 +529,26 @@
           },
           "title": "Editions",
           "type": "array"
+        },
+        "launch_day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "First UTC day counted in the since-launch sums",
+          "title": "Launch Day"
+        },
+        "since_launch_pending": {
+          "default": false,
+          "description": "True until Wikimedia has published launch_day for any edition. Show 'pending', not total_since_launch",
+          "title": "Since Launch Pending",
+          "type": "boolean"
         }
       },
       "required": [
