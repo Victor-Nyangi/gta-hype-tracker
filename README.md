@@ -54,8 +54,10 @@ pnpm build && pnpm start   # production build
 pnpm lint && pnpm typecheck
 ```
 
-The page currently uses typed mock adapters in `web/lib/data/`; the `Signals` type mirrors
-`collector/schema/signals.schema.json`.
+The page reads the collector's public `https://gta-data.nyangi.dev/signals.json` (override
+with `SIGNALS_URL`); the `Signals` type mirrors `collector/schema/signals.schema.json`. A
+copy of the live file is bundled as the fallback (`pnpm snapshot:signals`). See
+`web/README.md`.
 
 ## Design reference
 
