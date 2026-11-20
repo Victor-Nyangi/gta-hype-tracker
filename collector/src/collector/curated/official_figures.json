@@ -1,0 +1,53 @@
+{
+  "updated_at": "2026-11-20T12:00:00Z",
+  "figures": [
+    {
+      "key": "gtav_units",
+      "label": "Grand Theft Auto V, units sold",
+      "value": 235000000,
+      "value_max": null,
+      "qualifier": "nearly",
+      "unit": "units",
+      "as_of": "2026-11",
+      "source_title": "Take-Two Interactive investor presentation, November 2026 (slide 11)",
+      "source_url": "https://ir.take2games.com/static-files/c4c4f7f0-6a7c-4159-b97f-089a76580c38",
+      "quote": "Nearly 235 million units sold to date"
+    },
+    {
+      "key": "gta_series_units",
+      "label": "Grand Theft Auto series, units sold",
+      "value": 480000000,
+      "value_max": null,
+      "qualifier": "nearly",
+      "unit": "units",
+      "as_of": "2026-11",
+      "source_title": "Take-Two Interactive investor presentation, November 2026 (slide 11)",
+      "source_url": "https://ir.take2games.com/static-files/c4c4f7f0-6a7c-4159-b97f-089a76580c38",
+      "quote": "Franchise has sold nearly 480 million units"
+    },
+    {
+      "key": "rdr2_units",
+      "label": "Red Dead Redemption 2, units sold",
+      "value": 89000000,
+      "value_max": null,
+      "qualifier": "over",
+      "unit": "units",
+      "as_of": "2026-11",
+      "source_title": "Take-Two Interactive investor presentation, November 2026 (slide 12)",
+      "source_url": "https://ir.take2games.com/static-files/c4c4f7f0-6a7c-4159-b97f-089a76580c38",
+      "quote": "Red Dead Redemption 2 sold over 89M units"
+    },
+    {
+      "key": "fy27_net_bookings_outlook",
+      "label": "Take-Two Net Bookings outlook, fiscal 2027",
+      "value": 8000000000,
+      "value_max": 8200000000,
+      "qualifier": null,
+      "unit": "usd",
+      "as_of": "2026-11-09",
+      "source_title": "Take-Two Interactive Software, Inc. Reports Results for Fiscal Second Quarter 2027",
+      "source_url": "https://www.take2games.com/ir/news/take-two-interactive-software-inc-reports-results-fiscal-4",
+      "quote": "Company updates fiscal year 2027 outlook and reiterates expectation for Net Bookings of $8.0 to $8.2 billion"
+    }
+  ]
+}
