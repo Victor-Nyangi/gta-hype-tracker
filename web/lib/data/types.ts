@@ -36,14 +36,14 @@ export interface LanguageViews {
 }
 
 export interface SteamGame {
-  /** Stable id shared with the collector (gtav, rdr2, cs2, cp77, er, bg3). */
+  /** Stable id shared with the collector (gtav, rdr2, cs2, cp77, er, bg3, gtav_enhanced). */
   id: string;
   appId: number;
   name: string;
   currentPlayers: number | null;
   peak24h: number | null;
-  /** All-time peak (SteamDB/SteamCharts, approximate). */
-  allTimePeak: number;
+  /** All-time peak (SteamDB/SteamCharts, approximate), or null when not known. */
+  allTimePeak: number | null;
   /** 25 hourly points, oldest first, ending now. */
   series24h: (number | null)[];
   /** Cover art under /public, if we have one. */
