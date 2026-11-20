@@ -68,6 +68,21 @@ export const COVERS = {
   },
 } satisfies Record<string, CoverArt>;
 
+/**
+ * Compare chip labels, keyed by game id: short enough for every chip to sit on one row at
+ * 1440. The card, the peaks list and the alt text keep the full names.
+ */
+export const SHORT_NAMES: Record<string, string> = {
+  gta6: "GTA VI",
+  gtav: "GTA V",
+  gtav_enhanced: "GTA V Enhanced",
+  rdr2: "Red Dead 2",
+  cs2: "CS2",
+  cp77: "Cyberpunk 2077",
+  er: "Elden Ring",
+  bg3: "Baldur's Gate 3",
+};
+
 /** Steam games to compare. All-time peaks are approximate (design/README.md). */
 export const STEAM_GAMES = [
   { id: "gtav", appId: 271590, name: "Grand Theft Auto V", allTimePeak: 364548, cover: COVERS.gtav },

@@ -1,4 +1,4 @@
-import { COVERS } from "./data/constants";
+import { COVERS, SHORT_NAMES } from "./data/constants";
 import type { CoverArt, SteamGame, TwitchSeries } from "./data/types";
 import { twitchView } from "./twitch";
 
@@ -14,6 +14,8 @@ export const GTA6_ID = "gta6";
 export interface CompareGame {
   id: string;
   name: string;
+  /** The chip label (SHORT_NAMES); the full name everywhere else. */
+  short: string;
   source: "steam" | "twitch";
   current: number | null;
   peak24h: number | null;
@@ -28,6 +30,7 @@ export function fromSteam(g: SteamGame): CompareGame {
   return {
     id: g.id,
     name: g.name,
+    short: SHORT_NAMES[g.id] ?? g.name,
     source: "steam",
     current: g.currentPlayers,
     peak24h: g.peak24h,
@@ -70,6 +73,7 @@ export function fromTwitch(series: TwitchSeries, now: number | null): CompareGam
   return {
     id: GTA6_ID,
     name: "Grand Theft Auto VI",
+    short: SHORT_NAMES[GTA6_ID],
     source: "twitch",
     current: view.current,
     peak24h,
