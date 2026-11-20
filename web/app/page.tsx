@@ -1,3 +1,4 @@
+import { Business } from "@/components/business/Business";
 import { Compare } from "@/components/compare/Compare";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -23,6 +24,7 @@ export default async function Home() {
         </div>
         <Signals wikipedia={data.wikipedia} />
         <Compare />
+        <Business />
       </main>
       <Footer />
     </LiveSignals>
