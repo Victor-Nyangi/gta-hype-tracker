@@ -117,6 +117,7 @@ def test_derive_writes_schema_valid_signals(populated: Config):
         "steam",
         "youtube",
         "wikipedia",
+        "business",
     }
     assert body["launch_at"] == "2026-11-19T05:00:00Z"
 

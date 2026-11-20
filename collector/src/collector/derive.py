@@ -24,9 +24,14 @@ import duckdb
 from collector import rawstore
 from collector.config import LAUNCH_AT, Config
 from collector.signals import (
+    BusinessSignals,
+    OfficialFigures,
+    SalesEstimateMethod,
     Signals,
     SteamGame,
     SteamPoint,
+    SteamReviewGame,
+    SteamReviewSignals,
     SteamSignals,
     TwitchGameSummary,
     TwitchHourPoint,
@@ -38,7 +43,7 @@ from collector.signals import (
     YouTubeSignals,
     YouTubeVideo,
 )
-from collector.sources import steam, twitch, wikipedia, youtube
+from collector.sources import steam, steam_reviews, twitch, wikipedia, youtube
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +54,10 @@ TABLES = (
     "steam_players",
     "youtube_stats",
     "wiki_daily",
+    "steam_reviews",
 )
+
+SOURCES = ("twitch", "steam", "youtube", "wikipedia", "steam_reviews")
 
 DDL = """
 CREATE TABLE IF NOT EXISTS raw_files (
@@ -70,6 +78,9 @@ CREATE TABLE IF NOT EXISTS youtube_stats (
 CREATE TABLE IF NOT EXISTS wiki_daily (
     project VARCHAR, lang VARCHAR, title VARCHAR, day DATE, views BIGINT, fetched_at TIMESTAMP,
     PRIMARY KEY (project, day));
+CREATE TABLE IF NOT EXISTS steam_reviews (
+    fetched_at TIMESTAMP, app_id INTEGER, game_key VARCHAR, name VARCHAR, positive BIGINT,
+    negative BIGINT, new_last_7d BIGINT, PRIMARY KEY (fetched_at, app_id));
 """
 
 HOURS_WATCHED_MAX_GAP = timedelta(minutes=15)
@@ -122,6 +133,10 @@ COLUMNS: dict[str, tuple[tuple[str, ...], int]] = {
     "youtube_stats": (("TIMESTAMP", "VARCHAR", "VARCHAR", "BIGINT", "BIGINT", "BIGINT"), 2),
     # wiki_daily is keyed (project, day), which sit at positions 0 and 3.
     "wiki_daily": (("VARCHAR", "VARCHAR", "VARCHAR", "DATE", "BIGINT", "TIMESTAMP"), 0),
+    "steam_reviews": (
+        ("TIMESTAMP", "INTEGER", "VARCHAR", "VARCHAR", "BIGINT", "BIGINT", "BIGINT"),
+        2,
+    ),
 }
 
 
@@ -203,6 +218,15 @@ def _rows_for(doc: rawstore.RawDoc) -> list[tuple[str, list]]:
             ("wiki_daily", [d.project, d.lang, d.title, d.day, d.views, t])
             for d in wikipedia.parse(doc.payload)
         )
+    elif doc.source == "steam_reviews":
+        day = doc.fetched_at.astimezone(UTC).date()
+        out.extend(
+            (
+                "steam_reviews",
+                [t, r.app_id, r.key, r.name, r.positive, r.negative, r.new_last_7d],
+            )
+            for r in steam_reviews.parse(doc.payload, day)
+        )
     return out
 
 
@@ -213,7 +237,7 @@ def ingest(con: duckdb.DuckDBPyConnection, raw_dir: Path) -> dict[str, int]:
     counts: dict[str, int] = {}
     buf = _Buffer()
     now = _naive(datetime.now(UTC))
-    for source in ("twitch", "steam", "youtube", "wikipedia"):
+    for source in SOURCES:
         for p in rawstore.iter_raw_paths(raw_dir, source):
             key = str(p.relative_to(raw_dir)).removesuffix(".gz")
             if key in known:
@@ -469,6 +493,79 @@ def _wiki_item_id(cfg: Config) -> str | None:
         return None
 
 
+REVIEW_CHANGE_WINDOW = timedelta(days=7)
+
+
+def _steam_reviews(con: duckdb.DuckDBPyConnection) -> SteamReviewSignals | None:
+    span = con.execute("SELECT min(fetched_at), max(fetched_at) FROM steam_reviews").fetchone()
+    if span is None or span[0] is None:
+        return None
+    order = {g.app_id: i for i, g in enumerate(steam.GAMES)}
+    latest = con.execute(
+        """SELECT app_id, arg_max(game_key, fetched_at), arg_max(name, fetched_at),
+                  arg_max(positive, fetched_at), arg_max(negative, fetched_at),
+                  arg_max(new_last_7d, fetched_at), max(fetched_at)
+           FROM steam_reviews GROUP BY app_id"""
+    ).fetchall()
+    games = []
+    for app_id, key, name, pos, neg, new7, at in sorted(
+        latest, key=lambda r: (order.get(r[0], len(order)), r[0])
+    ):
+        total = pos + neg
+        # The latest reading at least 7 days before this one: the 7-day change needs history.
+        prior = con.execute(
+            "SELECT positive + negative, fetched_at FROM steam_reviews"
+            " WHERE app_id = ? AND fetched_at <= ? ORDER BY fetched_at DESC LIMIT 1",
+            [app_id, at - REVIEW_CHANGE_WINDOW],
+        ).fetchone()
+        est = steam_reviews.estimate_range(total, app_id)
+        games.append(
+            SteamReviewGame(
+                key=key,
+                app_id=app_id,
+                name=name,
+                total_reviews=total,
+                positive=pos,
+                negative=neg,
+                fetched_at=_aware(at),
+                new_reviews_7d=new7,
+                change_7d=None if prior is None else total - prior[0],
+                change_7d_since=None if prior is None else _aware(prior[1]),
+                estimated_sales_low=est[0] if est else None,
+                estimated_sales_high=est[1] if est else None,
+                no_estimate_reason=steam_reviews.NO_ESTIMATE.get(app_id),
+            )
+        )
+    return SteamReviewSignals(
+        tracking_since=_aware(span[0]),
+        updated_at=_aware(span[1]),
+        method=SalesEstimateMethod(
+            name=steam_reviews.METHOD_NAME,
+            multiplier_low=steam_reviews.ESTIMATE_LOW,
+            multiplier_high=steam_reviews.ESTIMATE_HIGH,
+            sources=list(steam_reviews.METHOD_SOURCES),
+        ),
+        games=games,
+    )
+
+
+def _official(cfg: Config) -> OfficialFigures | None:
+    """The curated Take-Two figures. A missing or malformed file is logged and left out: it
+    never stops the rest of signals.json."""
+    try:
+        return OfficialFigures.model_validate_json(cfg.official_figures_path.read_bytes())
+    except Exception as e:
+        log.error("derive: official figures unavailable (%s); left out", type(e).__name__)
+        return None
+
+
+def _business(con: duckdb.DuckDBPyConnection, cfg: Config) -> BusinessSignals | None:
+    reviews, official = _steam_reviews(con), _official(cfg)
+    if reviews is None and official is None:
+        return None
+    return BusinessSignals(steam_reviews=reviews, official=official)
+
+
 def build_signals(con: duckdb.DuckDBPyConnection, cfg: Config, now: datetime) -> Signals:
     return Signals(
         generated_at=now.astimezone(UTC),
@@ -477,6 +574,7 @@ def build_signals(con: duckdb.DuckDBPyConnection, cfg: Config, now: datetime) ->
         steam=_steam(con, now),
         youtube=_youtube(con),
         wikipedia=_wikipedia(con, _wiki_item_id(cfg)),
+        business=_business(con, cfg),
     )
 
 

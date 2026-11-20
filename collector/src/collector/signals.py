@@ -204,6 +204,88 @@ class WikipediaSignals(_Model):
     )
 
 
+# --- Business (added after schema v1 shipped) ------------------------------------------
+
+
+class SalesEstimateMethod(_Model):
+    name: str = Field(description="One line: how reviews become an estimated-sales range")
+    multiplier_low: int = Field(description="Low multiple of all-time reviews")
+    multiplier_high: int = Field(description="High multiple of all-time reviews")
+    sources: list[str] = Field(description="Where the multiples come from (URLs)")
+
+
+class SteamReviewGame(_Model):
+    key: str = Field(description="Same keys as steam.games (gtav, rdr2, cs2, ...)")
+    app_id: int
+    name: str
+    total_reviews: int = Field(description="All-time Steam user reviews, every language")
+    positive: int
+    negative: int
+    fetched_at: datetime
+    new_reviews_7d: int | None = Field(
+        description=(
+            "Reviews posted in the 7 complete UTC days before fetched_at's day, from Steam's own"
+            " daily counts; null if Steam sent none"
+        )
+    )
+    change_7d: int | None = Field(
+        description=(
+            "total_reviews minus the total at the latest reading at least 7 days older; null"
+            " until the tracker has a reading that old"
+        )
+    )
+    change_7d_since: datetime | None = Field(description="When that older reading was taken")
+    estimated_sales_low: int | None = Field(
+        description=(
+            "total_reviews x method.multiplier_low. An estimate, not a reported figure; null"
+            " where the method does not apply (see no_estimate_reason)"
+        )
+    )
+    estimated_sales_high: int | None = Field(description="total_reviews x method.multiplier_high")
+    no_estimate_reason: str | None = Field(
+        description="Why there is no estimate (free to play, a free upgrade), else null"
+    )
+
+
+class SteamReviewSignals(_Model):
+    tracking_since: datetime
+    updated_at: datetime
+    method: SalesEstimateMethod
+    games: list[SteamReviewGame]
+
+
+class OfficialFigure(_Model):
+    key: str = Field(description="Stable id, e.g. gtav_units")
+    label: str
+    value: int = Field(description="The figure as reported (units, or US dollars)")
+    value_max: int | None = Field(description="Upper end when the report gives a range")
+    qualifier: Literal["nearly", "over"] | None = Field(
+        description="The report's own hedge: 'nearly 235 million' is value 235000000, 'nearly'"
+    )
+    unit: Literal["units", "usd"]
+    as_of: str = Field(
+        description="YYYY-MM or YYYY-MM-DD, as precise as the source",
+        pattern=r"^\d{4}-\d{2}(-\d{2})?$",
+    )
+    source_title: str
+    source_url: str
+    quote: str = Field(description="The source's own words for the figure")
+
+
+class OfficialFigures(_Model):
+    updated_at: datetime = Field(description="When the curated list was last checked")
+    figures: list[OfficialFigure]
+
+
+class BusinessSignals(_Model):
+    steam_reviews: SteamReviewSignals | None = Field(
+        description="Steam review counts and estimated-sales ranges; null until first sampled"
+    )
+    official: OfficialFigures | None = Field(
+        description="Hand-curated Take-Two figures, each with its source; null if unavailable"
+    )
+
+
 # --- root ------------------------------------------------------------------------------
 
 
@@ -218,10 +300,21 @@ class Signals(_Model):
     steam: SteamSignals | None
     youtube: YouTubeSignals | None
     wikipedia: WikipediaSignals | None
+    # Added after schema v1 shipped: optional, so older payloads still validate.
+    business: BusinessSignals | None = Field(
+        default=None,
+        description="Money signals: Steam review counts, curated Take-Two figures",
+    )
+
+
+# Root keys added after v1. The collector always writes them, but a v1 payload without them
+# is still valid, so they are taken out of the schema's `required`.
+OPTIONAL_ROOT_KEYS = ("business",)
 
 
 def json_schema() -> dict:
     schema = Signals.model_json_schema(mode="serialization")
+    schema["required"] = [k for k in schema["required"] if k not in OPTIONAL_ROOT_KEYS]
     schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
     schema["$id"] = (
         "https://github.com/Victor-Nyangi/gta-hype-tracker/collector/schema/signals.schema.json"
