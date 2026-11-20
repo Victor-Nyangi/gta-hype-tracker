@@ -337,3 +337,28 @@ def duckdb_rows(cfg: Config, sql: str) -> list[tuple]:
         return con.execute(sql).fetchall()
     finally:
         con.close()
+
+
+ADDED_AFTER_V1 = {
+    "SteamGame": {"peak_24h_at", "peak_24h_since", "peak_24h_partial"},
+    "WikiEdition": {"since_launch_pending"},
+    "WikipediaSignals": {"launch_day", "since_launch_pending"},
+}
+
+
+def test_schema_additions_are_optional_and_old_payloads_still_validate(populated: Config):
+    defs = json_schema()["$defs"]
+    for model, fields in ADDED_AFTER_V1.items():
+        assert fields <= set(defs[model]["properties"])
+        assert not fields & set(defs[model].get("required", [])), model
+    # A payload as an older collector wrote it (none of the new keys) is still a valid v1.
+    body = json.loads(derive(populated, now=NOW).signals_path.read_text())
+    for g in body["steam"]["games"]:
+        for k in ADDED_AFTER_V1["SteamGame"]:
+            del g[k]
+    for e in body["wikipedia"]["editions"]:
+        del e["since_launch_pending"]
+    for k in ADDED_AFTER_V1["WikipediaSignals"]:
+        del body["wikipedia"][k]
+    assert body["schema_version"] == 1
+    Signals.model_validate(body)
