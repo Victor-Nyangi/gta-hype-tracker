@@ -104,11 +104,12 @@ function Cover({ game }: { game: SteamGame }) {
     return (
       <Image
         key={game.id}
-        src={game.cover}
-        alt={`${game.name} cover art`}
+        src={game.cover.src}
+        alt={game.cover.alt}
         fill
         sizes="(min-width: 1328px) 411px, (min-width: 752px) 33vw, 100vw"
         className="object-cover"
+        style={{ objectPosition: game.cover.position }}
       />
     );
   }

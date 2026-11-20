@@ -1,4 +1,4 @@
-import type { Milestone, WaitCounter } from "./types";
+import type { CoverArt, Milestone, WaitCounter } from "./types";
 
 /** Facts, not data feeds: they do not change, so they live here rather than in an adapter. */
 
@@ -19,16 +19,64 @@ export const WAITS: WaitCounter[] = [
   { label: "Since Trailer 2", since: "2025-05-06", color: "teal" },
 ];
 
+/**
+ * Compare cover art, keyed by game id. Masters live in public/assets/covers (at most 1200px
+ * on the long side; next/image re-encodes them per width). Fan use only (design/README.md).
+ */
+export const COVERS = {
+  gta6: {
+    src: "/assets/covers/gta6.jpg",
+    alt: "Grand Theft Auto VI key art: Lucia and Jason in front of the Vice City skyline at sunset",
+    position: "50% 50%",
+  },
+  // data: this is the handoff's cover-gtav.webp, kept as supplied; it shows VI's Jason and Lucia.
+  gtav: {
+    src: "/assets/cover-gtav.webp",
+    alt: "Jason and Lucia against a Vice City sunset",
+    position: "78% 50%",
+  },
+  gtav_enhanced: {
+    src: "/assets/covers/gtav-enhanced.jpg",
+    alt: "Grand Theft Auto V Enhanced box art: the GTA V logo among panels of Michael, Franklin, Trevor and Chop",
+    position: "50% 40%",
+  },
+  rdr2: {
+    src: "/assets/covers/rdr2.jpg",
+    alt: "Red Dead Redemption 2 cover: Arthur Morgan aiming a revolver, riders on the horizon behind him",
+    position: "50% 22%",
+  },
+  cs2: {
+    src: "/assets/covers/cs2.jpg",
+    alt: "Counter-Strike art: a masked counter-terrorist firing a rifle",
+    position: "22% 50%",
+  },
+  cp77: {
+    src: "/assets/covers/cp77.jpg",
+    alt: "Cyberpunk 2077 cover: V in a jacket with a glowing collar, pistol raised, on yellow",
+    position: "60% 40%",
+  },
+  er: {
+    src: "/assets/covers/er.jpg",
+    alt: "Elden Ring cover: a kneeling knight beneath the burning sigil of the Elden Ring",
+    position: "50% 50%",
+  },
+  bg3: {
+    src: "/assets/covers/bg3.jpg",
+    alt: "Baldur's Gate 3 cover: Astarion leads the companions under a stormy sky",
+    position: "50% 30%",
+  },
+} satisfies Record<string, CoverArt>;
+
 /** Steam games to compare. All-time peaks are approximate (design/README.md). */
 export const STEAM_GAMES = [
-  { id: "gtav", appId: 271590, name: "Grand Theft Auto V", allTimePeak: 364548, cover: "/assets/cover-gtav.webp" },
-  { id: "rdr2", appId: 1174180, name: "Red Dead Redemption 2", allTimePeak: 92000 },
-  { id: "cs2", appId: 730, name: "Counter-Strike 2", allTimePeak: 1862531 },
-  { id: "cp77", appId: 1091500, name: "Cyberpunk 2077", allTimePeak: 1054388 },
-  { id: "er", appId: 1245620, name: "Elden Ring", allTimePeak: 953426 },
-  { id: "bg3", appId: 1086940, name: "Baldur's Gate 3", allTimePeak: 875343 },
+  { id: "gtav", appId: 271590, name: "Grand Theft Auto V", allTimePeak: 364548, cover: COVERS.gtav },
+  { id: "rdr2", appId: 1174180, name: "Red Dead Redemption 2", allTimePeak: 92000, cover: COVERS.rdr2 },
+  { id: "cs2", appId: 730, name: "Counter-Strike 2", allTimePeak: 1862531, cover: COVERS.cs2 },
+  { id: "cp77", appId: 1091500, name: "Cyberpunk 2077", allTimePeak: 1054388, cover: COVERS.cp77 },
+  { id: "er", appId: 1245620, name: "Elden Ring", allTimePeak: 953426, cover: COVERS.er },
+  { id: "bg3", appId: 1086940, name: "Baldur's Gate 3", allTimePeak: 875343, cover: COVERS.bg3 },
   // GTA V has been split across two Steam apps since March 2025; the collector samples
-  // both (collector/src/collector/sources/steam.py). Same game, so the same cover.
+  // both (collector/src/collector/sources/steam.py).
   // data: no all-time peak for Enhanced yet (the 364,548 above predates the split, and
   // the collector only records peaks it has observed), so the page shows a dash for now.
   {
@@ -36,7 +84,7 @@ export const STEAM_GAMES = [
     appId: 3240220,
     name: "Grand Theft Auto V Enhanced",
     allTimePeak: null,
-    cover: "/assets/cover-gtav.webp",
+    cover: COVERS.gtav_enhanced,
   },
 ] as const;
 

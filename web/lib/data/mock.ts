@@ -66,7 +66,7 @@ export const GAMES: SteamGame[] = STEAM_GAMES.map((g, gi) => {
     appId: g.appId,
     name: g.name,
     allTimePeak: g.allTimePeak,
-    cover: "cover" in g ? g.cover : undefined,
+    cover: g.cover,
     series24h,
     currentPlayers: series24h[24],
     peak24h: Math.max(...series24h),
