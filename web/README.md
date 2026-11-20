@@ -26,7 +26,8 @@ pnpm screenshots              # Playwright captures of a running build (see scri
   reduced motion and in print.
 - Hero: `components/KeyArt.tsx` is art-directed. Below 768px a `<picture>` serves
   `hero-key-art-portrait.jpg` (a 900x1424 crop of the key art, both characters), above it
-  the full 3560x1424 art; each is preloaded for its own media query.
+  the full 3560x1424 art; each is preloaded for its own media query. Below 768px the scrim
+  is a bottom-up fade only, so it does not sit on Lucia in the portrait crop.
 - Compare: GTA VI is the first chip and the default. It is not on Steam, so `lib/compare.ts`
   builds its card from the Twitch series (same `twitchView` as the Signals card), resampled
   to the 25 points every Compare chart uses. The all-time list stays Steam-only. Covers live
