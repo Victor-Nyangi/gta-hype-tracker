@@ -70,7 +70,10 @@ class Config:
     twitch_client_id: str = ""
     twitch_client_secret: str = ""
     twitch_game_id: str = ""
-    twitch_max_pages: int = 100
+    # Safety cap only: launch-week GTA VI can run to a few hundred pages of 100 streams.
+    twitch_max_pages: int = 1000
+    # Wall-clock budget for one Twitch poll (both categories), inside the 5-minute slot.
+    twitch_time_budget_s: float = 210.0
     youtube_api_key: str = ""
     youtube_videos: dict[str, str] = field(default_factory=lambda: dict(DEFAULT_YOUTUBE_VIDEOS))
     wiki_langs: tuple[str, ...] = tuple(DEFAULT_WIKI_LANGS)
@@ -122,7 +125,8 @@ class Config:
             twitch_client_id=e.get("TWITCH_CLIENT_ID", ""),
             twitch_client_secret=e.get("TWITCH_CLIENT_SECRET", ""),
             twitch_game_id=e.get("TWITCH_GAME_ID", ""),
-            twitch_max_pages=int(e.get("TWITCH_MAX_PAGES") or 100),
+            twitch_max_pages=int(e.get("TWITCH_MAX_PAGES") or 1000),
+            twitch_time_budget_s=float(e.get("TWITCH_TIME_BUDGET_S") or 210),
             youtube_api_key=e.get("YOUTUBE_API_KEY", ""),
             youtube_videos=videos,
             wiki_langs=langs,
