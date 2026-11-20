@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { scrollToSection } from "@/lib/scroll";
 import { launchClock, statusLabel } from "@/lib/time";
 import { useNow } from "@/lib/use-now";
 import { LiveDot } from "./LiveDot";
@@ -13,14 +14,8 @@ export const SECTIONS = [
 
 type SectionId = (typeof SECTIONS)[number]["id"];
 
-/** design/README.md: tabs scroll to their section with a 64px offset ... */
-const SCROLL_OFFSET = 64;
-/** ... and the active tab follows the section whose top is <= 160px from the viewport top. */
+/** design/README.md: the active tab follows the section whose top is <= 160px from the viewport top. */
 const SPY_THRESHOLD = 160;
-
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
 
 export function Header() {
   const [active, setActive] = useState<SectionId>("launch");
@@ -51,17 +46,9 @@ export function Header() {
   }, []);
 
   // Links work as plain anchors without JS (scroll-padding-top keeps the 64px offset);
-  // with JS they smooth-scroll. On a phone the header wraps to three rows, taller than
-  // 64px, so the offset grows to keep the section's top in view.
+  // with JS they smooth-scroll.
   const go = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: SectionId) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    e.preventDefault();
-    const header = document.querySelector<HTMLElement>("[data-site-header]");
-    const offset = Math.max(SCROLL_OFFSET, (header?.offsetHeight ?? 0) + 10);
-    const top = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: prefersReducedMotion() ? "auto" : "smooth" });
-    history.replaceState(null, "", `#${id}`);
+    if (scrollToSection(id)) e.preventDefault();
   }, []);
 
   const clock = now === null ? null : launchClock(now);

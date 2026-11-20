@@ -65,6 +65,7 @@
   --animate-sunset-slow: sunset 14s ease infinite;
   --animate-sunset-text: sunset 8s ease infinite;
   --animate-pulse-ring: pulse-ring 1.6s infinite;
+  --animate-marquee: marquee 38s linear infinite;
 
   @keyframes sunset {
     0% {
@@ -75,6 +76,14 @@
     }
     100% {
       background-position: 0% 50%;
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
     }
   }
   @keyframes pulse-ring {
@@ -164,7 +173,23 @@
   }
 }
 
+/*
+ * <Reveal>/<ChartReveal> (Framer Motion) server-render their hidden state inline. Without
+ * JS, with reduced motion and in print, force the resting state so nothing stays hidden.
+ */
+html:not(.js) [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+
   *,
   *::before,
   *::after {
@@ -181,7 +206,28 @@
   *::after {
     animation: none !important;
   }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
   header[data-site-header] {
     position: static;
   }
+}
+
+/*
+ * Language map (design/README.md §2). Each country carries its language's fill (--f) and
+ * dimmed fill (--d) inline, from the server. Hovering a language sets data-hover on the
+ * wrapper: the others dim, and a per-language rule (rendered with the map) turns its
+ * countries orange. No React re-render of the 177 paths.
+ */
+.lang-map path {
+  fill: var(--f, var(--color-card-raised));
+  stroke: var(--color-band);
+  stroke-width: 0.6;
+  transition: fill 320ms var(--ease-reveal);
+}
+[data-hover] .lang-map path[data-l] {
+  fill: var(--d);
 }
