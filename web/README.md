@@ -60,6 +60,15 @@ pnpm screenshots              # Playwright captures of a running build (see scri
   object-position that keeps faces or titles in the tile). Chips use short labels
   (`SHORT_NAMES`, with the full title in the accessible name) so they fit one row at 1440;
   the card, the peaks list and the alt text keep the full names.
+- Business ("Follow the money", after Compare, `components/business/Business.tsx`): the
+  collector's optional `business` block. Take-Two's reported figures as tiles (value, the
+  source's own "nearly"/"over", as-of and a link to the page that says so), and estimated
+  Steam sales per game as a low–high range bar (all-time reviews x30 to x55, the method in
+  the footnote; no estimate for CS2 or GTA V Enhanced). The guard checks `steam_reviews` and
+  `official` separately, so either falls back to the bundled snapshot on its own; the whole
+  section is hidden if neither exists. The 60s refresh updates them when the payload carries
+  them. `pnpm snapshot:signals` keeps the previous snapshot's `business` while the live file
+  has none. No share-price chart: no keyless price source works (collector/README.md).
 - Status: the whole page on live data (design/PROMPT.md stage 4). `// data:` comments mark
   where the page and the feeds differ (truncated Twitch snapshots, hour buckets vs
   tracking_since, curated trailer curves, language-to-country mapping).
