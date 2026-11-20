@@ -110,6 +110,44 @@ export interface CoverArt {
   position: string;
 }
 
+/** One Steam game's review count and the estimated-sales range drawn from it. */
+export interface ReviewEstimate {
+  /** Same ids as SteamGame (gtav, rdr2, cs2, ...). */
+  id: string;
+  name: string;
+  totalReviews: number;
+  positive: number;
+  negative: number;
+  /** Reviews in the 7 complete days before the read (Steam's own daily counts). */
+  newReviews7d: number | null;
+  /** Estimated copies sold, low..high; null where the method does not apply. */
+  estimate: { low: number; high: number } | null;
+  /** Why there is no estimate (free to play, a free upgrade). */
+  noEstimateReason: string | null;
+}
+
+export interface SteamReviews {
+  games: ReviewEstimate[];
+  method: { name: string; low: number; high: number; sources: string[] };
+}
+
+/** A Take-Two-reported figure, as curated in the collector with its source. */
+export interface OfficialFigure {
+  key: string;
+  label: string;
+  value: number;
+  /** Upper end when the report gives a range. */
+  valueMax: number | null;
+  /** The report's own hedge ("nearly 235 million"). */
+  qualifier: "nearly" | "over" | null;
+  unit: "units" | "usd";
+  /** YYYY-MM or YYYY-MM-DD. */
+  asOf: string;
+  sourceTitle: string;
+  sourceUrl: string;
+  quote: string;
+}
+
 /** Everything the page renders. A null source is unavailable live and in the fallback. */
 export interface PageData {
   /** The payload's generated_at (ISO). */
@@ -121,6 +159,10 @@ export interface PageData {
   youtube: Sourced<YouTubeTotals> | null;
   /** Curated first-30-day curves; not a feed. */
   trailers: TrailerSeries[];
+  /** business.steam_reviews: null until the collector samples it. */
+  reviews: Sourced<SteamReviews> | null;
+  /** business.official: the curated Take-Two figures. */
+  official: Sourced<OfficialFigure[]> | null;
 }
 
 export interface Milestone {

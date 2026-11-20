@@ -8,6 +8,10 @@ export interface Signals {
   steam: SteamSignals | null;
   youtube: YouTubeSignals | null;
   wikipedia: WikipediaSignals | null;
+  /**
+   * Money signals: Steam review counts, curated Take-Two figures
+   */
+  business?: BusinessSignals | null;
 }
 /**
  * This interface was referenced by `Signals`'s JSON-Schema
@@ -27,7 +31,7 @@ export interface TwitchSignals {
   current_viewers: number;
   current_streams: number;
   /**
-   * True if the latest snapshot hit the page cap (long tail not counted)
+   * True if the latest snapshot stopped before the last page (safety page cap, time budget, rate limit or a failing page), so the long tail is not counted
    */
   current_truncated: boolean;
   peak_viewers: number;
@@ -131,7 +135,7 @@ export interface SteamGame {
   current_players: number | null;
   current_at: string | null;
   /**
-   * Max single reading in the last 24h
+   * Max single reading in the 24h before generated_at. When peak_24h_partial is true the readings only go back to peak_24h_since, so this is the max of a shorter window
    */
   peak_24h: number | null;
   /**
@@ -172,6 +176,18 @@ export interface SteamGame {
     SteamPoint,
     SteamPoint
   ];
+  /**
+   * When the peak_24h reading was taken (earliest, on a tie)
+   */
+  peak_24h_at?: string | null;
+  /**
+   * Oldest reading inside the 24h window: where peak_24h's window really starts
+   */
+  peak_24h_since?: string | null;
+  /**
+   * True when peak_24h_since is more than 15 minutes after generated_at minus 24h (tracking began, or resumed after an outage, inside the window), so peak_24h covers less than 24 hours
+   */
+  peak_24h_partial?: boolean;
 }
 /**
  * This interface was referenced by `Signals`'s JSON-Schema
@@ -223,11 +239,22 @@ export interface WikipediaSignals {
    */
   window_end: string;
   total_last_7d: number;
+  /**
+   * Sum of views_since_launch. 0 while since_launch_pending is true: that 0 means 'not published yet', not 'no views'
+   */
   total_since_launch: number;
   /**
    * views_last_7d desc
    */
   editions: WikiEdition[];
+  /**
+   * First UTC day counted in the since-launch sums
+   */
+  launch_day?: string | null;
+  /**
+   * True until Wikimedia has published launch_day for any edition. Show 'pending', not total_since_launch
+   */
+  since_launch_pending?: boolean;
 }
 /**
  * This interface was referenced by `Signals`'s JSON-Schema
@@ -244,6 +271,147 @@ export interface WikiEdition {
   project: string;
   title: string;
   views_last_7d: number;
+  /**
+   * Sum of daily views from launch_day on. 0 while since_launch_pending is true: that 0 means 'not published yet', not 'no views'
+   */
   views_since_launch: number;
   latest_day: string | null;
+  /**
+   * True while no day from launch_day on has been fetched for this edition (Wikimedia publishes a day's views some hours after it ends)
+   */
+  since_launch_pending?: boolean;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "BusinessSignals".
+ */
+export interface BusinessSignals {
+  /**
+   * Steam review counts and estimated-sales ranges; null until first sampled
+   */
+  steam_reviews: SteamReviewSignals | null;
+  /**
+   * Hand-curated Take-Two figures, each with its source; null if unavailable
+   */
+  official: OfficialFigures | null;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "SteamReviewSignals".
+ */
+export interface SteamReviewSignals {
+  tracking_since: string;
+  updated_at: string;
+  method: SalesEstimateMethod;
+  games: SteamReviewGame[];
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "SalesEstimateMethod".
+ */
+export interface SalesEstimateMethod {
+  /**
+   * One line: how reviews become an estimated-sales range
+   */
+  name: string;
+  /**
+   * Low multiple of all-time reviews
+   */
+  multiplier_low: number;
+  /**
+   * High multiple of all-time reviews
+   */
+  multiplier_high: number;
+  /**
+   * Where the multiples come from (URLs)
+   */
+  sources: string[];
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "SteamReviewGame".
+ */
+export interface SteamReviewGame {
+  /**
+   * Same keys as steam.games (gtav, rdr2, cs2, ...)
+   */
+  key: string;
+  app_id: number;
+  name: string;
+  /**
+   * All-time Steam user reviews, every language
+   */
+  total_reviews: number;
+  positive: number;
+  negative: number;
+  fetched_at: string;
+  /**
+   * Reviews posted in the 7 complete UTC days before fetched_at's day, from Steam's own daily counts; null if Steam sent none
+   */
+  new_reviews_7d: number | null;
+  /**
+   * total_reviews minus the total at the latest reading at least 7 days older; null until the tracker has a reading that old
+   */
+  change_7d: number | null;
+  /**
+   * When that older reading was taken
+   */
+  change_7d_since: string | null;
+  /**
+   * total_reviews x method.multiplier_low. An estimate, not a reported figure; null where the method does not apply (see no_estimate_reason)
+   */
+  estimated_sales_low: number | null;
+  /**
+   * total_reviews x method.multiplier_high
+   */
+  estimated_sales_high: number | null;
+  /**
+   * Why there is no estimate (free to play, a free upgrade), else null
+   */
+  no_estimate_reason: string | null;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "OfficialFigures".
+ */
+export interface OfficialFigures {
+  /**
+   * When the curated list was last checked
+   */
+  updated_at: string;
+  figures: OfficialFigure[];
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "OfficialFigure".
+ */
+export interface OfficialFigure {
+  /**
+   * Stable id, e.g. gtav_units
+   */
+  key: string;
+  label: string;
+  /**
+   * The figure as reported (units, or US dollars)
+   */
+  value: number;
+  /**
+   * Upper end when the report gives a range
+   */
+  value_max: number | null;
+  /**
+   * The report's own hedge: 'nearly 235 million' is value 235000000, 'nearly'
+   */
+  qualifier: ("nearly" | "over") | null;
+  unit: "units" | "usd";
+  /**
+   * YYYY-MM or YYYY-MM-DD, as precise as the source
+   */
+  as_of: string;
+  source_title: string;
+  source_url: string;
+  /**
+   * The source's own words for the figure
+   */
+  quote: string;
 }

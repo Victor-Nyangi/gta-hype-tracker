@@ -5,5 +5,5 @@ export * from "./constants";
 export type { Signals } from "./signals.generated";
 export type * as SignalsSchema from "./signals.generated";
 export { TRAILERS } from "./trailers";
-export { checkSignals, isSignals } from "./guard";
-export { adaptSteam, adaptTwitch, adaptWikipedia, adaptYouTube, mergeLive, resolvePageData } from "./adapt";
+export { checkBusiness, checkSignals, isSignals } from "./guard";
+export { adaptOfficial, adaptSteam, adaptSteamReviews, adaptTwitch, adaptWikipedia, adaptYouTube, mergeLive, resolvePageData } from "./adapt";

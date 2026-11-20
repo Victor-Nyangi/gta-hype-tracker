@@ -5,7 +5,9 @@
 import { LANGUAGE_COUNTRIES, STEAM_GAMES } from "./constants";
 import { checkSignals, type CheckedSignals } from "./guard";
 import type {
+  OfficialFigures,
   Signals,
+  SteamReviewSignals,
   SteamSignals,
   TwitchSignals,
   WikipediaSignals,
@@ -13,7 +15,9 @@ import type {
 } from "./signals.generated";
 import { TRAILERS } from "./trailers";
 import type {
+  OfficialFigure,
   PageData,
+  SteamReviews,
   Sourced,
   SteamData,
   SteamGame,
@@ -90,6 +94,48 @@ export function adaptYouTube(y: YouTubeSignals): YouTubeTotals | null {
   };
 }
 
+export function adaptSteamReviews(r: SteamReviewSignals): SteamReviews | null {
+  if (r.games.length === 0) return null;
+  return {
+    games: r.games.map((g) => ({
+      id: g.key,
+      name: CURATED.get(g.key)?.name ?? g.name,
+      totalReviews: g.total_reviews,
+      positive: g.positive,
+      negative: g.negative,
+      newReviews7d: g.new_reviews_7d,
+      // data: both ends or neither; a half range would read as a point estimate
+      estimate:
+        g.estimated_sales_low !== null && g.estimated_sales_high !== null
+          ? { low: g.estimated_sales_low, high: g.estimated_sales_high }
+          : null,
+      noEstimateReason: g.no_estimate_reason,
+    })),
+    method: {
+      name: r.method.name,
+      low: r.method.multiplier_low,
+      high: r.method.multiplier_high,
+      sources: r.method.sources,
+    },
+  };
+}
+
+export function adaptOfficial(o: OfficialFigures): OfficialFigure[] | null {
+  if (o.figures.length === 0) return null;
+  return o.figures.map((f) => ({
+    key: f.key,
+    label: f.label,
+    value: f.value,
+    valueMax: f.value_max,
+    qualifier: f.qualifier,
+    unit: f.unit,
+    asOf: f.as_of,
+    sourceTitle: f.source_title,
+    sourceUrl: f.source_url,
+    quote: f.quote,
+  }));
+}
+
 function sourced<T, U>(
   live: T | null,
   fallback: T | null,
@@ -121,6 +167,19 @@ export function resolvePageData(live: CheckedSignals | null, fallback: Signals):
     wikipedia: sourced(l?.wikipedia ?? null, fallback.wikipedia, adaptWikipedia, (w) => w.updated_at),
     youtube: sourced(l?.youtube ?? null, fallback.youtube, adaptYouTube, (y) => y.updated_at),
     trailers: TRAILERS,
+    // business is optional (a v1 collector leaves it out); each part falls back on its own
+    reviews: sourced(
+      l?.business?.steam_reviews ?? null,
+      fallback.business?.steam_reviews ?? null,
+      adaptSteamReviews,
+      (r) => r.updated_at,
+    ),
+    official: sourced(
+      l?.business?.official ?? null,
+      fallback.business?.official ?? null,
+      adaptOfficial,
+      (o) => o.updated_at,
+    ),
   };
 }
 
@@ -131,15 +190,21 @@ const stale = <T>(s: Sourced<T> | null): Sourced<T> | null => (s ? { ...s, origi
  * The browser's 60s refresh: the live parts (Twitch, Steam, and the payload time) from a
  * freshly fetched signals.json; `raw` is null when the fetch failed. A source that is
  * missing or malformed keeps what the page already shows, labelled "last known".
- * Wikipedia (daily) and YouTube stay as the server rendered them.
+ * Wikipedia (daily) and YouTube stay as the server rendered them. The business parts
+ * (6-hourly reviews, curated figures) update when the refresh carries them and otherwise
+ * keep what the page shows; their cards print the source's own time either way.
  */
 export function mergeLive(prev: PageData, raw: unknown): PageData {
   const checked = raw === null ? null : checkSignals(raw);
   if (!checked) return { ...prev, twitch: stale(prev.twitch), steam: stale(prev.steam) };
-  const { twitch, steam, generated_at } = checked.signals;
+  const { twitch, steam, business, generated_at } = checked.signals;
+  const reviews = sourced(business?.steam_reviews ?? null, null, adaptSteamReviews, (r) => r.updated_at);
+  const official = sourced(business?.official ?? null, null, adaptOfficial, (o) => o.updated_at);
   return {
     ...prev,
     generatedAt: generated_at,
+    reviews: reviews ?? prev.reviews,
+    official: official ?? prev.official,
     twitch: twitch ? { data: adaptTwitch(twitch), origin: "live", updatedAt: twitch.updated_at } : stale(prev.twitch),
     steam: steam ? { data: adaptSteam(steam), origin: "live", updatedAt: steam.updated_at } : stale(prev.steam),
   };

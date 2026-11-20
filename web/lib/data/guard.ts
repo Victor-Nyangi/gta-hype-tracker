@@ -11,14 +11,17 @@
  * directly under Node's type stripping.
  */
 import type {
+  BusinessSignals,
+  OfficialFigures,
   Signals,
+  SteamReviewSignals,
   SteamSignals,
   TwitchSignals,
   WikipediaSignals,
   YouTubeSignals,
 } from "./signals.generated";
 
-export const SOURCES = ["twitch", "steam", "youtube", "wikipedia"] as const;
+export const SOURCES = ["twitch", "steam", "youtube", "wikipedia", "business"] as const;
 export type SourceKey = (typeof SOURCES)[number];
 
 type Obj = Record<string, unknown>;
@@ -133,7 +136,80 @@ export function isWikipedia(v: unknown): v is WikipediaSignals {
   });
 }
 
-const CHECKS: Record<SourceKey, (v: unknown) => boolean> = {
+const steamReviewGame = (v: unknown) =>
+  has(v, {
+    key: isStr,
+    app_id: isInt,
+    name: isStr,
+    total_reviews: isInt,
+    positive: isInt,
+    negative: isInt,
+    fetched_at: isTime,
+    new_reviews_7d: orNull(isInt),
+    change_7d: orNull(isInt),
+    estimated_sales_low: orNull(isInt),
+    estimated_sales_high: orNull(isInt),
+    no_estimate_reason: orNull(isStr),
+  });
+
+export function isSteamReviews(v: unknown): v is SteamReviewSignals {
+  return has(v, {
+    tracking_since: isTime,
+    updated_at: isTime,
+    method: (m) =>
+      has(m, { name: isStr, multiplier_low: isInt, multiplier_high: isInt, sources: arrOf(isStr) }),
+    games: arrOf(steamReviewGame),
+  });
+}
+
+const isHttpsUrl = (v: unknown): v is string => isStr(v) && /^https:\/\/[^\s]+$/.test(v);
+
+export function isOfficial(v: unknown): v is OfficialFigures {
+  return has(v, {
+    updated_at: isTime,
+    figures: arrOf((f) =>
+      has(f, {
+        key: isStr,
+        label: isStr,
+        value: isNum,
+        value_max: orNull(isNum),
+        qualifier: (q) => q === null || q === "nearly" || q === "over",
+        unit: (u) => u === "units" || u === "usd",
+        as_of: (d) => isStr(d) && /^\d{4}-\d{2}(-\d{2})?$/.test(d),
+        source_title: isStr,
+        // rendered as a link: only https, never javascript: or the like
+        source_url: isHttpsUrl,
+        quote: isStr,
+      }),
+    ),
+  });
+}
+
+const BUSINESS_PARTS = { steam_reviews: isSteamReviews, official: isOfficial } as const;
+
+/**
+ * `business` (added after schema v1) has two independent parts, each checked on its own:
+ * a malformed part becomes null and the other survives. Returns null when nothing in the
+ * block is usable, plus whether anything was malformed.
+ */
+export function checkBusiness(v: unknown): { business: BusinessSignals | null; malformed: boolean } {
+  if (!isObj(v)) return { business: null, malformed: true };
+  let malformed = false;
+  const out: Record<string, unknown> = {};
+  for (const [key, check] of Object.entries(BUSINESS_PARTS)) {
+    const part = v[key];
+    if (part === null || part === undefined) out[key] = null;
+    else if (check(part)) out[key] = part;
+    else {
+      malformed = true;
+      out[key] = null;
+    }
+  }
+  const business = out.steam_reviews === null && out.official === null ? null : (out as unknown as BusinessSignals);
+  return { business, malformed };
+}
+
+const CHECKS: Record<Exclude<SourceKey, "business">, (v: unknown) => boolean> = {
   twitch: isTwitch,
   steam: isSteam,
   youtube: isYouTube,
@@ -141,9 +217,9 @@ const CHECKS: Record<SourceKey, (v: unknown) => boolean> = {
 };
 
 export interface CheckedSignals {
-  /** The payload with every malformed source replaced by null. */
+  /** The payload with every malformed source (or business part) replaced by null. */
   signals: Signals;
-  /** Sources that were present but malformed (null in `signals`). */
+  /** Sources that were present but malformed (null in `signals`; for `business`, the bad part). */
   invalid: SourceKey[];
 }
 
@@ -158,7 +234,12 @@ export function checkSignals(raw: unknown): CheckedSignals | null {
   for (const key of SOURCES) {
     const block = raw[key];
     if (block === null || block === undefined) {
+      // `business` is optional: a collector from before it existed leaves it out
       (out as Record<SourceKey, unknown>)[key] = null;
+    } else if (key === "business") {
+      const { business, malformed } = checkBusiness(block);
+      if (malformed) invalid.push(key);
+      out.business = business;
     } else if (CHECKS[key](block)) {
       (out as Record<SourceKey, unknown>)[key] = block;
     } else {
