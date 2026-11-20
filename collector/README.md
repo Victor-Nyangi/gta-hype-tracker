@@ -9,6 +9,10 @@ Samples the GTA VI launch signals on a schedule, keeps every raw response, and d
 | `steam` | 5 min | `GetNumberOfCurrentPlayers` for 7 apps | none |
 | `youtube` | hourly | `videos?part=statistics` for the trailers | `YOUTUBE_API_KEY` |
 | `wikipedia` | 6 h (00/06/12/18 UTC) | Pageviews per-article, 30 editions, trailing 10 days | none |
+| `steam_reviews` | 6 h (03/09/15/21 UTC) | Store `appreviewhistogram/<appid>` for the same 7 apps | none |
+
+Plus one input that is not fetched: `src/collector/curated/official_figures.json`, a short
+hand-maintained list of Take-Two-reported figures (see "Business" below).
 
 Every job also runs once at startup. After each 5-minute cycle, `derive` loads new raw
 files into DuckDB and rewrites `signals.json`. A failing source logs one line and the loop
@@ -31,7 +35,8 @@ Commands: `run`, `once` (every job once, then derive), `derive [--rebuild]`,
 DATA_DIR/
   raw/<source>/date=YYYY-MM-DD/HHMMSS.json[.gz]   {fetched_at, source, request, payload}
   cache/twitch_games.json, cache/wiki_titles.json
-  signals.duckdb       twitch_snapshots, twitch_by_language, steam_players, youtube_stats, wiki_daily
+  signals.duckdb       twitch_snapshots, twitch_by_language, steam_players, youtube_stats, wiki_daily,
+                       steam_reviews
   public/signals.json  the contract: src/collector/signals.py -> schema/signals.schema.json
 ```
 
@@ -69,6 +74,42 @@ The database is disposable: `derive --rebuild` recreates it from raw.
   first reading.
 - **Steam** also samples GTA V Enhanced (3240220): since March 2025 GTA V's Steam players
   are split between Legacy (271590) and Enhanced.
+
+## Business
+
+`signals.json` has an optional `business` block (added after schema v1; an older payload
+without it is still valid, and the site hides the section when it is missing):
+
+- **`business.steam_reviews`**: per game `total_reviews` (with `positive`/`negative`),
+  `new_reviews_7d` (Steam's own daily counts for the 7 complete UTC days before the read),
+  `change_7d` (against the newest reading at least 7 days older; null until the tracker has
+  one), and an **estimated-sales range** `estimated_sales_low`..`estimated_sales_high` =
+  reviews x 30 .. x 55. That is the "Boxleiter method"; the multiples are where two
+  published ranges overlap (Jake Birkett 2018, 30x-150x for indie games; Karl Kontus / VG
+  Insights 2021, 20x-55x for 2020+ releases), cited in `sources/steam_reviews.py` and in
+  `method` in the payload. It is a rough estimate, never one number, and it is skipped for
+  CS2 (free to play) and GTA V Enhanced (a free upgrade), with `no_estimate_reason` saying so.
+  The histogram returns the full history on every call, so there is nothing to backfill.
+- **`business.official`**: the curated file as is, each figure with `value` (and
+  `value_max` for a range), the source's own `qualifier` ("nearly"/"over"), `unit`,
+  `as_of`, `source_url` and a short `quote`. Every number must come from a Take-Two page
+  that was actually read; edit the file, bump its `updated_at`, and the next derive picks it
+  up (`OFFICIAL_FIGURES_PATH` points at another copy if you want to edit it on the box
+  without a rebuild). A malformed file is logged and left out; it never stops derive.
+
+Tried and not used (2026-11-20):
+
+- **Share prices**: Stooq's keyless CSV (`stooq.com/q/d/l/?s=ttwo.us&i=d`) now answers an
+  automated client with a JavaScript proof-of-work bot check instead of CSV, and Nasdaq's
+  own quote-history endpoint resets the connection for a non-browser client. Neither is
+  worked around, so there is no stock series yet.
+- **Steam `appreviews/<appid>?json=1`** (`query_summary.total_reviews`): every request was
+  redirected (302) to the store's front page, so the histogram endpoint is used instead.
+- **SEC EDGAR**: its fair-access policy requires a contact email in the User-Agent; the
+  official figures were read from Take-Two's investor-relations pages instead.
+
+Cadence: `STEAM_REVIEWS_EVERY_HOURS` (default 6, must divide 24) and
+`STEAM_REVIEWS_AT_HOUR_UTC` (default 3).
 
 ## Develop
 
