@@ -27,6 +27,8 @@ function Chips({ games, selected, onPick }: { games: CompareGame[]; selected: st
             key={g.id}
             type="button"
             aria-pressed={on}
+            // the visible label comes first so voice control still matches it
+            aria-label={g.short === g.name ? undefined : `${g.short} (${g.name})`}
             onClick={() => onPick(g.id)}
             className={`cursor-pointer rounded-pill border px-4 py-2.5 text-[13.5px] font-extrabold transition-all duration-[180ms] ease-reveal ${
               on
@@ -34,7 +36,7 @@ function Chips({ games, selected, onPick }: { games: CompareGame[]; selected: st
                 : "border-track bg-transparent text-fg-2 hover:border-fg-3 hover:text-fg"
             }`}
           >
-            {g.name}
+            {g.short}
           </button>
         );
       })}

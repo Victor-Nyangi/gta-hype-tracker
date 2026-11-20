@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { steamPaths } from "@/lib/charts";
 import { COMPARE_POINTS, compareGames, fromTwitch, GTA6_ID, resample24h } from "@/lib/compare";
-import { COVERS, mockHypeData } from "@/lib/data";
+import { COVERS, mockHypeData, SHORT_NAMES } from "@/lib/data";
 import { LAUNCH_MS } from "@/lib/time";
 import { twitchView } from "@/lib/twitch";
 
@@ -15,6 +15,22 @@ describe("compareGames", () => {
     expect(games[0].source).toBe("twitch");
     expect(games.slice(1).map((g) => g.id)).toEqual(steam.map((g) => g.id));
     expect(games.slice(1).every((g) => g.source === "steam")).toBe(true);
+  });
+  it("gives every chip a short label and keeps the full name for the card", async () => {
+    const steam = await mockHypeData.steam();
+    const games = compareGames(steam, await mockHypeData.twitch(), null);
+    expect(games.map((g) => g.short)).toEqual([
+      "GTA VI",
+      "GTA V",
+      "Red Dead 2",
+      "CS2",
+      "Cyberpunk 2077",
+      "Elden Ring",
+      "Baldur's Gate 3",
+      "GTA V Enhanced",
+    ]);
+    expect(games.map((g) => g.name)).toEqual(["Grand Theft Auto VI", ...steam.map((g) => g.name)]);
+    for (const g of games) expect(SHORT_NAMES[g.id], g.id).toBe(g.short);
   });
   it("gives every game, GTA VI included, the same point count so the chart can morph", async () => {
     const games = compareGames(await mockHypeData.steam(), await mockHypeData.twitch(), LAUNCH_MS + 30 * H);

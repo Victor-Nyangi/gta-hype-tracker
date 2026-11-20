@@ -32,7 +32,9 @@ pnpm screenshots              # Playwright captures of a running build (see scri
   builds its card from the Twitch series (same `twitchView` as the Signals card), resampled
   to the 25 points every Compare chart uses. The all-time list stays Steam-only. Covers live
   in `public/assets/covers` (`COVERS` in `lib/data/constants.ts` holds alt text and the
-  object-position that keeps faces or titles in the tile).
+  object-position that keeps faces or titles in the tile). Chips use short labels
+  (`SHORT_NAMES`, with the full title in the accessible name) so they fit one row at 1440;
+  the card, the peaks list and the alt text keep the full names.
 - Status: the whole page (Launch, Signals, Compare) on the mock adapters. Live data
   (design/PROMPT.md stage 4) is next; `// data:` comments mark where the mocks show
   something the real feeds cannot.
