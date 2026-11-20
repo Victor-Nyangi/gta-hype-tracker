@@ -45,3 +45,51 @@ export function ago(ms: number): string {
   if (h < 48) return `${h} h ago`;
   return `${Math.floor(h / 24)} days ago`;
 }
+
+const SCALES = [
+  [1e9, "B"],
+  [1e6, "M"],
+  [1e3, "K"],
+] as const;
+
+/**
+ * `n` printed in `ref`'s unit: whole numbers from 10 of the unit up, one decimal below
+ * (235M, 61M, 8.2B). `ref` defaults to `n`; pass the final value while counting up, so the
+ * unit does not jump (0M, 120M, 235M rather than 0, 120K, 235M). Under 1,000: commas.
+ */
+export function inScale(n: number, ref = n): string {
+  const scale = SCALES.find(([div]) => Math.abs(ref) >= div);
+  if (!scale) return comma(n);
+  const [div, suffix] = scale;
+  return `${(n / div).toFixed(Math.abs(ref) / div >= 10 ? 0 : 1)}${suffix}`;
+}
+
+/**
+ * A low–high range in the high end's unit: "24–43M", "8.0–8.2B". `ref` (default `high`)
+ * fixes the unit, as for inScale.
+ */
+export function rangeLabel(low: number, high: number, ref = high): string {
+  const hi = inScale(high, ref);
+  const suffix = hi.replace(/[\d.,-]/g, "");
+  return `${inScale(low, ref).replace(suffix, "")}–${hi}`;
+}
+
+type Figure = { value: number; valueMax: number | null; unit: "units" | "usd" };
+
+/**
+ * A reported figure: "235M", or "$8.0–8.2B" for a dollar range. `now` is the counting-up
+ * value (default: the figure itself); the unit always comes from the figure.
+ */
+export function figureLabel(f: Figure, now: { value: number; valueMax: number | null } = f): string {
+  const n =
+    f.valueMax === null || now.valueMax === null
+      ? inScale(now.value, f.value)
+      : rangeLabel(now.value, now.valueMax, f.valueMax);
+  return f.unit === "usd" ? `$${n}` : n;
+}
+
+/** A source's as-of: "2026-11" -> "Nov 2026", "2026-11-09" -> "Nov 9, 2026". */
+export function asOfLabel(asOf: string): string {
+  const [y, m, d] = asOf.split("-").map(Number);
+  return d ? `${MONTHS[m - 1]} ${d}, ${y}` : `${MONTHS[m - 1]} ${y}`;
+}
