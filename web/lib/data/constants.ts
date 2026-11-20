@@ -38,22 +38,22 @@ export const COVERS = {
   gtav_enhanced: {
     src: "/assets/covers/gtav-enhanced.jpg",
     alt: "Grand Theft Auto V Enhanced box art: the GTA V logo among panels of Michael, Franklin, Trevor and Chop",
-    position: "50% 40%",
+    position: "50% 0%",
   },
   rdr2: {
     src: "/assets/covers/rdr2.jpg",
     alt: "Red Dead Redemption 2 cover: Arthur Morgan aiming a revolver, riders on the horizon behind him",
-    position: "50% 22%",
+    position: "50% 8%",
   },
   cs2: {
     src: "/assets/covers/cs2.jpg",
     alt: "Counter-Strike art: a masked counter-terrorist firing a rifle",
-    position: "22% 50%",
+    position: "38% 50%",
   },
   cp77: {
     src: "/assets/covers/cp77.jpg",
     alt: "Cyberpunk 2077 cover: V in a jacket with a glowing collar, pistol raised, on yellow",
-    position: "60% 40%",
+    position: "45% 40%",
   },
   er: {
     src: "/assets/covers/er.jpg",

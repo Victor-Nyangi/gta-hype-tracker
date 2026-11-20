@@ -198,7 +198,7 @@ export function Compare({ steam, twitch }: { steam: SteamGame[]; twitch: TwitchS
             Who else is still playing?
           </h2>
           <p className="m-0 max-w-[60ch] text-[15px] text-fg-2">
-            Pick a title to see how many people are on it right now, and over the last 24 hours.
+            Pick a title to see who&rsquo;s on it right now, and over the last 24 hours.
           </p>
         </Reveal>
 
