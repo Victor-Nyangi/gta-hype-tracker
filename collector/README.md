@@ -57,6 +57,11 @@ The database is disposable: `derive --rebuild` recreates it from raw.
   (Trailer 2), confirmed via YouTube oEmbed. The key never reaches the raw store or logs.
 - **Wikipedia titles** come from the Wikidata item's sitelinks (item id from the English
   article's `pageprops`), cached for a week. `WIKI_LANGS=all` takes every edition.
+- **Steam 24h peak** is the max of every reading in the 24 h before `generated_at`.
+  `peak_24h_since` is the oldest reading in that window and `peak_24h_partial` is true when
+  it starts more than 15 minutes late (tracking began, or resumed, inside the window): the
+  peak is then of a shorter window, and right after tracking starts it is often simply the
+  first reading.
 - **Steam** also samples GTA V Enhanced (3240220): since March 2025 GTA V's Steam players
   are split between Legacy (271590) and Enhanced.
 

@@ -99,13 +99,34 @@ class SteamGame(_Model):
     name: str
     current_players: int | None
     current_at: datetime | None
-    peak_24h: int | None = Field(description="Max single reading in the last 24h")
+    peak_24h: int | None = Field(
+        description=(
+            "Max single reading in the 24h before generated_at. When peak_24h_partial is true"
+            " the readings only go back to peak_24h_since, so this is the max of a shorter window"
+        )
+    )
     observed_peak: int | None = Field(description="Max single reading since tracking began")
     observed_peak_at: datetime | None
     series_24h: list[SteamPoint] = Field(
         description="Exactly 25 hourly points, oldest first, ending with the current hour",
         min_length=25,
         max_length=25,
+    )
+    # Added after schema v1 shipped: optional, so older payloads still validate.
+    peak_24h_at: datetime | None = Field(
+        default=None, description="When the peak_24h reading was taken (earliest, on a tie)"
+    )
+    peak_24h_since: datetime | None = Field(
+        default=None,
+        description="Oldest reading inside the 24h window: where peak_24h's window really starts",
+    )
+    peak_24h_partial: bool = Field(
+        default=False,
+        description=(
+            "True when peak_24h_since is more than 15 minutes after generated_at minus 24h"
+            " (tracking began, or resumed after an outage, inside the window), so peak_24h"
+            " covers less than 24 hours"
+        ),
     )
 
 
