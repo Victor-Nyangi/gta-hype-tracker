@@ -18,10 +18,11 @@ export function Hero() {
         <KeyArt />
       </ParallaxImage>
 
-      {/* scrim */}
+      {/* scrim: on phones a bottom-up fade only, so the portrait crop keeps both faces clear
+          (a left-hand gradient there would sit on Lucia); from 768px the side scrim too */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,#120a14_0%,rgba(18,10,20,0.88)_26%,rgba(18,10,20,0.3)_56%,rgba(18,10,20,0)_78%),linear-gradient(180deg,rgba(18,10,20,0)_50%,#120a14_98%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(18,10,20,0)_36%,rgba(18,10,20,0.72)_50%,rgba(18,10,20,0.9)_62%,#120a14_86%)] md:bg-[linear-gradient(90deg,#120a14_0%,rgba(18,10,20,0.88)_26%,rgba(18,10,20,0.3)_56%,rgba(18,10,20,0)_78%),linear-gradient(180deg,rgba(18,10,20,0)_50%,#120a14_98%)]"
       />
 
       {/* sunset overlay */}
