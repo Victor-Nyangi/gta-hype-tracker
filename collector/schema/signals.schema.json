@@ -304,7 +304,7 @@
           "type": "integer"
         },
         "current_truncated": {
-          "description": "True if the latest snapshot hit the page cap (long tail not counted)",
+          "description": "True if the latest snapshot stopped before the last page (safety page cap, time budget, rate limit or a failing page), so the long tail is not counted",
           "title": "Current Truncated",
           "type": "boolean"
         },

@@ -4,10 +4,21 @@ Auth is an app access token from the client-credentials flow. The GTA VI game id
 resolved once by name and cached in ``cache/twitch_games.json`` (override with
 ``TWITCH_GAME_ID``). GTA V's id (32982) has been stable for a decade, so it is a constant.
 
-Helix returns streams sorted by viewer count, 100 per page, with a cursor. We page until
-the cursor runs out or ``max_pages`` is hit (the tail beyond that is streams with a viewer
-or two; the snapshot records ``truncated`` so derive knows). The app-token bucket is 800
-points a minute; when ``Ratelimit-Remaining`` runs low we wait for ``Ratelimit-Reset``.
+Helix returns streams sorted by viewer count, 100 per page, with a cursor. A poll pages
+until the cursor runs out, so every stream in the category is counted. Three things can
+stop it early, and each marks the snapshot ``truncated`` (with a ``truncated_reason``):
+
+- ``page_cap``: ``TWITCH_MAX_PAGES`` (default 1000 pages = 100k streams), a safety cap
+  well above launch-week reality, not a sampling limit;
+- ``time_budget``: ``TWITCH_TIME_BUDGET_S`` (default 210 s) for the whole poll, so a poll
+  never runs into the next 5-minute slot;
+- ``rate_limit`` or ``error``: the bucket would not refill inside the budget, or a later
+  page kept failing after a retry.
+
+Rate limits: the app-token bucket is 800 points a minute and every request costs one.
+Each response carries ``Ratelimit-Remaining`` and ``Ratelimit-Reset`` (epoch seconds);
+before the next request, if fewer than ``RATELIMIT_FLOOR`` points remain we sleep until
+the reset. A 429 waits the same way and retries the same cursor.
 """
 
 from __future__ import annotations
@@ -25,6 +36,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict
 
 from collector.config import Config
+from collector.http import describe_error
 from collector.sources import Fetched, SourceUnavailable
 
 log = logging.getLogger(__name__)
@@ -39,6 +51,13 @@ GTAV_GAME_ID = "32982"
 # Stop paging when this few points remain; wait for the bucket to refill instead.
 RATELIMIT_FLOOR = 10
 MAX_RATELIMIT_WAIT_S = 65.0
+# Attempts per request: 401 refreshes the token once, 429 waits for the reset, 5xx and
+# transport errors are retried once.
+MAX_ATTEMPTS = 4
+
+
+class RateLimited(Exception):
+    """The bucket would not refill before the poll's deadline."""
 
 
 # --- API shapes ------------------------------------------------------------------------
@@ -112,6 +131,13 @@ class TwitchGameSnapshot:
     truncated: bool
     by_language: dict[str, LanguageCount] = field(default_factory=dict)
     top_streams: list[TopStream] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class StreamPages:
+    pages: list[dict[str, Any]]
+    truncated: bool
+    reason: str | None  # page_cap | time_budget | rate_limit | error | None
 
 
 def parse_streams_pages(
@@ -190,6 +216,8 @@ class TwitchSource:
         self._token: str | None = None
         self._token_expires_at = 0.0
         self._game_ids: dict[str, str] | None = None
+        self._remaining: int | None = None
+        self._reset_at: float | None = None
 
     def missing_credentials(self) -> str | None:
         if not (self.cfg.twitch_client_id and self.cfg.twitch_client_secret):
@@ -217,33 +245,75 @@ class TwitchSource:
         self._token_expires_at = self.clock() + tok.expires_in
         return self._token
 
-    def _helix(self, client: httpx.Client, path: str, params: dict[str, Any]) -> httpx.Response:
-        for attempt in range(3):
+    def _helix(
+        self,
+        client: httpx.Client,
+        path: str,
+        params: dict[str, Any],
+        deadline: float | None = None,
+    ) -> httpx.Response:
+        """One Helix GET, paced by the rate-limit headers of the previous response.
+
+        Raises ``RateLimited`` when honouring the limit would overrun ``deadline``, and
+        ``httpx.HTTPError`` when the request keeps failing.
+        """
+        retried_5xx = False
+        refreshed = False
+        for _ in range(MAX_ATTEMPTS):
+            self._pace(deadline)
             headers = {
                 "Client-Id": self.cfg.twitch_client_id,
                 "Authorization": f"Bearer {self._get_token(client)}",
             }
-            r = client.get(f"{HELIX}{path}", params=params, headers=headers)
-            if r.status_code == 401 and attempt == 0:
+            try:
+                r = client.get(f"{HELIX}{path}", params=params, headers=headers)
+            except httpx.TransportError:
+                if retried_5xx:
+                    raise
+                retried_5xx = True
+                continue
+            self._note_ratelimit(r)
+            if r.status_code == 401 and not refreshed:
+                refreshed = True
                 self._token = None  # expired or revoked: get a fresh one and retry once
                 continue
             if r.status_code == 429:
-                self._wait_for_reset(r)
+                self._remaining = 0  # make the next _pace wait for the reset
+                continue
+            if r.status_code >= 500 and not retried_5xx:
+                retried_5xx = True
                 continue
             r.raise_for_status()
-            remaining = r.headers.get("Ratelimit-Remaining")
-            if remaining is not None and int(remaining) < RATELIMIT_FLOOR:
-                self._wait_for_reset(r)
             return r
+        if r.status_code == 429:
+            raise RateLimited("still rate limited after waiting for the reset")
         r.raise_for_status()
         return r
 
-    def _wait_for_reset(self, r: httpx.Response) -> None:
+    def _note_ratelimit(self, r: httpx.Response) -> None:
+        remaining = r.headers.get("Ratelimit-Remaining")
         reset = r.headers.get("Ratelimit-Reset")
-        wait = max(0.0, float(reset) - self.clock()) if reset else 5.0
+        try:
+            self._remaining = int(remaining) if remaining is not None else None
+        except ValueError:
+            self._remaining = None
+        try:
+            self._reset_at = float(reset) if reset is not None else None
+        except ValueError:
+            self._reset_at = None
+
+    def _pace(self, deadline: float | None) -> None:
+        """Before a request: if the bucket is nearly empty, sleep until it resets."""
+        if self._remaining is None or self._remaining >= RATELIMIT_FLOOR:
+            return
+        now = self.clock()
+        wait = max(0.0, self._reset_at - now) if self._reset_at is not None else 5.0
         wait = min(wait + 0.5, MAX_RATELIMIT_WAIT_S)
-        log.info("twitch: rate limit low, waiting %.1fs", wait)
+        if deadline is not None and now + wait > deadline:
+            raise RateLimited(f"bucket resets in {wait:.1f}s, past the poll's time budget")
+        log.info("twitch: rate limit low (%s left), waiting %.1fs", self._remaining, wait)
         self.sleep(wait)
+        self._remaining = None  # unknown until the next response says otherwise
 
     # game ids
 
@@ -287,46 +357,77 @@ class TwitchSource:
 
     # streams
 
-    def fetch_streams(self, client: httpx.Client, game_id: str) -> tuple[list[dict], bool]:
+    def fetch_streams(
+        self, client: httpx.Client, game_id: str, deadline: float | None = None
+    ) -> StreamPages:
+        """Every page of one category, unless the page cap, the deadline, the rate limit
+        or a failing request stops it first (then ``truncated`` says so, and why)."""
         pages: list[dict] = []
         cursor: str | None = None
         while True:
             params: dict[str, Any] = {"game_id": game_id, "first": 100}
             if cursor:
                 params["after"] = cursor
-            body = self._helix(client, "/streams", params).json()
+            try:
+                body = self._helix(client, "/streams", params, deadline).json()
+            except RateLimited:
+                if not pages:
+                    raise
+                return StreamPages(pages, True, "rate_limit")
+            except (httpx.HTTPError, ValueError) as e:
+                if not pages:
+                    raise
+                # describe_error, never str(e): httpx messages carry the URL and its query.
+                log.warning(
+                    "twitch: page %d failed (%s); keeping the %d pages before it",
+                    len(pages) + 1,
+                    describe_error(e),
+                    len(pages),
+                )
+                return StreamPages(pages, True, "error")
             pages.append(body)
             cursor = (body.get("pagination") or {}).get("cursor")
             if not cursor or not body.get("data"):
-                return pages, False
+                return StreamPages(pages, False, None)
             if len(pages) >= self.cfg.twitch_max_pages:
-                return pages, True
+                return StreamPages(pages, True, "page_cap")
+            if deadline is not None and self.clock() >= deadline:
+                return StreamPages(pages, True, "time_budget")
 
     def fetch(self, client: httpx.Client, now: datetime) -> Fetched:
+        started = self.clock()
+        deadline = started + self.cfg.twitch_time_budget_s
         ids = self.game_ids(client)
         names = {"gta6": GTA6_NAME, "gtav": GTAV_NAME}
-        games = {}
-        for key in ("gta6", "gtav"):
-            pages, truncated = self.fetch_streams(client, ids[key])
+        games: dict[str, dict[str, Any]] = {}
+        # GTA V first: a handful of pages, so a long GTA VI poll cannot starve it.
+        for key in ("gtav", "gta6"):
+            t0 = self.clock()
+            res = self.fetch_streams(client, ids[key], deadline)
             games[key] = {
                 "game_id": ids[key],
                 "game_name": names[key],
-                "pages": pages,
-                "truncated": truncated,
+                "pages": res.pages,
+                "truncated": res.truncated,
+                "truncated_reason": res.reason,
+                "elapsed_s": round(self.clock() - t0, 1),
             }
+        games = {"gta6": games["gta6"], "gtav": games["gtav"]}
         snaps = {s.game_key: s for s in parse({"games": games})}
         g6 = snaps["gta6"]
+        why = f", truncated: {games['gta6']['truncated_reason']}" if g6.truncated else ""
         return Fetched(
             request={
                 "endpoint": f"{HELIX}/streams",
                 "game_ids": ids,
                 "first": 100,
                 "max_pages": self.cfg.twitch_max_pages,
+                "time_budget_s": self.cfg.twitch_time_budget_s,
             },
             payload={"games": games},
             summary=(
                 f"gta6 {g6.total_viewers} viewers / {g6.stream_count} streams "
-                f"({g6.pages} pages{', truncated' if g6.truncated else ''}); "
+                f"({g6.pages} pages in {games['gta6']['elapsed_s']}s{why}); "
                 f"gtav {snaps['gtav'].total_viewers}"
             ),
         )

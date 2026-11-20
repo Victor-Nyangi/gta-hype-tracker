@@ -5,7 +5,7 @@ Samples the GTA VI launch signals on a schedule, keeps every raw response, and d
 
 | Source | Every | Endpoint | Credentials |
 |---|---|---|---|
-| `twitch` | 5 min | Helix `/streams?game_id=` (all pages, cap `TWITCH_MAX_PAGES`), GTA VI and GTA V | `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` |
+| `twitch` | 5 min | Helix `/streams?game_id=`, every page, GTA VI and GTA V | `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` |
 | `steam` | 5 min | `GetNumberOfCurrentPlayers` for 7 apps | none |
 | `youtube` | hourly | `videos?part=statistics` for the trailers | `YOUTUBE_API_KEY` |
 | `wikipedia` | daily 06:00 UTC | Pageviews per-article, 30 editions, trailing 10 days | none |
@@ -43,6 +43,14 @@ The database is disposable: `derive --rebuild` recreates it from raw.
 
 - **Twitch game id**: looked up once with `GET /helix/games?name=Grand Theft Auto VI` and
   cached; set `TWITCH_GAME_ID` to skip the lookup. GTA V is the fixed id `32982`.
+- **Paging**: a poll follows the cursor to the last page, so every stream is counted. It
+  is paced by Helix's `Ratelimit-Remaining` / `Ratelimit-Reset` headers (app token, 800
+  points a minute, one per page) and waits for the reset when fewer than 10 points remain;
+  a 429 waits and retries the same cursor. A snapshot is marked `truncated` (with
+  `truncated_reason` in the raw payload) only if it stops early: the safety cap
+  `TWITCH_MAX_PAGES` (default 1000 pages, 100k streams), the poll's time budget
+  `TWITCH_TIME_BUDGET_S` (default 210 s, so it ends inside its 5-minute slot), a rate limit
+  that would not reset inside that budget, or a page that still fails after one retry.
 - **Hours watched** is an estimate: the trapezoid integral of total viewers between
   snapshots, ignoring gaps longer than 15 minutes, since `tracking_since`.
 - **YouTube ids** default to Rockstar's uploads `QdBZY2fkU-0` (Trailer 1) and `VQRLujxTm3c`

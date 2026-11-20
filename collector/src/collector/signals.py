@@ -66,7 +66,10 @@ class TwitchSignals(_Model):
     current_viewers: int
     current_streams: int
     current_truncated: bool = Field(
-        description="True if the latest snapshot hit the page cap (long tail not counted)"
+        description=(
+            "True if the latest snapshot stopped before the last page (safety page cap, time"
+            " budget, rate limit or a failing page), so the long tail is not counted"
+        )
     )
     peak_viewers: int
     peak_at: datetime
