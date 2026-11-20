@@ -47,7 +47,18 @@ export interface SteamGame {
   /** 25 hourly points, oldest first, ending now. */
   series24h: (number | null)[];
   /** Cover art under /public, if we have one. */
-  cover?: string;
+  cover?: CoverArt;
+}
+
+/** A cover-art master under /public, cropped into the Compare tile with object-fit: cover. */
+export interface CoverArt {
+  src: string;
+  alt: string;
+  /**
+   * CSS object-position for the tile. The masters are square, portrait and landscape, and
+   * the tile is not, so this keeps the faces or the title in frame.
+   */
+  position: string;
 }
 
 export interface Milestone {

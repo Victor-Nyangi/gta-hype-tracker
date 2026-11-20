@@ -1,6 +1,8 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { steamPaths } from "@/lib/charts";
-import { mockHypeData, mockSignals, STEAM_GAMES } from "@/lib/data";
+import { COVERS, mockHypeData, mockSignals, STEAM_GAMES } from "@/lib/data";
 import { LAUNCH_MS } from "@/lib/time";
 import { twitchView } from "@/lib/twitch";
 
@@ -13,6 +15,15 @@ describe("mock adapter", () => {
     expect(games.map((g) => g.id)).toEqual(STEAM_GAMES.map((g) => g.id));
     for (const g of games) expect(g.series24h).toHaveLength(25);
     expect(games.find((g) => g.id === "gtav_enhanced")?.allTimePeak).toBeNull();
+  });
+  it("gives every game cover art that exists under public/, with alt text and a crop", async () => {
+    const games = await mockHypeData.steam();
+    for (const g of games) expect(g.cover, g.id).toBeDefined();
+    for (const [id, c] of Object.entries(COVERS)) {
+      expect(existsSync(join(__dirname, "../public", c.src)), `${id}: ${c.src}`).toBe(true);
+      expect(c.alt.length, id).toBeGreaterThan(20);
+      expect(c.position, id).toMatch(/^\d+% \d+%$/);
+    }
   });
   it("gives 49 hourly Twitch points from -24h to +24h", async () => {
     const tw = await mockHypeData.twitch();
