@@ -29,11 +29,12 @@ export const COVERS = {
     alt: "Grand Theft Auto VI key art: Lucia and Jason in front of the Vice City skyline at sunset",
     position: "50% 50%",
   },
-  // data: this is the handoff's cover-gtav.webp, kept as supplied; it shows VI's Jason and Lucia.
+  // The 16:9 key art cropped to the three faces and the logo, with the sky extended upward
+  // (fading to the card colour) so the ~0.89 tile at 1440 shows its full width.
   gtav: {
-    src: "/assets/cover-gtav.webp",
-    alt: "Jason and Lucia against a Vice City sunset",
-    position: "78% 50%",
+    src: "/assets/covers/gtav.jpg",
+    alt: "Grand Theft Auto V key art: Michael, Trevor and Franklin in work coveralls around the GTA V logo",
+    position: "50% 45%",
   },
   gtav_enhanced: {
     src: "/assets/covers/gtav-enhanced.jpg",

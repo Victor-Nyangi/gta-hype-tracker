@@ -20,10 +20,15 @@ describe("mock adapter", () => {
     const games = await mockHypeData.steam();
     for (const g of games) expect(g.cover, g.id).toBeDefined();
     for (const [id, c] of Object.entries(COVERS)) {
+      expect(c.src, id).toMatch(/^\/assets\/covers\//);
       expect(existsSync(join(__dirname, "../public", c.src)), `${id}: ${c.src}`).toBe(true);
       expect(c.alt.length, id).toBeGreaterThan(20);
       expect(c.position, id).toMatch(/^\d+% \d+%$/);
     }
+  });
+  it("gives each game its own cover art", () => {
+    const srcs = Object.values(COVERS).map((c) => c.src);
+    expect(new Set(srcs).size).toBe(srcs.length);
   });
   it("gives 49 hourly Twitch points from -24h to +24h", async () => {
     const tw = await mockHypeData.twitch();
