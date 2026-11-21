@@ -7,6 +7,7 @@ runner (one log line), it never stops the other sources.
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -62,6 +63,16 @@ DEFAULT_WIKI_LANGS = [
 
 DEFAULT_CONTACT = "https://github.com/Victor-Nyangi/gta-hype-tracker"
 
+# Share prices: the first symbol is the subject, the last the market baseline, the rest
+# peers. One Alpha Vantage request each per day. EA was a peer until it went private and
+# left Nasdaq on 2026-08-04; Nintendo's ADR (NTDOY) trades over the counter, which Alpha
+# Vantage's listing of the US stocks it covers (LISTING_STATUS) leaves out, so Roblox
+# (NYSE) took the slot on 2026-11-21.
+DEFAULT_PRICES_TICKERS = ("TTWO", "RBLX", "SONY", "QQQ")
+# Alpha Vantage's free tier allows 25 requests a day; one run must stay inside it.
+MAX_PRICES_TICKERS = 25
+_SYMBOL = re.compile(r"[A-Z0-9][A-Z0-9.\-]{0,9}")
+
 
 def _csv(value: str | None) -> list[str]:
     return [v.strip() for v in (value or "").split(",") if v.strip()]
@@ -72,6 +83,20 @@ def _int_in(e: Mapping[str, str], name: str, default: int, lo: int, hi: int) -> 
     if not lo <= n <= hi:
         raise ValueError(f"{name} must be between {lo} and {hi}")
     return n
+
+
+def _tickers(value: str | None) -> tuple[str, ...]:
+    symbols = tuple(v.upper() for v in _csv(value)) or DEFAULT_PRICES_TICKERS
+    bad = [v for v in symbols if not _SYMBOL.fullmatch(v)]
+    if bad:
+        raise ValueError(f"PRICES_TICKERS has invalid symbols: {bad}")
+    if len(set(symbols)) != len(symbols):
+        raise ValueError("PRICES_TICKERS has a symbol twice")
+    if not 2 <= len(symbols) <= MAX_PRICES_TICKERS:
+        raise ValueError(
+            f"PRICES_TICKERS needs 2 to {MAX_PRICES_TICKERS} symbols (subject first, baseline last)"
+        )
+    return symbols
 
 
 def _divisor_of_24(e: Mapping[str, str], name: str, default: int) -> int:
@@ -108,6 +133,8 @@ class Config:
     prices_at_minute_utc: int = 30
     # Pause between the per-ticker requests of one run.
     prices_request_gap_s: float = 5.0
+    # First: the subject (Take-Two); last: the market baseline; between: peers.
+    prices_tickers: tuple[str, ...] = DEFAULT_PRICES_TICKERS
     contact_url: str = DEFAULT_CONTACT
 
     @property
@@ -172,5 +199,6 @@ class Config:
             prices_at_hour_utc=_int_in(e, "PRICES_AT_HOUR_UTC", 22, 0, 23),
             prices_at_minute_utc=_int_in(e, "PRICES_AT_MINUTE_UTC", 30, 0, 59),
             prices_request_gap_s=float(e.get("PRICES_REQUEST_GAP_S") or 5),
+            prices_tickers=_tickers(e.get("PRICES_TICKERS")),
             contact_url=e.get("CONTACT_URL") or DEFAULT_CONTACT,
         )

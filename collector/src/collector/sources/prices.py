@@ -1,5 +1,8 @@
 """Daily share prices from Alpha Vantage: Take-Two, two peers and a market baseline.
 
+Which tickers: ``Config.prices_tickers`` (env ``PRICES_TICKERS``, default
+``TTWO,RBLX,SONY,QQQ``), the first the subject, the last the baseline, the rest peers.
+
 Endpoint: ``TIME_SERIES_DAILY`` (https://www.alphavantage.co/documentation/#daily), one
 request per ticker. What the free tier allows, as documented on 2026-11-21:
 
@@ -10,7 +13,7 @@ request per ticker. What the free tier allows, as documented on 2026-11-21:
 
 So each run asks for ``compact`` (about five months), and history builds up over time:
 derive merges every stored snapshot per (ticker, day), the latest fetch winning. One run a
-day is 4 requests, well inside 25.
+day is one request per ticker (4 by default), well inside 25.
 
 The closes are unadjusted (the adjusted series is premium), so a stock split would show as
 a step in the line.
@@ -58,15 +61,25 @@ class Ticker:
     role: str  # "subject" | "peer" | "baseline"
 
 
-TICKERS: tuple[Ticker, ...] = (
-    Ticker("TTWO", "Take-Two Interactive", "subject"),
-    Ticker("EA", "Electronic Arts", "peer"),
-    Ticker("SONY", "Sony Group (ADR)", "peer"),
-    Ticker("QQQ", "Invesco QQQ Trust (Nasdaq-100)", "baseline"),
-)
-BY_SYMBOL = {t.symbol: t for t in TICKERS}
-SUBJECT = "TTWO"
-BASELINE = "QQQ"
+# Display names for the default symbols and the obvious alternative; any other symbol set
+# through PRICES_TICKERS is shown under its own symbol.
+NAMES = {
+    "TTWO": "Take-Two Interactive",
+    "RBLX": "Roblox",
+    "SONY": "Sony Group (ADR)",
+    "QQQ": "Invesco QQQ Trust (Nasdaq-100)",
+    "NTDOY": "Nintendo (ADR)",
+}
+
+
+def tickers(symbols: tuple[str, ...]) -> tuple[Ticker, ...]:
+    """Roles by position (``Config.prices_tickers``): first subject, last baseline."""
+    last = len(symbols) - 1
+    return tuple(
+        Ticker(s, NAMES.get(s, s), "subject" if i == 0 else "baseline" if i == last else "peer")
+        for i, s in enumerate(symbols)
+    )
+
 
 # Keys of an HTTP-200 body that carries a message instead of a series.
 SOFT_KEYS = ("Note", "Information", "Error Message")
@@ -183,26 +196,28 @@ class PricesSource:
         return entry
 
     def fetch(self, client: httpx.Client, now: datetime) -> Fetched:
-        tickers: dict[str, dict[str, Any]] = {}
-        for i, t in enumerate(TICKERS):
+        wanted = tickers(self.cfg.prices_tickers)
+        subject = wanted[0].symbol
+        out: dict[str, dict[str, Any]] = {}
+        for i, t in enumerate(wanted):
             if i:
                 self.sleep(self.cfg.prices_request_gap_s)
-            tickers[t.symbol] = self._get(client, t.symbol)
-        payload = {"tickers": tickers}
+            out[t.symbol] = self._get(client, t.symbol)
+        payload = {"tickers": out}
         closes = parse(payload)
         problems = "; ".join(
             f"{s} {e.get('soft_failure') or e.get('error') or _status(e)}"
-            for s, e in tickers.items()
+            for s, e in out.items()
             if s not in closes
         )
         if not closes:
             # Nothing new: no raw file, and the closes already stored stay as they are.
             raise SourceSoftFailure(f"no ticker returned closes ({problems})")
         latest = {s: c[-1] for s, c in closes.items()}
-        head = latest.get(SUBJECT)
-        summary = f"{len(closes)}/{len(TICKERS)} tickers"
+        head = latest.get(subject)
+        summary = f"{len(closes)}/{len(wanted)} tickers"
         if head:
-            summary += f"; {SUBJECT} {head.close:.2f} ({head.day})"
+            summary += f"; {subject} {head.close:.2f} ({head.day})"
         if problems:
             summary += f"; missing: {problems}"
         return Fetched(
@@ -211,7 +226,7 @@ class PricesSource:
                 "endpoint": URL,
                 "function": FUNCTION,
                 "outputsize": OUTPUT_SIZE,
-                "symbols": [t.symbol for t in TICKERS],
+                "symbols": [t.symbol for t in wanted],
             },
             payload=payload,
             summary=summary,
