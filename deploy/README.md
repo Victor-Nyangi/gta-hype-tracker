@@ -18,6 +18,9 @@ Nothing here publishes a port: Traefik reaches `data` over its own Docker networ
    - Twitch: create an app at dev.twitch.tv/console (any OAuth redirect, e.g.
      `http://localhost`), copy the client id and generate a client secret.
    - YouTube: a Data API v3 key from console.cloud.google.com (restrict it to that API).
+   - Alpha Vantage (share prices): a free key from alphavantage.co/support/#api-key, as
+     `ALPHA_VANTAGE_API_KEY`. The free tier allows 25 requests a day; the collector uses 4
+     (once a day at `PRICES_AT_HOUR_UTC`:`PRICES_AT_MINUTE_UTC`, default 22:30 UTC).
    - Steam and Wikipedia need nothing.
 
 ## Steps on the box
@@ -69,6 +72,11 @@ INFO  twitch ok in 6.2s: gta6 1843211 viewers / 9120 streams (92 pages); gtav 41
 INFO  steam ok in 2.3s: 7/7 apps; gtav 73545, cs2 956208 -> raw/steam/date=.../181322.json
 INFO  derive ok in 0.4s: ingested {'twitch': 1, 'steam': 1} -> public/signals.json
 ```
+
+`prices has data; next run 2026-11-21 22:30 UTC` at startup means share prices were fetched
+before: they are only fetched at startup while there are none, so restarts do not use up the
+free Alpha Vantage allowance. `prices no new data ...; kept the last good data` is a rate
+limit or a refusal (HTTP 200 with a message and no closes); the chart keeps what it had.
 
 `twitch skipped: TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET not set (will not log this again)`
 means the source is off, not broken. Add the keys to `deploy/.env` and
