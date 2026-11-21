@@ -26,6 +26,10 @@ from collector.config import LAUNCH_AT, Config
 from collector.signals import (
     BusinessSignals,
     OfficialFigures,
+    PriceChange,
+    PricePoint,
+    PriceSignals,
+    RelativeChange,
     SalesEstimateMethod,
     Signals,
     SteamGame,
@@ -33,6 +37,7 @@ from collector.signals import (
     SteamReviewGame,
     SteamReviewSignals,
     SteamSignals,
+    TickerPrices,
     TwitchGameSummary,
     TwitchHourPoint,
     TwitchLanguage,
@@ -43,7 +48,7 @@ from collector.signals import (
     YouTubeSignals,
     YouTubeVideo,
 )
-from collector.sources import steam, steam_reviews, twitch, wikipedia, youtube
+from collector.sources import prices, steam, steam_reviews, twitch, wikipedia, youtube
 
 log = logging.getLogger(__name__)
 
@@ -55,9 +60,10 @@ TABLES = (
     "youtube_stats",
     "wiki_daily",
     "steam_reviews",
+    "daily_prices",
 )
 
-SOURCES = ("twitch", "steam", "youtube", "wikipedia", "steam_reviews")
+SOURCES = ("twitch", "steam", "youtube", "wikipedia", "steam_reviews", "prices")
 
 DDL = """
 CREATE TABLE IF NOT EXISTS raw_files (
@@ -81,6 +87,8 @@ CREATE TABLE IF NOT EXISTS wiki_daily (
 CREATE TABLE IF NOT EXISTS steam_reviews (
     fetched_at TIMESTAMP, app_id INTEGER, game_key VARCHAR, name VARCHAR, positive BIGINT,
     negative BIGINT, new_last_7d BIGINT, PRIMARY KEY (fetched_at, app_id));
+CREATE TABLE IF NOT EXISTS daily_prices (
+    symbol VARCHAR, day DATE, close DOUBLE, fetched_at TIMESTAMP, PRIMARY KEY (symbol, day));
 """
 
 HOURS_WATCHED_MAX_GAP = timedelta(minutes=15)
@@ -137,6 +145,15 @@ COLUMNS: dict[str, tuple[tuple[str, ...], int]] = {
         ("TIMESTAMP", "INTEGER", "VARCHAR", "VARCHAR", "BIGINT", "BIGINT", "BIGINT"),
         2,
     ),
+    "daily_prices": (("VARCHAR", "DATE", "DOUBLE", "TIMESTAMP"), 2),
+}
+
+# Tables keyed by a natural day where every fetch re-reads the same days: the latest fetch
+# wins per key, whatever order the files are ingested in. table -> (key positions, the
+# fetched_at position, the key columns, the columns to update).
+LATEST_WINS: dict[str, tuple[tuple[int, ...], int, str, tuple[str, ...]]] = {
+    "wiki_daily": ((0, 3), 5, "project, day", ("lang", "title", "views", "fetched_at")),
+    "daily_prices": ((0, 1), 3, "symbol, day", ("close", "fetched_at")),
 }
 
 
@@ -146,11 +163,13 @@ class _Buffer:
 
     def add(self, table: str, row: list) -> None:
         width = COLUMNS[table][1]
-        if table == "wiki_daily":
-            # One row per (edition, day): the most recent fetch wins, it has the settled number.
-            key = (row[0], row[3])
+        if table in LATEST_WINS:
+            # One row per natural key: the most recent fetch wins (for Wikipedia, it has the
+            # settled number; for prices, any correction).
+            positions, at, _, _ = LATEST_WINS[table]
+            key = tuple(row[i] for i in positions)
             prev = self.rows[table].get(key)
-            if prev is not None and prev[5] > row[5]:
+            if prev is not None and prev[at] > row[at]:
                 return
         else:
             key = tuple(row[:width])
@@ -163,14 +182,14 @@ class _Buffer:
             types = COLUMNS[table][0]
             cols = [list(c) for c in zip(*rows.values(), strict=True)]
             select = ", ".join(f"unnest(${i + 1}::{t}[])" for i, t in enumerate(types))
-            if table == "wiki_daily":
-                # A later fetch of the same day wins (it carries the settled number); an older
-                # one, e.g. a backfill file ingested after newer reads, never overwrites it.
+            if table in LATEST_WINS:
+                # A later fetch of the same day wins; an older one, e.g. a backfill file
+                # ingested after newer reads, never overwrites it.
+                _, _, keys, updated = LATEST_WINS[table]
+                sets = ", ".join(f"{c} = excluded.{c}" for c in updated)
                 sql = (
-                    f"INSERT INTO wiki_daily SELECT {select} ON CONFLICT (project, day) DO UPDATE"
-                    " SET lang = excluded.lang, title = excluded.title, views = excluded.views,"
-                    " fetched_at = excluded.fetched_at"
-                    " WHERE excluded.fetched_at >= wiki_daily.fetched_at"
+                    f"INSERT INTO {table} SELECT {select} ON CONFLICT ({keys}) DO UPDATE"
+                    f" SET {sets} WHERE excluded.fetched_at >= {table}.fetched_at"
                 )
             else:
                 sql = f"INSERT OR REPLACE INTO {table} SELECT {select}"
@@ -226,6 +245,12 @@ def _rows_for(doc: rawstore.RawDoc) -> list[tuple[str, list]]:
                 [t, r.app_id, r.key, r.name, r.positive, r.negative, r.new_last_7d],
             )
             for r in steam_reviews.parse(doc.payload, day)
+        )
+    elif doc.source == "prices":
+        out.extend(
+            ("daily_prices", [c.symbol, c.day, c.close, t])
+            for closes in prices.parse(doc.payload).values()
+            for c in closes
         )
     return out
 
@@ -559,11 +584,98 @@ def _official(cfg: Config) -> OfficialFigures | None:
         return None
 
 
-def _business(con: duckdb.DuckDBPyConnection, cfg: Config) -> BusinessSignals | None:
-    reviews, official = _steam_reviews(con), _official(cfg)
-    if reviews is None and official is None:
+# The launch-day move: the last close before launch (Wednesday) to launch day's (Thursday).
+# GTA VI unlocked at 05:00 UTC on the 19th, before that day's US open.
+LAUNCH_FROM = date(2026, 11, 18)
+LAUNCH_TO = date(2026, 11, 19)
+
+
+def _pct(a: float, b: float) -> float:
+    return round((b - a) / a * 100, 4)
+
+
+def _change(closes: dict[date, float], frm: date, to: date | None) -> PriceChange | None:
+    if to is None or to <= frm or frm not in closes or to not in closes:
         return None
-    return BusinessSignals(steam_reviews=reviews, official=official)
+    a, b = closes[frm], closes[to]
+    return PriceChange(
+        from_date=frm,
+        from_close=a,
+        to_date=to,
+        to_close=b,
+        change=round(b - a, 4),
+        change_pct=_pct(a, b),
+    )
+
+
+def _relative(subject: PriceChange | None, baseline: PriceChange | None) -> RelativeChange | None:
+    # Only over the same window: a baseline that stops a day earlier would compare unlike spans.
+    if subject is None or baseline is None or subject.to_date != baseline.to_date:
+        return None
+    return RelativeChange(
+        subject_pct=subject.change_pct,
+        baseline_pct=baseline.change_pct,
+        difference_pts=round(subject.change_pct - baseline.change_pct, 4),
+    )
+
+
+def _prices(con: duckdb.DuckDBPyConnection) -> PriceSignals | None:
+    span = con.execute("SELECT min(fetched_at), max(fetched_at) FROM daily_prices").fetchone()
+    if span is None or span[0] is None:
+        return None
+    by_symbol: dict[str, list[tuple[date, float, datetime]]] = {}
+    for sym, day, close, at in con.execute(
+        "SELECT symbol, day, close, fetched_at FROM daily_prices ORDER BY symbol, day"
+    ).fetchall():
+        by_symbol.setdefault(sym, []).append((day, close, at))
+    order = {t.symbol: i for i, t in enumerate(prices.TICKERS)}
+    tickers = []
+    changes: dict[str, tuple[PriceChange | None, PriceChange | None]] = {}
+    for sym in sorted(by_symbol, key=lambda s: (order.get(s, len(order)), s)):
+        rows = by_symbol[sym]
+        closes = {d: round(c, 4) for d, c, _ in rows}
+        known = prices.BY_SYMBOL.get(sym, prices.Ticker(sym, sym, "peer"))
+        latest_day = rows[-1][0]
+        launch_day = _change(closes, LAUNCH_FROM, LAUNCH_TO)
+        since = _change(closes, LAUNCH_FROM, latest_day)
+        changes[sym] = (launch_day, since)
+        tickers.append(
+            TickerPrices(
+                symbol=sym,
+                name=known.name,
+                role=known.role,  # type: ignore[arg-type]
+                closes=[PricePoint(date=d, close=c) for d, c in closes.items()],
+                first_date=rows[0][0],
+                latest_date=latest_day,
+                latest_close=closes[latest_day],
+                fetched_at=_aware(max(at for _, _, at in rows)),
+                launch_day=launch_day,
+                since_launch=since,
+            )
+        )
+    subj = changes.get(prices.SUBJECT, (None, None))
+    base = changes.get(prices.BASELINE, (None, None))
+    return PriceSignals(
+        source=prices.SOURCE_NAME,
+        source_url=prices.SOURCE_URL,
+        series=f"{prices.FUNCTION}: daily closes, unadjusted",
+        tracking_since=_aware(span[0]),
+        updated_at=_aware(span[1]),
+        launch_from=LAUNCH_FROM,
+        launch_to=LAUNCH_TO,
+        subject=prices.SUBJECT,
+        baseline=prices.BASELINE,
+        tickers=tickers,
+        subject_vs_baseline_launch_day=_relative(subj[0], base[0]),
+        subject_vs_baseline_since_launch=_relative(subj[1], base[1]),
+    )
+
+
+def _business(con: duckdb.DuckDBPyConnection, cfg: Config) -> BusinessSignals | None:
+    reviews, official, share_prices = _steam_reviews(con), _official(cfg), _prices(con)
+    if reviews is None and official is None and share_prices is None:
+        return None
+    return BusinessSignals(steam_reviews=reviews, official=official, prices=share_prices)
 
 
 def build_signals(con: duckdb.DuckDBPyConnection, cfg: Config, now: datetime) -> Signals:

@@ -24,6 +24,18 @@
             }
           ],
           "description": "Hand-curated Take-Two figures, each with its source; null if unavailable"
+        },
+        "prices": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PriceSignals"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Daily closes for TTWO, peers and QQQ (Alpha Vantage); null until fetched"
         }
       },
       "required": [
@@ -143,6 +155,194 @@
         "figures"
       ],
       "title": "OfficialFigures",
+      "type": "object"
+    },
+    "PriceChange": {
+      "additionalProperties": false,
+      "properties": {
+        "from_date": {
+          "format": "date",
+          "title": "From Date",
+          "type": "string"
+        },
+        "from_close": {
+          "title": "From Close",
+          "type": "number"
+        },
+        "to_date": {
+          "format": "date",
+          "title": "To Date",
+          "type": "string"
+        },
+        "to_close": {
+          "title": "To Close",
+          "type": "number"
+        },
+        "change": {
+          "description": "to_close minus from_close, USD",
+          "title": "Change",
+          "type": "number"
+        },
+        "change_pct": {
+          "description": "Percent, e.g. -3.25 for -3.25%",
+          "title": "Change Pct",
+          "type": "number"
+        }
+      },
+      "required": [
+        "from_date",
+        "from_close",
+        "to_date",
+        "to_close",
+        "change",
+        "change_pct"
+      ],
+      "title": "PriceChange",
+      "type": "object"
+    },
+    "PricePoint": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "description": "US trading day (New York)",
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "close": {
+          "description": "Unadjusted daily close, USD",
+          "title": "Close",
+          "type": "number"
+        }
+      },
+      "required": [
+        "date",
+        "close"
+      ],
+      "title": "PricePoint",
+      "type": "object"
+    },
+    "PriceSignals": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "description": "Data provider, e.g. Alpha Vantage",
+          "title": "Source",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "series": {
+          "description": "Which series: daily closes, unadjusted",
+          "title": "Series",
+          "type": "string"
+        },
+        "tracking_since": {
+          "description": "First fetch that returned closes",
+          "format": "date-time",
+          "title": "Tracking Since",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "Latest fetch that returned closes",
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "launch_from": {
+          "description": "Last trading day before launch (2026-11-18)",
+          "format": "date",
+          "title": "Launch From",
+          "type": "string"
+        },
+        "launch_to": {
+          "description": "Launch day (2026-11-19)",
+          "format": "date",
+          "title": "Launch To",
+          "type": "string"
+        },
+        "subject": {
+          "description": "Symbol the page leads with (TTWO)",
+          "title": "Subject",
+          "type": "string"
+        },
+        "baseline": {
+          "description": "Market baseline symbol (QQQ)",
+          "title": "Baseline",
+          "type": "string"
+        },
+        "tickers": {
+          "items": {
+            "$ref": "#/$defs/TickerPrices"
+          },
+          "title": "Tickers",
+          "type": "array"
+        },
+        "subject_vs_baseline_launch_day": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RelativeChange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "TTWO vs QQQ over launch_day; null unless both have it"
+        },
+        "subject_vs_baseline_since_launch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RelativeChange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "TTWO vs QQQ over since_launch; null unless both have it"
+        }
+      },
+      "required": [
+        "source",
+        "source_url",
+        "series",
+        "tracking_since",
+        "updated_at",
+        "launch_from",
+        "launch_to",
+        "subject",
+        "baseline",
+        "tickers",
+        "subject_vs_baseline_launch_day",
+        "subject_vs_baseline_since_launch"
+      ],
+      "title": "PriceSignals",
+      "type": "object"
+    },
+    "RelativeChange": {
+      "additionalProperties": false,
+      "properties": {
+        "subject_pct": {
+          "title": "Subject Pct",
+          "type": "number"
+        },
+        "baseline_pct": {
+          "title": "Baseline Pct",
+          "type": "number"
+        },
+        "difference_pts": {
+          "description": "subject_pct minus baseline_pct, in percentage points (+ beat the market)",
+          "title": "Difference Pts",
+          "type": "number"
+        }
+      },
+      "required": [
+        "subject_pct",
+        "baseline_pct",
+        "difference_pts"
+      ],
+      "title": "RelativeChange",
       "type": "object"
     },
     "SalesEstimateMethod": {
@@ -530,6 +730,94 @@
         "games"
       ],
       "title": "SteamSignals",
+      "type": "object"
+    },
+    "TickerPrices": {
+      "additionalProperties": false,
+      "properties": {
+        "symbol": {
+          "description": "TTWO, EA, SONY, QQQ",
+          "title": "Symbol",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "role": {
+          "description": "subject: Take-Two; peer: other publishers; baseline: the market (QQQ)",
+          "enum": [
+            "subject",
+            "peer",
+            "baseline"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "closes": {
+          "description": "Every daily close the tracker has, oldest first. Merged across fetches, the latest fetch winning per day",
+          "items": {
+            "$ref": "#/$defs/PricePoint"
+          },
+          "title": "Closes",
+          "type": "array"
+        },
+        "first_date": {
+          "format": "date",
+          "title": "First Date",
+          "type": "string"
+        },
+        "latest_date": {
+          "format": "date",
+          "title": "Latest Date",
+          "type": "string"
+        },
+        "latest_close": {
+          "title": "Latest Close",
+          "type": "number"
+        },
+        "fetched_at": {
+          "description": "Latest fetch that returned closes for it",
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "launch_day": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PriceChange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "launch_from close -> launch_to close; null until both are known"
+        },
+        "since_launch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PriceChange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "launch_from close (the last close before launch) -> latest close; null until there is a close after launch_from"
+        }
+      },
+      "required": [
+        "symbol",
+        "name",
+        "role",
+        "closes",
+        "first_date",
+        "latest_date",
+        "latest_close",
+        "fetched_at",
+        "launch_day",
+        "since_launch"
+      ],
+      "title": "TickerPrices",
       "type": "object"
     },
     "TwitchGameSummary": {
@@ -1053,7 +1341,7 @@
         }
       ],
       "default": null,
-      "description": "Money signals: Steam review counts, curated Take-Two figures"
+      "description": "Money signals: Steam review counts, curated Take-Two figures, share prices"
     }
   },
   "required": [

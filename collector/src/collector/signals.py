@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 from datetime import date, datetime
+from datetime import date as Day  # for a field named `date`, which would shadow the type
 from pathlib import Path
 from typing import Literal
 
@@ -277,12 +278,85 @@ class OfficialFigures(_Model):
     figures: list[OfficialFigure]
 
 
+class PricePoint(_Model):
+    date: Day = Field(description="US trading day (New York)")
+    close: float = Field(description="Unadjusted daily close, USD")
+
+
+class PriceChange(_Model):
+    from_date: date
+    from_close: float
+    to_date: date
+    to_close: float
+    change: float = Field(description="to_close minus from_close, USD")
+    change_pct: float = Field(description="Percent, e.g. -3.25 for -3.25%")
+
+
+class TickerPrices(_Model):
+    symbol: str = Field(description="TTWO, EA, SONY, QQQ")
+    name: str
+    role: Literal["subject", "peer", "baseline"] = Field(
+        description="subject: Take-Two; peer: other publishers; baseline: the market (QQQ)"
+    )
+    closes: list[PricePoint] = Field(
+        description=(
+            "Every daily close the tracker has, oldest first. Merged across fetches, the latest"
+            " fetch winning per day"
+        )
+    )
+    first_date: date
+    latest_date: date
+    latest_close: float
+    fetched_at: datetime = Field(description="Latest fetch that returned closes for it")
+    launch_day: PriceChange | None = Field(
+        description="launch_from close -> launch_to close; null until both are known"
+    )
+    since_launch: PriceChange | None = Field(
+        description=(
+            "launch_from close (the last close before launch) -> latest close; null until there"
+            " is a close after launch_from"
+        )
+    )
+
+
+class RelativeChange(_Model):
+    subject_pct: float
+    baseline_pct: float
+    difference_pts: float = Field(
+        description="subject_pct minus baseline_pct, in percentage points (+ beat the market)"
+    )
+
+
+class PriceSignals(_Model):
+    source: str = Field(description="Data provider, e.g. Alpha Vantage")
+    source_url: str
+    series: str = Field(description="Which series: daily closes, unadjusted")
+    tracking_since: datetime = Field(description="First fetch that returned closes")
+    updated_at: datetime = Field(description="Latest fetch that returned closes")
+    launch_from: date = Field(description="Last trading day before launch (2026-11-18)")
+    launch_to: date = Field(description="Launch day (2026-11-19)")
+    subject: str = Field(description="Symbol the page leads with (TTWO)")
+    baseline: str = Field(description="Market baseline symbol (QQQ)")
+    tickers: list[TickerPrices]
+    subject_vs_baseline_launch_day: RelativeChange | None = Field(
+        description="TTWO vs QQQ over launch_day; null unless both have it"
+    )
+    subject_vs_baseline_since_launch: RelativeChange | None = Field(
+        description="TTWO vs QQQ over since_launch; null unless both have it"
+    )
+
+
 class BusinessSignals(_Model):
     steam_reviews: SteamReviewSignals | None = Field(
         description="Steam review counts and estimated-sales ranges; null until first sampled"
     )
     official: OfficialFigures | None = Field(
         description="Hand-curated Take-Two figures, each with its source; null if unavailable"
+    )
+    # Added after the business block shipped: optional, so older payloads still validate.
+    prices: PriceSignals | None = Field(
+        default=None,
+        description="Daily closes for TTWO, peers and QQQ (Alpha Vantage); null until fetched",
     )
 
 
@@ -303,7 +377,7 @@ class Signals(_Model):
     # Added after schema v1 shipped: optional, so older payloads still validate.
     business: BusinessSignals | None = Field(
         default=None,
-        description="Money signals: Steam review counts, curated Take-Two figures",
+        description="Money signals: Steam review counts, curated Take-Two figures, share prices",
     )
 
 
