@@ -33,7 +33,7 @@ from collector.sources.prices import PricesSource
 NOW = datetime(2026, 11, 21, 22, 30, tzinfo=UTC)
 KEY = "AVKEY-DO-NOT-LOG-5c4b3a"
 DAY_TD = timedelta(days=1)
-SYMBOLS = ("TTWO", "EA", "SONY", "QQQ")
+SYMBOLS = ("TTWO", "RBLX", "SONY", "QQQ")
 
 IBM = load("alphavantage_daily_ibm_compact.json")
 INFO = load("alphavantage_information_demo.json")
@@ -122,7 +122,7 @@ def test_parse_skips_failed_and_malformed_tickers():
     p = {
         "tickers": {
             "TTWO": {"status": 200, "body": IBM},
-            "EA": {"status": 200, "body": INFO, "soft_failure": "Information: ..."},
+            "RBLX": {"status": 200, "body": INFO, "soft_failure": "Information: ..."},
             "SONY": {"status": 0, "body": None, "error": "ConnectTimeout: ..."},
             "QQQ": {"status": 200, "body": bad},
             "XYZ": {"status": 503, "body": None},
@@ -162,7 +162,7 @@ def test_a_rate_limited_ticker_is_recorded_and_the_rest_kept(keyed: Config):
         f = PricesSource(keyed, sleep=lambda s: None).fetch(client, NOW)
     qqq = f.payload["tickers"]["QQQ"]
     assert qqq["status"] == 200 and qqq["soft_failure"].startswith("Information:")
-    assert list(px.parse(f.payload)) == ["TTWO", "EA", "SONY"]
+    assert list(px.parse(f.payload)) == ["TTWO", "RBLX", "SONY"]
     assert f.summary.startswith("3/4 tickers") and "missing: QQQ Information:" in f.summary
 
 
@@ -210,7 +210,7 @@ def test_failing_requests_keep_the_key_out_of_the_log_and_the_raw_file(keyed: Co
     seen: list[httpx.Request] = []
     bodies: dict[str, object] = {
         "TTWO": av_body("TTWO", {"2026-11-20": 150.0}),
-        "EA": 503,
+        "RBLX": 503,
         "SONY": httpx.ConnectTimeout("timed out"),
         "QQQ": NOTE_ECHOING_KEY,
     }
@@ -230,19 +230,19 @@ def test_failing_requests_keep_the_key_out_of_the_log_and_the_raw_file(keyed: Co
     text = raw.read_text()
     assert KEY not in text and "apikey" not in text
     stored = json.loads(text)["payload"]["tickers"]
-    assert stored["EA"] == {"status": 503, "body": None}
+    assert stored["RBLX"] == {"status": 503, "body": None}
     assert stored["SONY"]["error"] == (
         "ConnectTimeout: GET https://www.alphavantage.co/query: timed out"
     )
     assert "[redacted]" in stored["QQQ"]["body"]["Note"]
-    assert "missing: EA HTTP 503; SONY ConnectTimeout" in caplog.text
+    assert "missing: RBLX HTTP 503; SONY ConnectTimeout" in caplog.text
     # httpx's own request log line (INFO) is captured too, with its query string cut
     assert "GET https://www.alphavantage.co/query?[redacted]" in caplog.text
     assert KEY not in caplog.text
 
     # every ticker failing: the one log line still carries no key
     caplog.clear()
-    bodies.update(TTWO=httpx.ReadTimeout("read timed out"), EA=NOTE_ECHOING_KEY)
+    bodies.update(TTWO=httpx.ReadTimeout("read timed out"), RBLX=NOTE_ECHOING_KEY)
     with caplog.at_level(logging.DEBUG):
         assert runner.run_job(job, NOW + timedelta(seconds=1)) is False
     assert "prices no new data" in caplog.text and "[redacted]" in caplog.text
@@ -265,7 +265,7 @@ def test_redact_walks_nested_values():
 # Around launch: Tuesday 17th .. Friday 20th.
 CLOSES = {
     "TTWO": {"2026-11-17": 240.0, "2026-11-18": 250.0, "2026-11-19": 230.0, "2026-11-20": 260.0},
-    "EA": {"2026-11-17": 150.0, "2026-11-18": 150.0, "2026-11-19": 153.0, "2026-11-20": 147.0},
+    "RBLX": {"2026-11-17": 150.0, "2026-11-18": 150.0, "2026-11-19": 153.0, "2026-11-20": 147.0},
     "SONY": {"2026-11-18": 25.0, "2026-11-19": 25.5, "2026-11-20": 25.25},
     "QQQ": {"2026-11-17": 590.0, "2026-11-18": 600.0, "2026-11-19": 606.0, "2026-11-20": 612.0},
 }
@@ -285,7 +285,7 @@ def test_derive_launch_day_since_launch_and_vs_the_baseline(cfg: Config):
         date(2026, 11, 19),
     )
     assert p.tracking_since == p.updated_at == NOW
-    assert [t.symbol for t in p.tickers] == ["TTWO", "EA", "SONY", "QQQ"]
+    assert [t.symbol for t in p.tickers] == ["TTWO", "RBLX", "SONY", "QQQ"]
     assert [t.role for t in p.tickers] == ["subject", "peer", "peer", "baseline"]
 
     ttwo = p.tickers[0]
@@ -365,6 +365,122 @@ def test_history_accumulates_across_snapshots_and_the_latest_fetch_wins(cfg: Con
     # and a rebuild from raw gives the same answer, whatever the ingest order
     rebuilt = derive(cfg, now=NOW, rebuild=True).signals.business.prices
     assert rebuilt.tickers[0].closes == ttwo.closes
+
+
+# --- which tickers ---------------------------------------------------------------------
+
+
+def test_the_default_tickers_replace_ea_with_roblox(tmp_path: Path):
+    c = Config.from_env({"DATA_DIR": str(tmp_path / "d")})
+    assert c.prices_tickers == ("TTWO", "RBLX", "SONY", "QQQ")
+    assert px.tickers(c.prices_tickers) == (
+        px.Ticker("TTWO", "Take-Two Interactive", "subject"),
+        px.Ticker("RBLX", "Roblox", "peer"),
+        px.Ticker("SONY", "Sony Group (ADR)", "peer"),
+        px.Ticker("QQQ", "Invesco QQQ Trust (Nasdaq-100)", "baseline"),
+    )
+    assert Config.from_env({"PRICES_TICKERS": " , "}).prices_tickers == c.prices_tickers
+
+
+def test_prices_tickers_env_overrides_the_list_and_the_roles(tmp_path: Path):
+    env = {
+        "DATA_DIR": str(tmp_path / "d"),
+        "ALPHA_VANTAGE_API_KEY": KEY,
+        "PRICES_TICKERS": "ttwo, ntdoy,BRK.B ,SPY",
+    }
+    c = Config.from_env(env)
+    assert c.prices_tickers == ("TTWO", "NTDOY", "BRK.B", "SPY")
+    assert [(t.symbol, t.name, t.role) for t in px.tickers(c.prices_tickers)] == [
+        ("TTWO", "Take-Two Interactive", "subject"),
+        ("NTDOY", "Nintendo (ADR)", "peer"),
+        ("BRK.B", "BRK.B", "peer"),  # no known name: shown as its symbol
+        ("SPY", "SPY", "baseline"),
+    ]
+
+    # the fetch asks for exactly those, one request each
+    seen: list[httpx.Request] = []
+    bodies = {s: av_body(s, CLOSES["SONY"]) for s in c.prices_tickers}
+    with make_client(c, httpx.MockTransport(handler_for(bodies, seen))) as client:
+        f = PricesSource(c, sleep=lambda s: None).fetch(client, NOW)
+    assert [r.url.params["symbol"] for r in seen] == list(c.prices_tickers)
+    assert f.request["symbols"] == list(c.prices_tickers)
+    assert f.summary == "4/4 tickers; TTWO 25.25 (2026-11-20)"
+
+    # and derive takes the subject and the baseline from it
+    rawstore.write_raw(c.raw_dir, "prices", NOW, {}, f.payload)
+    p = derive(c, now=NOW).signals.business.prices
+    assert (p.subject, p.baseline) == ("TTWO", "SPY")
+    assert [t.symbol for t in p.tickers] == ["TTWO", "NTDOY", "BRK.B", "SPY"]
+    assert p.subject_vs_baseline_since_launch.difference_pts == 0.0
+
+    # two symbols is a subject and a baseline with no peers
+    two = Config.from_env({"PRICES_TICKERS": "TTWO,QQQ"})
+    assert [t.role for t in px.tickers(two.prices_tickers)] == ["subject", "baseline"]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "TTWO",
+        "TTWO,TTWO,QQQ",
+        "TTWO,QQ Q",
+        "TTWO,QQQ&apikey=x",
+        ",".join(f"T{i}" for i in range(26)),
+    ],
+)
+def test_prices_tickers_rejects_bad_lists(value: str):
+    with pytest.raises(ValueError, match="PRICES_TICKERS"):
+        Config.from_env({"PRICES_TICKERS": value})
+
+
+def test_a_ticker_whose_closes_stop_before_launch_is_left_out(tmp_path: Path):
+    # EA, as it really went: taken private, last Nasdaq close 2026-08-04
+    c = Config.from_env({"DATA_DIR": str(tmp_path / "d"), "PRICES_TICKERS": "TTWO,EA,SONY,QQQ"})
+    closes = {s: v for s, v in CLOSES.items() if s != "RBLX"}
+    closes["EA"] = {"2026-08-03": 200.0, "2026-08-04": 201.0}
+    rawstore.write_raw(
+        c.raw_dir, "prices", NOW, {}, payload({s: av_body(s, v) for s, v in closes.items()})
+    )
+    res = derive(c, now=NOW)
+    p = res.signals.business.prices
+    assert [t.symbol for t in p.tickers] == ["TTWO", "SONY", "QQQ"]
+    assert '"EA"' not in res.signals_path.read_text()
+    assert p.subject_vs_baseline_since_launch.difference_pts == 2.0  # the rest is unchanged
+    # raw is immutable: EA's closes are still on disk
+    (raw,) = list(rawstore.iter_raw_paths(c.raw_dir, "prices"))
+    assert "EA" in json.loads(raw.read_text())["payload"]["tickers"]
+
+
+def test_stale_means_over_ten_days_behind_the_newest_of_the_others(tmp_path: Path):
+    c = Config.from_env({"DATA_DIR": str(tmp_path / "d"), "PRICES_TICKERS": "TTWO,AAA,BBB,QQQ"})
+    bodies = {
+        "TTWO": av_body("TTWO", {"2026-11-19": 1.0, "2026-11-20": 2.0}),
+        "AAA": av_body("AAA", {"2026-11-10": 1.0}),  # 10 days behind: kept
+        "BBB": av_body("BBB", {"2026-11-09": 1.0}),  # 11 days behind: left out
+        "QQQ": av_body("QQQ", {"2026-11-20": 3.0}),
+    }
+    rawstore.write_raw(c.raw_dir, "prices", NOW, {}, payload(bodies))
+    p = derive(c, now=NOW).signals.business.prices
+    assert [t.symbol for t in p.tickers] == ["TTWO", "AAA", "QQQ"]
+
+    # a lone ticker has nothing to be behind, so it is never stale
+    c1 = Config.from_env({"DATA_DIR": str(tmp_path / "e"), "PRICES_TICKERS": "TTWO,QQQ"})
+    old = payload({"TTWO": av_body("TTWO", {"2026-08-04": 1.0})})
+    rawstore.write_raw(c1.raw_dir, "prices", NOW, {}, old)
+    assert [t.symbol for t in derive(c1, now=NOW).signals.business.prices.tickers] == ["TTWO"]
+
+
+def test_a_ticker_no_longer_configured_keeps_its_rows_but_is_not_published(cfg: Config):
+    # what the box has after the switch: EA's old snapshots, then a run with RBLX
+    ea = payload({"EA": av_body("EA", {"2026-08-04": 201.0})})
+    rawstore.write_raw(cfg.raw_dir, "prices", NOW - DAY_TD, {}, ea)
+    rawstore.write_raw(
+        cfg.raw_dir, "prices", NOW, {}, payload({s: av_body(s, v) for s, v in CLOSES.items()})
+    )
+    res = derive(cfg, now=NOW, rebuild=True)
+    assert [t.symbol for t in res.signals.business.prices.tickers] == list(SYMBOLS)
+    assert '"EA"' not in res.signals_path.read_text()
+    assert len(list(rawstore.iter_raw_paths(cfg.raw_dir, "prices"))) == 2
 
 
 # --- schema ----------------------------------------------------------------------------

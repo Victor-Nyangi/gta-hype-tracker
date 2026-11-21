@@ -619,22 +619,52 @@ def _relative(subject: PriceChange | None, baseline: PriceChange | None) -> Rela
     )
 
 
-def _prices(con: duckdb.DuckDBPyConnection) -> PriceSignals | None:
+# A ticker whose newest close is this many days older than the newest close of any other
+# ticker has stopped trading (EA: taken private, last Nasdaq close 2026-08-04) or stopped
+# being served. It is left out of signals.json; its rows stay in raw and the database.
+STALE_AFTER_DAYS = 10
+
+
+def _fresh(latest: dict[str, date]) -> set[str]:
+    """Symbols whose newest close is within STALE_AFTER_DAYS of the newest among the others."""
+    keep = set()
+    for sym, day in latest.items():
+        others = [d for s, d in latest.items() if s != sym]
+        if not others or (max(others) - day).days <= STALE_AFTER_DAYS:
+            keep.add(sym)
+        else:
+            log.info(
+                "prices: %s left out, its newest close (%s) is over %d days behind the others",
+                sym,
+                day,
+                STALE_AFTER_DAYS,
+            )
+    return keep
+
+
+def _prices(con: duckdb.DuckDBPyConnection, cfg: Config) -> PriceSignals | None:
     span = con.execute("SELECT min(fetched_at), max(fetched_at) FROM daily_prices").fetchone()
     if span is None or span[0] is None:
         return None
+    wanted = prices.tickers(cfg.prices_tickers)
+    subject, baseline = wanted[0].symbol, wanted[-1].symbol
     by_symbol: dict[str, list[tuple[date, float, datetime]]] = {}
     for sym, day, close, at in con.execute(
         "SELECT symbol, day, close, fetched_at FROM daily_prices ORDER BY symbol, day"
     ).fetchall():
         by_symbol.setdefault(sym, []).append((day, close, at))
-    order = {t.symbol: i for i, t in enumerate(prices.TICKERS)}
+    # Only the configured tickers: a symbol dropped from PRICES_TICKERS keeps its stored
+    # closes but is no longer published.
+    present = {t.symbol for t in wanted} & set(by_symbol)
+    fresh = _fresh({sym: by_symbol[sym][-1][0] for sym in present})
     tickers = []
     changes: dict[str, tuple[PriceChange | None, PriceChange | None]] = {}
-    for sym in sorted(by_symbol, key=lambda s: (order.get(s, len(order)), s)):
+    for known in wanted:
+        sym = known.symbol
+        if sym not in fresh:
+            continue
         rows = by_symbol[sym]
         closes = {d: round(c, 4) for d, c, _ in rows}
-        known = prices.BY_SYMBOL.get(sym, prices.Ticker(sym, sym, "peer"))
         latest_day = rows[-1][0]
         launch_day = _change(closes, LAUNCH_FROM, LAUNCH_TO)
         since = _change(closes, LAUNCH_FROM, latest_day)
@@ -653,8 +683,8 @@ def _prices(con: duckdb.DuckDBPyConnection) -> PriceSignals | None:
                 since_launch=since,
             )
         )
-    subj = changes.get(prices.SUBJECT, (None, None))
-    base = changes.get(prices.BASELINE, (None, None))
+    subj = changes.get(subject, (None, None))
+    base = changes.get(baseline, (None, None))
     return PriceSignals(
         source=prices.SOURCE_NAME,
         source_url=prices.SOURCE_URL,
@@ -663,8 +693,8 @@ def _prices(con: duckdb.DuckDBPyConnection) -> PriceSignals | None:
         updated_at=_aware(span[1]),
         launch_from=LAUNCH_FROM,
         launch_to=LAUNCH_TO,
-        subject=prices.SUBJECT,
-        baseline=prices.BASELINE,
+        subject=subject,
+        baseline=baseline,
         tickers=tickers,
         subject_vs_baseline_launch_day=_relative(subj[0], base[0]),
         subject_vs_baseline_since_launch=_relative(subj[1], base[1]),
@@ -672,7 +702,7 @@ def _prices(con: duckdb.DuckDBPyConnection) -> PriceSignals | None:
 
 
 def _business(con: duckdb.DuckDBPyConnection, cfg: Config) -> BusinessSignals | None:
-    reviews, official, share_prices = _steam_reviews(con), _official(cfg), _prices(con)
+    reviews, official, share_prices = _steam_reviews(con), _official(cfg), _prices(con, cfg)
     if reviews is None and official is None and share_prices is None:
         return None
     return BusinessSignals(steam_reviews=reviews, official=official, prices=share_prices)

@@ -274,6 +274,7 @@
           "type": "string"
         },
         "tickers": {
+          "description": "The configured tickers that have closes, subject first and baseline last. A ticker whose newest close is over 10 days older than the newest of the others (delisted, or no longer served) is left out",
           "items": {
             "$ref": "#/$defs/TickerPrices"
           },
@@ -736,7 +737,7 @@
       "additionalProperties": false,
       "properties": {
         "symbol": {
-          "description": "TTWO, EA, SONY, QQQ",
+          "description": "By default TTWO, RBLX, SONY, QQQ (PRICES_TICKERS)",
           "title": "Symbol",
           "type": "string"
         },
@@ -745,7 +746,7 @@
           "type": "string"
         },
         "role": {
-          "description": "subject: Take-Two; peer: other publishers; baseline: the market (QQQ)",
+          "description": "subject: Take-Two; peer: other game companies; baseline: the market (QQQ)",
           "enum": [
             "subject",
             "peer",

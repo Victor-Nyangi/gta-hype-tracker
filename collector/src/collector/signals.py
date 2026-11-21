@@ -293,10 +293,10 @@ class PriceChange(_Model):
 
 
 class TickerPrices(_Model):
-    symbol: str = Field(description="TTWO, EA, SONY, QQQ")
+    symbol: str = Field(description="By default TTWO, RBLX, SONY, QQQ (PRICES_TICKERS)")
     name: str
     role: Literal["subject", "peer", "baseline"] = Field(
-        description="subject: Take-Two; peer: other publishers; baseline: the market (QQQ)"
+        description="subject: Take-Two; peer: other game companies; baseline: the market (QQQ)"
     )
     closes: list[PricePoint] = Field(
         description=(
@@ -337,7 +337,13 @@ class PriceSignals(_Model):
     launch_to: date = Field(description="Launch day (2026-11-19)")
     subject: str = Field(description="Symbol the page leads with (TTWO)")
     baseline: str = Field(description="Market baseline symbol (QQQ)")
-    tickers: list[TickerPrices]
+    tickers: list[TickerPrices] = Field(
+        description=(
+            "The configured tickers that have closes, subject first and baseline last. A ticker"
+            " whose newest close is over 10 days older than the newest of the others (delisted,"
+            " or no longer served) is left out"
+        )
+    )
     subject_vs_baseline_launch_day: RelativeChange | None = Field(
         description="TTWO vs QQQ over launch_day; null unless both have it"
     )
