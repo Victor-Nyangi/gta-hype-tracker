@@ -10,11 +10,13 @@ Samples the GTA VI launch signals on a schedule, keeps every raw response, and d
 | `youtube` | hourly | `videos?part=statistics` for the trailers | `YOUTUBE_API_KEY` |
 | `wikipedia` | 6 h (00/06/12/18 UTC) | Pageviews per-article, 30 editions, trailing 10 days | none |
 | `steam_reviews` | 6 h (03/09/15/21 UTC) | Store `appreviewhistogram/<appid>` for the same 7 apps | none |
+| `prices` | daily (22:30 UTC) | Alpha Vantage `TIME_SERIES_DAILY`, `outputsize=compact`, for TTWO, EA, SONY, QQQ | `ALPHA_VANTAGE_API_KEY` |
 
 Plus one input that is not fetched: `src/collector/curated/official_figures.json`, a short
 hand-maintained list of Take-Two-reported figures (see "Business" below).
 
-Every job also runs once at startup. After each 5-minute cycle, `derive` loads new raw
+Every job also runs once at startup (`prices` only while it has no data yet, so restarts
+do not spend its daily request allowance). After each 5-minute cycle, `derive` loads new raw
 files into DuckDB and rewrites `signals.json`. A failing source logs one line and the loop
 carries on; a source without credentials logs one "skipped" line, once.
 
@@ -36,7 +38,7 @@ DATA_DIR/
   raw/<source>/date=YYYY-MM-DD/HHMMSS.json[.gz]   {fetched_at, source, request, payload}
   cache/twitch_games.json, cache/wiki_titles.json
   signals.duckdb       twitch_snapshots, twitch_by_language, steam_players, youtube_stats, wiki_daily,
-                       steam_reviews
+                       steam_reviews, daily_prices
   public/signals.json  the contract: src/collector/signals.py -> schema/signals.schema.json
 ```
 
@@ -97,12 +99,54 @@ without it is still valid, and the site hides the section when it is missing):
   up (`OFFICIAL_FIGURES_PATH` points at another copy if you want to edit it on the box
   without a rebuild). A malformed file is logged and left out; it never stops derive.
 
+- **`business.prices`**: daily closes from Alpha Vantage for Take-Two (`TTWO`, the
+  `subject`), two peers (`EA`, `SONY`) and the market `baseline` (`QQQ`, the Nasdaq-100
+  ETF). Per ticker: `closes` (every `{date, close}` the tracker has, oldest first),
+  `first_date`, `latest_date`/`latest_close`, `launch_day` (the 2026-11-18 close to the
+  2026-11-19 close: GTA VI unlocked at 05:00 UTC on the 19th, before that day's US open) and
+  `since_launch` (the 2026-11-18 close to the latest close), each as `from_*`, `to_*`,
+  `change` (USD) and `change_pct` (percent). Then `subject_vs_baseline_launch_day` and
+  `subject_vs_baseline_since_launch`: TTWO's and QQQ's percent change and the difference in
+  percentage points (positive: TTWO beat the market), only when both cover the same window.
+  A change is null until its closes exist.
+
+### Share prices (Alpha Vantage)
+
+What the free tier allows (Alpha Vantage's documentation and premium page, read
+2026-11-21): `TIME_SERIES_DAILY` is free; `TIME_SERIES_DAILY_ADJUSTED` is premium;
+`outputsize=compact` (the latest 100 trading days) is free, `outputsize=full` (20+ years) is
+premium only; a free key gets **25 requests a day**.
+
+So each run asks for `compact`, one request per ticker (4 a run, 5 s apart), once a day after
+the US close, and derive merges every stored snapshot per (ticker, day), the latest fetch
+winning. **On day one the chart reaches back about 100 trading days** (the first fetch on
+2026-11-21 covers 2026-07-02 to 2026-11-20); from then on it grows by a day each trading
+day. Trailer 1 (2023-12-05) and Trailer 2 (2025-05-06) are outside that window, and stay
+outside it unless a premium key backfills with `full`; the launch is inside it.
+
+- Closes are **unadjusted** (the adjusted series is premium): a split would show as a step.
+- Rate limits and other refusals arrive as HTTP 200 with a `Note` or `Information` message
+  and no series (an unknown symbol: `Error Message`). That ticker is stored with its
+  message as `soft_failure` and the others carry on; a run where no ticker returned closes
+  logs one `prices no new data ...; kept the last good data` warning and writes nothing.
+  The closes already stored are never touched by a failed run.
+- The key: Alpha Vantage only takes it as the `apikey` query parameter. The stored request
+  meta has no query string, errors go through `describe_error` (no query strings), any copy
+  of the key an API message echoes back is replaced with `[redacted]` before it is stored,
+  logged or raised, the `httpx` logger has a filter that cuts query strings from its
+  request lines, and `Config`'s repr leaves the key out. `tests/test_prices.py` proves a
+  failing run's log and raw file carry no key.
+
+Cadence and settings: `PRICES_AT_HOUR_UTC` (default 22) and `PRICES_AT_MINUTE_UTC`
+(default 30): 22:30 UTC is after the 16:00 New York close in both winter (21:00 UTC) and
+summer (20:00 UTC). `PRICES_REQUEST_GAP_S` (default 5) is the pause between tickers.
+
 Tried and not used (2026-11-20):
 
-- **Share prices**: Stooq's keyless CSV (`stooq.com/q/d/l/?s=ttwo.us&i=d`) now answers an
+- **Keyless share prices**: Stooq's CSV (`stooq.com/q/d/l/?s=ttwo.us&i=d`) answers an
   automated client with a JavaScript proof-of-work bot check instead of CSV, and Nasdaq's
-  own quote-history endpoint resets the connection for a non-browser client. Neither is
-  worked around, so there is no stock series yet.
+  own quote-history endpoint resets the connection for a non-browser client. Hence Alpha
+  Vantage, with a key.
 - **Steam `appreviews/<appid>?json=1`** (`query_summary.total_reviews`): every request was
   redirected (302) to the store's front page, so the histogram endpoint is used instead.
 - **SEC EDGAR**: its fair-access policy requires a contact email in the User-Agent; the
