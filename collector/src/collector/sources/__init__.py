@@ -34,3 +34,8 @@ class Source(Protocol):
         ...
 
     def fetch(self, client: httpx.Client, now: datetime) -> Fetched: ...
+
+
+class SourceSoftFailure(Exception):
+    """Raised by fetch when the source answered but had nothing new (for example, a rate
+    limit that comes back as HTTP 200). Nothing is stored and the last good data stands."""
