@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 
 import httpx
@@ -12,6 +13,21 @@ from collector.config import Config
 # that slip into an exception message are cut before the message is logged.
 _URL_QUERY = re.compile(r"""(https?://[^\s?#'"<>]+)\?[^\s'"<>]*""")
 MAX_API_MESSAGE = 200
+
+
+class ScrubQueryStrings(logging.Filter):
+    """Cuts query strings out of a log record. httpx logs every request URL at INFO, and the
+    Alpha Vantage URL carries its key; the CLI also turns httpx down to WARNING, but this
+    holds whatever logging setup a caller uses."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.msg, record.args = scrub(record.getMessage()), None
+        return True
+
+
+_HTTPX_LOG = logging.getLogger("httpx")
+if not any(isinstance(f, ScrubQueryStrings) for f in _HTTPX_LOG.filters):
+    _HTTPX_LOG.addFilter(ScrubQueryStrings())
 
 
 def make_client(cfg: Config, transport: httpx.BaseTransport | None = None) -> httpx.Client:

@@ -14,10 +14,15 @@ Schedule (UTC, aligned to the wall clock, no jitter):
   every 6 h     steam_reviews    (STEAM_REVIEWS_EVERY_HOURS, anchored on
                                   STEAM_REVIEWS_AT_HOUR_UTC:00: 03/09/15/21 by default), then
                                   derive. Review totals move slowly; four reads a day is plenty.
+  daily         prices           (PRICES_AT_HOUR_UTC:PRICES_AT_MINUTE_UTC, 22:30 by default,
+                                  after the US close), then derive. 4 Alpha Vantage requests a
+                                  run, against a free limit of 25 a day.
   daily         compact          (00:10, gzips yesterday's raw partitions)
 
 Every job also runs once at startup, so a fresh deploy (or a restart after downtime) has
-current data without waiting for the next slot. Missed slots are skipped, not replayed.
+current data without waiting for the next slot, except prices, which runs at startup only
+while it has no data yet (a restart loop must not burn the daily request limit). Missed
+slots are skipped, not replayed.
 """
 
 from __future__ import annotations
@@ -35,7 +40,8 @@ from collector import rawstore
 from collector.config import Config
 from collector.derive import derive
 from collector.http import describe_error, make_client
-from collector.sources import Source, SourceUnavailable
+from collector.sources import Source, SourceSoftFailure, SourceUnavailable
+from collector.sources.prices import PricesSource
 from collector.sources.steam import SteamSource
 from collector.sources.steam_reviews import SteamReviewsSource
 from collector.sources.twitch import TwitchSource
@@ -57,6 +63,8 @@ class Job:
     run: Callable[[datetime], str]
     triggers_derive: bool = False
     next_at: datetime | None = None
+    # Whether the startup run includes this job (asked at startup); default: always.
+    at_startup: Callable[[], bool] = lambda: True
 
     def next_slot_after(self, now: datetime) -> datetime:
         ts = now.timestamp()
@@ -71,6 +79,7 @@ def build_sources(cfg: Config) -> list[Source]:
         "youtube": lambda: YouTubeSource(cfg),
         "wikipedia": lambda: WikipediaSource(cfg),
         "steam_reviews": lambda: SteamReviewsSource(cfg),
+        "prices": lambda: PricesSource(cfg),
     }
     return [factories[name]() for name in cfg.sources]
 
@@ -115,6 +124,19 @@ class Runner:
         }
         jobs = []
         for src in sources:
+            if src.name == "prices":
+                at = self.cfg.prices_at_hour_utc * HOUR + self.cfg.prices_at_minute_utc * 60
+                jobs.append(
+                    Job(
+                        src.name,
+                        DAY,
+                        at,
+                        self._source_job(src),
+                        True,
+                        at_startup=lambda name=src.name: not self._has_raw(name),
+                    )
+                )
+                continue
             if src.name in anchored:
                 every, at = anchored[src.name]
                 period = every * HOUR
@@ -139,6 +161,9 @@ class Runner:
             return f"{fetched.summary} -> {where}"
 
         return run
+
+    def _has_raw(self, source: str) -> bool:
+        return next(rawstore.iter_raw_paths(self.cfg.raw_dir, source), None) is not None
 
     def _compact_job(self, now: datetime) -> str:
         n = rawstore.compact_before(self.cfg.raw_dir, now.date())
@@ -167,6 +192,14 @@ class Runner:
                 log.warning("%s skipped: %s (will not log this again)", job.name, e)
                 self._skip_logged.add(job.name)
             return False
+        except SourceSoftFailure as e:
+            log.warning(
+                "%s no new data in %.1fs: %s; kept the last good data",
+                job.name,
+                time.monotonic() - t0,
+                describe_error(e),
+            )
+            return False
         except Exception as e:
             # Never log str(e) for HTTP errors: httpx includes the URL and its query string.
             log.error("%s FAILED in %.1fs: %s", job.name, time.monotonic() - t0, describe_error(e))
@@ -179,6 +212,10 @@ class Runner:
         ran = []
         derive_needed = False
         for job in self.jobs:
+            if all_jobs and not job.at_startup():
+                job.next_at = job.next_slot_after(self.clock())
+                log.info("%s has data; next run %s UTC", job.name, f"{job.next_at:%Y-%m-%d %H:%M}")
+                continue
             if all_jobs or (job.next_at is not None and job.next_at <= now):
                 # Stamp each snapshot with its own start time, not the cycle's.
                 self.run_job(job, self.clock())

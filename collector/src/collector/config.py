@@ -14,7 +14,7 @@ from pathlib import Path
 
 LAUNCH_AT = datetime(2026, 11, 19, 5, 0, 0, tzinfo=UTC)
 
-ALL_SOURCES = ("twitch", "steam", "youtube", "wikipedia", "steam_reviews")
+ALL_SOURCES = ("twitch", "steam", "youtube", "wikipedia", "steam_reviews", "prices")
 
 # Hand-curated Take-Two figures, shipped with the package (see that file for sources).
 DEFAULT_OFFICIAL_FIGURES = Path(__file__).resolve().parent / "curated" / "official_figures.json"
@@ -67,6 +67,13 @@ def _csv(value: str | None) -> list[str]:
     return [v.strip() for v in (value or "").split(",") if v.strip()]
 
 
+def _int_in(e: Mapping[str, str], name: str, default: int, lo: int, hi: int) -> int:
+    n = int(e.get(name) or default)
+    if not lo <= n <= hi:
+        raise ValueError(f"{name} must be between {lo} and {hi}")
+    return n
+
+
 def _divisor_of_24(e: Mapping[str, str], name: str, default: int) -> int:
     n = int(e.get(name) or default)
     if n < 1 or 24 % n:
@@ -93,6 +100,14 @@ class Config:
     steam_reviews_every_hours: int = 6
     steam_reviews_at_hour_utc: int = 3
     official_figures_path: Path = DEFAULT_OFFICIAL_FIGURES
+    # Alpha Vantage only takes the key as a query parameter; repr=False keeps it out of any
+    # repr(cfg). sources/prices.py keeps it out of raw files, logs and exceptions.
+    alpha_vantage_api_key: str = field(default="", repr=False)
+    # Once a day after the US close (16:00 New York is 21:00 UTC in winter, 20:00 in summer).
+    prices_at_hour_utc: int = 22
+    prices_at_minute_utc: int = 30
+    # Pause between the per-ticker requests of one run.
+    prices_request_gap_s: float = 5.0
     contact_url: str = DEFAULT_CONTACT
 
     @property
@@ -153,5 +168,9 @@ class Config:
             steam_reviews_every_hours=reviews_every,
             steam_reviews_at_hour_utc=int(e.get("STEAM_REVIEWS_AT_HOUR_UTC") or 3),
             official_figures_path=Path(e.get("OFFICIAL_FIGURES_PATH") or DEFAULT_OFFICIAL_FIGURES),
+            alpha_vantage_api_key=e.get("ALPHA_VANTAGE_API_KEY", "").strip(),
+            prices_at_hour_utc=_int_in(e, "PRICES_AT_HOUR_UTC", 22, 0, 23),
+            prices_at_minute_utc=_int_in(e, "PRICES_AT_MINUTE_UTC", 30, 0, 59),
+            prices_request_gap_s=float(e.get("PRICES_REQUEST_GAP_S") or 5),
             contact_url=e.get("CONTACT_URL") or DEFAULT_CONTACT,
         )
