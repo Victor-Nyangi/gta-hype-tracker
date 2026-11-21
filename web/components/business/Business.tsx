@@ -9,6 +9,7 @@ import { useLive } from "../live/LiveSignals";
 import { Reveal } from "../Reveal";
 import { SeenScope } from "../SeenScope";
 import { CARD, EYEBROW } from "../ui";
+import { SharePriceChart } from "./SharePrices";
 
 const TILE_COLORS = ["text-violet", "text-pink", "text-orange", "text-teal"] as const;
 const QUALIFIER = { nearly: "Nearly", over: "Over" } as const;
@@ -150,18 +151,19 @@ function ReviewEstimates({ reviews, pending }: { reviews: Sourced<SteamReviews>;
 }
 
 /**
- * Follow the money: Take-Two's reported figures (curated in the collector, each with its
- * source) and estimated Steam sales from review counts. Hidden when signals.json has no
- * usable business block, live or in the fallback.
+ * Follow the money: Take-Two's share price against the market (Alpha Vantage daily closes,
+ * via the collector), Take-Two's reported figures (curated in the collector, each with its
+ * source) and estimated Steam sales from review counts. Each part is hidden on its own when
+ * signals.json has no usable copy of it, live or in the fallback; the whole section when
+ * none has.
  *
- * data: no share-price chart. Stooq's keyless CSV now serves a bot check and Nasdaq's
- * endpoint refuses non-browser clients, so the collector has no stock series (see
- * collector/README.md "Business").
+ * data: the price chart only appears once the collector has written `business.prices`; the
+ * bundled fallback carries real data only, never a sample.
  */
 export function Business() {
   const { data, pending } = useLive();
-  const { official, reviews } = data;
-  if (!official && !reviews) return null;
+  const { official, reviews, prices } = data;
+  if (!official && !reviews && !prices) return null;
   return (
     <section id="business" aria-labelledby="business-title" className="bg-band">
       <div className="mx-auto flex max-w-content flex-col gap-6 px-6 py-24">
@@ -174,9 +176,18 @@ export function Business() {
             Follow the money.
           </h2>
           <p className="m-0 max-w-[60ch] text-[15px] text-fg-2">
-            What Take-Two has reported, and a rough read on everyone else&rsquo;s sales from their Steam reviews.
+            {prices ? "How Take-Two’s shares moved, what" : "What"} Take-Two has reported, and a rough read on
+            everyone else&rsquo;s sales from their Steam reviews.
           </p>
         </Reveal>
+
+        {prices && (
+          <Reveal className={CARD}>
+            <CardBoundary name="Take-Two share price">
+              <SharePriceChart prices={prices} pending={pending} />
+            </CardBoundary>
+          </Reveal>
+        )}
 
         <CardBoundary name="Reported by Take-Two">
           {official ? <OfficialFigures official={official} pending={pending} /> : <Unavailable name="Reported by Take-Two" />}

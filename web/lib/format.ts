@@ -93,3 +93,20 @@ export function asOfLabel(asOf: string): string {
   const [y, m, d] = asOf.split("-").map(Number);
   return d ? `${MONTHS[m - 1]} ${d}, ${y}` : `${MONTHS[m - 1]} ${y}`;
 }
+
+/** US dollars with cents: "$1,234.50". */
+export const usd = (n: number): string =>
+  `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/** A signed number with a real minus sign, fixed decimals: "+4.00", "−8.00", "0.00". */
+function signed(n: number, digits: number): string {
+  const s = Math.abs(n).toFixed(digits);
+  if (Number(s) === 0) return s;
+  return `${n < 0 ? "−" : "+"}${s}`;
+}
+
+/** A percent move: "+4.00%", "−8.00%". */
+export const signedPct = (n: number): string => `${signed(n, 2)}%`;
+
+/** Percentage points: "+2.0 pts", "−9.0 pts". */
+export const signedPts = (n: number): string => `${signed(n, 1)} pts`;
