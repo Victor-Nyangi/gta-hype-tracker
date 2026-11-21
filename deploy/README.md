@@ -20,7 +20,10 @@ Nothing here publishes a port: Traefik reaches `data` over its own Docker networ
    - YouTube: a Data API v3 key from console.cloud.google.com (restrict it to that API).
    - Alpha Vantage (share prices): a free key from alphavantage.co/support/#api-key, as
      `ALPHA_VANTAGE_API_KEY`. The free tier allows 25 requests a day; the collector uses 4
-     (once a day at `PRICES_AT_HOUR_UTC`:`PRICES_AT_MINUTE_UTC`, default 22:30 UTC).
+     (once a day at `PRICES_AT_HOUR_UTC`:`PRICES_AT_MINUTE_UTC`, default 22:30 UTC), one
+     per ticker. The tickers are `PRICES_TICKERS` (optional, default
+     `TTWO,RBLX,SONY,QQQ`: subject first, market baseline last, peers between; see
+     `collector/README.md`).
    - Steam and Wikipedia need nothing.
 
 ## Steps on the box
@@ -89,6 +92,15 @@ git pull
 docker compose -f deploy/compose.yml up -d --build
 # after a parsing change, reload all raw history into fresh tables:
 docker compose -f deploy/compose.yml exec collector collector derive --rebuild
+```
+
+After changing the share-price tickers (`PRICES_TICKERS` in `deploy/.env`, or a new
+default), the next derive (within 5 minutes) publishes only the new list, and a new
+symbol's closes arrive with the daily 22:30 UTC fetch. To fetch them now (4 of the day's
+25 Alpha Vantage requests):
+
+```sh
+docker compose -f deploy/compose.yml exec -e COLLECTOR_SOURCES=prices collector collector once
 ```
 
 ## Disk

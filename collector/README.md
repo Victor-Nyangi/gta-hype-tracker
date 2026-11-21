@@ -10,7 +10,7 @@ Samples the GTA VI launch signals on a schedule, keeps every raw response, and d
 | `youtube` | hourly | `videos?part=statistics` for the trailers | `YOUTUBE_API_KEY` |
 | `wikipedia` | 6 h (00/06/12/18 UTC) | Pageviews per-article, 30 editions, trailing 10 days | none |
 | `steam_reviews` | 6 h (03/09/15/21 UTC) | Store `appreviewhistogram/<appid>` for the same 7 apps | none |
-| `prices` | daily (22:30 UTC) | Alpha Vantage `TIME_SERIES_DAILY`, `outputsize=compact`, for TTWO, EA, SONY, QQQ | `ALPHA_VANTAGE_API_KEY` |
+| `prices` | daily (22:30 UTC) | Alpha Vantage `TIME_SERIES_DAILY`, `outputsize=compact`, for TTWO, RBLX, SONY, QQQ (`PRICES_TICKERS`) | `ALPHA_VANTAGE_API_KEY` |
 
 Plus one input that is not fetched: `src/collector/curated/official_figures.json`, a short
 hand-maintained list of Take-Two-reported figures (see "Business" below).
@@ -100,15 +100,17 @@ without it is still valid, and the site hides the section when it is missing):
   without a rebuild). A malformed file is logged and left out; it never stops derive.
 
 - **`business.prices`**: daily closes from Alpha Vantage for Take-Two (`TTWO`, the
-  `subject`), two peers (`EA`, `SONY`) and the market `baseline` (`QQQ`, the Nasdaq-100
-  ETF). Per ticker: `closes` (every `{date, close}` the tracker has, oldest first),
+  `subject`), two peers (`RBLX`, `SONY`) and the market `baseline` (`QQQ`, the Nasdaq-100
+  ETF); the list is `PRICES_TICKERS`, below. Per ticker: `closes` (every `{date, close}` the tracker has, oldest first),
   `first_date`, `latest_date`/`latest_close`, `launch_day` (the 2026-11-18 close to the
   2026-11-19 close: GTA VI unlocked at 05:00 UTC on the 19th, before that day's US open) and
   `since_launch` (the 2026-11-18 close to the latest close), each as `from_*`, `to_*`,
   `change` (USD) and `change_pct` (percent). Then `subject_vs_baseline_launch_day` and
   `subject_vs_baseline_since_launch`: TTWO's and QQQ's percent change and the difference in
   percentage points (positive: TTWO beat the market), only when both cover the same window.
-  A change is null until its closes exist.
+  A change is null until its closes exist. Only the configured tickers are published, and a
+  ticker whose newest close is more than 10 days older than the newest close of the others
+  (delisted, or no longer served) is left out; its raw files and stored closes stay.
 
 ### Share prices (Alpha Vantage)
 
@@ -140,6 +142,24 @@ outside it unless a premium key backfills with `full`; the launch is inside it.
 Cadence and settings: `PRICES_AT_HOUR_UTC` (default 22) and `PRICES_AT_MINUTE_UTC`
 (default 30): 22:30 UTC is after the 16:00 New York close in both winter (21:00 UTC) and
 summer (20:00 UTC). `PRICES_REQUEST_GAP_S` (default 5) is the pause between tickers.
+
+Which tickers: `PRICES_TICKERS`, comma separated, default `TTWO,RBLX,SONY,QQQ`. The first
+is the `subject` (the chart's line), the last the `baseline` (rebased on the chart, and
+the "vs the market" figure), any in between are `peer`s (the "Since launch, for
+comparison" line). 2 to 25 symbols, each one Alpha Vantage request a day, so the default
+is 4 of the free 25. Removing a symbol stops it being fetched and published; what was
+stored for it stays in raw.
+
+The peers were Electronic Arts and Sony until 2026-11-21. EA was taken private and left
+Nasdaq on 2026-08-04, so its closes stop there and it has no launch-day or since-launch
+move. Nintendo's US ADR (`NTDOY`) was the first choice to replace it, but it trades over
+the counter, and Alpha Vantage's own list of the US stocks and ETFs it covers
+(`LISTING_STATUS` with the demo key, 2026-11-21: 14,554 symbols on NYSE, NASDAQ, NYSE
+ARCA, NYSE MKT, AMEX and BATS, no OTC market) does not carry it, and `TIME_SERIES_DAILY`'s documentation says nothing about OTC
+symbols. Roblox (`RBLX`, NYSE) is on that list, so it took the slot. Not verified with a
+real key either way: if you have one and want Nintendo, try
+`PRICES_TICKERS=TTWO,NTDOY,SONY,QQQ`; a symbol Alpha Vantage does not serve comes back as
+an `Error Message` soft failure and the rest carry on.
 
 Tried and not used (2026-11-20):
 
