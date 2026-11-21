@@ -3,7 +3,8 @@
 A fan-made, single-page "hype tracker" for the Grand Theft Auto VI launch (19 Nov 2026,
 PS5 and Xbox Series X|S). It shows how loudly the internet is watching: Twitch viewers in
 the GTA VI category, trailer view counts on YouTube, Wikipedia page views by language, and
-what everyone else is still playing on Steam.
+what everyone else is still playing on Steam. A "Follow the money" section adds Take-Two's
+share price against the market, Take-Two's reported figures and estimated Steam sales.
 
 Most of those APIs only ever return the *current* value, so history has to be recorded as
 it happens. That is why the repo has two halves: a small always-on **collector** that
