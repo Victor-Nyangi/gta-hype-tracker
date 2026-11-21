@@ -13,6 +13,7 @@
 import type {
   BusinessSignals,
   OfficialFigures,
+  PriceSignals,
   Signals,
   SteamReviewSignals,
   SteamSignals,
@@ -185,12 +186,61 @@ export function isOfficial(v: unknown): v is OfficialFigures {
   });
 }
 
-const BUSINESS_PARTS = { steam_reviews: isSteamReviews, official: isOfficial } as const;
+/** null, or passes `check` (for nested objects, where orNull's type predicate is not needed). */
+const nullOr = (check: (x: unknown) => boolean) => (v: unknown) => v === null || check(v);
+const isPositive = (v: unknown): v is number => isNum(v) && v > 0;
+
+const priceChange = (v: unknown) =>
+  has(v, {
+    from_date: isDay,
+    from_close: isPositive,
+    to_date: isDay,
+    to_close: isPositive,
+    change: isNum,
+    change_pct: isNum,
+  });
+
+const tickerPrices = (v: unknown) =>
+  has(v, {
+    symbol: isStr,
+    name: isStr,
+    role: (r) => r === "subject" || r === "peer" || r === "baseline",
+    closes: arrOf((p) => has(p, { date: isDay, close: isPositive })),
+    first_date: isDay,
+    latest_date: isDay,
+    latest_close: isPositive,
+    fetched_at: isTime,
+    launch_day: nullOr(priceChange),
+    since_launch: nullOr(priceChange),
+  });
+
+const relativeChange = (v: unknown) => has(v, { subject_pct: isNum, baseline_pct: isNum, difference_pts: isNum });
+
+export function isPrices(v: unknown): v is PriceSignals {
+  return has(v, {
+    source: isStr,
+    // rendered as a link: only https
+    source_url: isHttpsUrl,
+    series: isStr,
+    tracking_since: isTime,
+    updated_at: isTime,
+    launch_from: isDay,
+    launch_to: isDay,
+    subject: isStr,
+    baseline: isStr,
+    tickers: arrOf(tickerPrices),
+    subject_vs_baseline_launch_day: nullOr(relativeChange),
+    subject_vs_baseline_since_launch: nullOr(relativeChange),
+  });
+}
+
+const BUSINESS_PARTS = { steam_reviews: isSteamReviews, official: isOfficial, prices: isPrices } as const;
 
 /**
- * `business` (added after schema v1) has two independent parts, each checked on its own:
- * a malformed part becomes null and the other survives. Returns null when nothing in the
- * block is usable, plus whether anything was malformed.
+ * `business` (added after schema v1) has independent parts, each checked on its own: a
+ * malformed part becomes null and the others survive. `prices` came later still, so a
+ * block without it is fine. Returns null when nothing in the block is usable, plus whether
+ * anything was malformed.
  */
 export function checkBusiness(v: unknown): { business: BusinessSignals | null; malformed: boolean } {
   if (!isObj(v)) return { business: null, malformed: true };
@@ -205,7 +255,7 @@ export function checkBusiness(v: unknown): { business: BusinessSignals | null; m
       out[key] = null;
     }
   }
-  const business = out.steam_reviews === null && out.official === null ? null : (out as unknown as BusinessSignals);
+  const business = Object.values(out).every((part) => part === null) ? null : (out as unknown as BusinessSignals);
   return { business, malformed };
 }
 

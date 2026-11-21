@@ -6,6 +6,7 @@ import { LANGUAGE_COUNTRIES, STEAM_GAMES } from "./constants";
 import { checkSignals, type CheckedSignals } from "./guard";
 import type {
   OfficialFigures,
+  PriceSignals,
   Signals,
   SteamReviewSignals,
   SteamSignals,
@@ -17,10 +18,13 @@ import { TRAILERS } from "./trailers";
 import type {
   OfficialFigure,
   PageData,
+  PriceMove,
+  SharePrices,
   SteamReviews,
   Sourced,
   SteamData,
   SteamGame,
+  TickerSeries,
   TwitchSeries,
   WikipediaViews,
   YouTubeTotals,
@@ -136,6 +140,41 @@ export function adaptOfficial(o: OfficialFigures): OfficialFigure[] | null {
   }));
 }
 
+type Ticker = PriceSignals["tickers"][number];
+type Change = Ticker["launch_day"];
+
+const move = (c: Change): PriceMove | null => (c ? { pct: c.change_pct, from: c.from_date, to: c.to_date } : null);
+
+function adaptTicker(t: Ticker): TickerSeries {
+  return {
+    symbol: t.symbol,
+    name: t.name,
+    closes: t.closes.map((p) => ({ date: p.date, close: p.close })),
+    latestClose: t.latest_close,
+    latestDate: t.latest_date,
+    launchDay: move(t.launch_day),
+    sinceLaunch: move(t.since_launch),
+  };
+}
+
+/** null when Take-Two has fewer than two closes: one point is not a line. */
+export function adaptPrices(p: PriceSignals): SharePrices | null {
+  const subject = p.tickers.find((t) => t.symbol === p.subject);
+  if (!subject || subject.closes.length < 2) return null;
+  const baseline = p.tickers.find((t) => t.symbol === p.baseline);
+  return {
+    subject: adaptTicker(subject),
+    baseline: baseline && baseline.closes.length > 0 ? adaptTicker(baseline) : null,
+    peers: p.tickers.filter((t) => t.role === "peer" && t.closes.length > 0).map(adaptTicker),
+    vsBaseline: {
+      launchDay: p.subject_vs_baseline_launch_day?.difference_pts ?? null,
+      sinceLaunch: p.subject_vs_baseline_since_launch?.difference_pts ?? null,
+    },
+    source: p.source,
+    sourceUrl: p.source_url,
+  };
+}
+
 function sourced<T, U>(
   live: T | null,
   fallback: T | null,
@@ -180,6 +219,8 @@ export function resolvePageData(live: CheckedSignals | null, fallback: Signals):
       adaptOfficial,
       (o) => o.updated_at,
     ),
+    // prices came after the rest of business: a block without it is fine
+    prices: sourced(l?.business?.prices ?? null, fallback.business?.prices ?? null, adaptPrices, (p) => p.updated_at),
   };
 }
 
@@ -191,8 +232,9 @@ const stale = <T>(s: Sourced<T> | null): Sourced<T> | null => (s ? { ...s, origi
  * freshly fetched signals.json; `raw` is null when the fetch failed. A source that is
  * missing or malformed keeps what the page already shows, labelled "last known".
  * Wikipedia (daily) and YouTube stay as the server rendered them. The business parts
- * (6-hourly reviews, curated figures) update when the refresh carries them and otherwise
- * keep what the page shows; their cards print the source's own time either way.
+ * (6-hourly reviews, curated figures, daily share prices) update when the refresh carries
+ * them and otherwise keep what the page shows; their cards print the source's own time
+ * either way.
  */
 export function mergeLive(prev: PageData, raw: unknown): PageData {
   const checked = raw === null ? null : checkSignals(raw);
@@ -200,11 +242,13 @@ export function mergeLive(prev: PageData, raw: unknown): PageData {
   const { twitch, steam, business, generated_at } = checked.signals;
   const reviews = sourced(business?.steam_reviews ?? null, null, adaptSteamReviews, (r) => r.updated_at);
   const official = sourced(business?.official ?? null, null, adaptOfficial, (o) => o.updated_at);
+  const prices = sourced(business?.prices ?? null, null, adaptPrices, (p) => p.updated_at);
   return {
     ...prev,
     generatedAt: generated_at,
     reviews: reviews ?? prev.reviews,
     official: official ?? prev.official,
+    prices: prices ?? prev.prices,
     twitch: twitch ? { data: adaptTwitch(twitch), origin: "live", updatedAt: twitch.updated_at } : stale(prev.twitch),
     steam: steam ? { data: adaptSteam(steam), origin: "live", updatedAt: steam.updated_at } : stale(prev.steam),
   };

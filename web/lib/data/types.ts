@@ -148,6 +148,44 @@ export interface OfficialFigure {
   quote: string;
 }
 
+/** A close-to-close move. */
+export interface PriceMove {
+  /** Percent, e.g. -3.25. */
+  pct: number;
+  /** YYYY-MM-DD trading days. */
+  from: string;
+  to: string;
+}
+
+/** One ticker's daily closes, as the collector merged them. */
+export interface TickerSeries {
+  symbol: string;
+  name: string;
+  /** Oldest first; unadjusted closes in USD. */
+  closes: { date: string; close: number }[];
+  latestClose: number;
+  /** YYYY-MM-DD */
+  latestDate: string;
+  /** The last close before launch (Nov 18) to launch day's (Nov 19). */
+  launchDay: PriceMove | null;
+  /** The last close before launch to the latest close. */
+  sinceLaunch: PriceMove | null;
+}
+
+/** business.prices: Take-Two's share price, the peers and the market baseline. */
+export interface SharePrices {
+  /** TTWO: at least two closes, or there is no chart. */
+  subject: TickerSeries;
+  /** QQQ, the market baseline the chart rebases; null when it has no closes. */
+  baseline: TickerSeries | null;
+  /** EA, Sony. */
+  peers: TickerSeries[];
+  /** subject minus baseline, in percentage points; null unless both cover the window. */
+  vsBaseline: { launchDay: number | null; sinceLaunch: number | null };
+  source: string;
+  sourceUrl: string;
+}
+
 /** Everything the page renders. A null source is unavailable live and in the fallback. */
 export interface PageData {
   /** The payload's generated_at (ISO). */
@@ -163,6 +201,8 @@ export interface PageData {
   reviews: Sourced<SteamReviews> | null;
   /** business.official: the curated Take-Two figures. */
   official: Sourced<OfficialFigure[]> | null;
+  /** business.prices: null until the collector has fetched share prices. */
+  prices: Sourced<SharePrices> | null;
 }
 
 export interface Milestone {

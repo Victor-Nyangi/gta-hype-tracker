@@ -9,7 +9,7 @@ export interface Signals {
   youtube: YouTubeSignals | null;
   wikipedia: WikipediaSignals | null;
   /**
-   * Money signals: Steam review counts, curated Take-Two figures
+   * Money signals: Steam review counts, curated Take-Two figures, share prices
    */
   business?: BusinessSignals | null;
 }
@@ -294,6 +294,10 @@ export interface BusinessSignals {
    * Hand-curated Take-Two figures, each with its source; null if unavailable
    */
   official: OfficialFigures | null;
+  /**
+   * Daily closes for TTWO, peers and QQQ (Alpha Vantage); null until fetched
+   */
+  prices?: PriceSignals | null;
 }
 /**
  * This interface was referenced by `Signals`'s JSON-Schema
@@ -414,4 +418,130 @@ export interface OfficialFigure {
    * The source's own words for the figure
    */
   quote: string;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "PriceSignals".
+ */
+export interface PriceSignals {
+  /**
+   * Data provider, e.g. Alpha Vantage
+   */
+  source: string;
+  source_url: string;
+  /**
+   * Which series: daily closes, unadjusted
+   */
+  series: string;
+  /**
+   * First fetch that returned closes
+   */
+  tracking_since: string;
+  /**
+   * Latest fetch that returned closes
+   */
+  updated_at: string;
+  /**
+   * Last trading day before launch (2026-11-18)
+   */
+  launch_from: string;
+  /**
+   * Launch day (2026-11-19)
+   */
+  launch_to: string;
+  /**
+   * Symbol the page leads with (TTWO)
+   */
+  subject: string;
+  /**
+   * Market baseline symbol (QQQ)
+   */
+  baseline: string;
+  tickers: TickerPrices[];
+  /**
+   * TTWO vs QQQ over launch_day; null unless both have it
+   */
+  subject_vs_baseline_launch_day: RelativeChange | null;
+  /**
+   * TTWO vs QQQ over since_launch; null unless both have it
+   */
+  subject_vs_baseline_since_launch: RelativeChange | null;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "TickerPrices".
+ */
+export interface TickerPrices {
+  /**
+   * TTWO, EA, SONY, QQQ
+   */
+  symbol: string;
+  name: string;
+  /**
+   * subject: Take-Two; peer: other publishers; baseline: the market (QQQ)
+   */
+  role: "subject" | "peer" | "baseline";
+  /**
+   * Every daily close the tracker has, oldest first. Merged across fetches, the latest fetch winning per day
+   */
+  closes: PricePoint[];
+  first_date: string;
+  latest_date: string;
+  latest_close: number;
+  /**
+   * Latest fetch that returned closes for it
+   */
+  fetched_at: string;
+  /**
+   * launch_from close -> launch_to close; null until both are known
+   */
+  launch_day: PriceChange | null;
+  /**
+   * launch_from close (the last close before launch) -> latest close; null until there is a close after launch_from
+   */
+  since_launch: PriceChange | null;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "PricePoint".
+ */
+export interface PricePoint {
+  /**
+   * US trading day (New York)
+   */
+  date: string;
+  /**
+   * Unadjusted daily close, USD
+   */
+  close: number;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "PriceChange".
+ */
+export interface PriceChange {
+  from_date: string;
+  from_close: number;
+  to_date: string;
+  to_close: number;
+  /**
+   * to_close minus from_close, USD
+   */
+  change: number;
+  /**
+   * Percent, e.g. -3.25 for -3.25%
+   */
+  change_pct: number;
+}
+/**
+ * This interface was referenced by `Signals`'s JSON-Schema
+ * via the `definition` "RelativeChange".
+ */
+export interface RelativeChange {
+  subject_pct: number;
+  baseline_pct: number;
+  /**
+   * subject_pct minus baseline_pct, in percentage points (+ beat the market)
+   */
+  difference_pts: number;
 }
