@@ -66,9 +66,22 @@ pnpm screenshots              # Playwright captures of a running build (see scri
   Steam sales per game as a low–high range bar (all-time reviews x30 to x55, the method in
   the footnote; no estimate for CS2 or GTA V Enhanced). The guard checks `steam_reviews` and
   `official` separately, so either falls back to the bundled snapshot on its own; the whole
-  section is hidden if neither exists. The 60s refresh updates them when the payload carries
-  them. `pnpm snapshot:signals` keeps the previous snapshot's `business` while the live file
-  has none. No share-price chart: no keyless price source works (collector/README.md).
+  section is hidden if none of its parts exists. The 60s refresh updates them when the
+  payload carries them. `pnpm snapshot:signals` keeps each business part from the previous
+  snapshot while the live file lacks it.
+- Share prices (top of "Follow the money", `components/business/SharePrices.tsx`, maths in
+  `lib/prices.ts`): `business.prices`, Alpha Vantage daily closes via the collector. Take-Two's
+  close as the sunset line, QQQ (the Nasdaq-100 ETF) rebased to TTWO's close on the first day
+  both have as a dashed muted line, and dashed markers for the `MILESTONES` dates (Trailer 1,
+  Trailer 2, the delays, Launch) that fall inside the data. X is the trading-day index. Chips:
+  latest close, launch-day move (Nov 18 → Nov 19 close), since launch (Nov 18 → latest), and
+  each against QQQ in percentage points; the peers' since-launch moves sit under the chart.
+  The guard checks `prices` on its own (a missing or malformed block hides only the chart),
+  and fewer than two TTWO closes hide it too. The bundled fallback only ever holds what the
+  collector wrote: until the box has fetched prices, the chart is simply not there. On day
+  one the series covers about 100 trading days (Alpha Vantage's free `compact` output; it
+  grows a day at a time), so only the launch marker shows. The synthetic sample in
+  `tests/fixtures.ts` (`makePrices`) is for tests only.
 - Status: the whole page on live data (design/PROMPT.md stage 4). `// data:` comments mark
   where the page and the feeds differ (truncated Twitch snapshots, hour buckets vs
   tracking_since, curated trailer curves, language-to-country mapping).
