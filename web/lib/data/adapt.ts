@@ -157,15 +157,33 @@ function adaptTicker(t: Ticker): TickerSeries {
   };
 }
 
+/** Days a ticker's newest close may trail the newest of the others before it is left out. */
+export const STALE_AFTER_DAYS = 10;
+
+const dayNumber = (d: string) => Date.parse(`${d}T00:00:00Z`) / 86_400_000;
+
+/**
+ * The tickers whose newest close is within STALE_AFTER_DAYS of the newest close among the
+ * others. The collector already leaves stale tickers out (EA stopped at 2026-08-04 when it
+ * went private); this keeps an older payload from putting one on the page.
+ */
+function freshTickers(tickers: Ticker[]): Ticker[] {
+  return tickers.filter((t) => {
+    const others = tickers.filter((o) => o !== t && o.closes.length > 0).map((o) => dayNumber(o.latest_date));
+    return others.length === 0 || Math.max(...others) - dayNumber(t.latest_date) <= STALE_AFTER_DAYS;
+  });
+}
+
 /** null when Take-Two has fewer than two closes: one point is not a line. */
 export function adaptPrices(p: PriceSignals): SharePrices | null {
-  const subject = p.tickers.find((t) => t.symbol === p.subject);
+  const tickers = freshTickers(p.tickers.filter((t) => t.closes.length > 0));
+  const subject = tickers.find((t) => t.symbol === p.subject);
   if (!subject || subject.closes.length < 2) return null;
-  const baseline = p.tickers.find((t) => t.symbol === p.baseline);
+  const baseline = tickers.find((t) => t.symbol === p.baseline);
   return {
     subject: adaptTicker(subject),
-    baseline: baseline && baseline.closes.length > 0 ? adaptTicker(baseline) : null,
-    peers: p.tickers.filter((t) => t.role === "peer" && t.closes.length > 0).map(adaptTicker),
+    baseline: baseline ? adaptTicker(baseline) : null,
+    peers: tickers.filter((t) => t.role === "peer").map(adaptTicker),
     vsBaseline: {
       launchDay: p.subject_vs_baseline_launch_day?.difference_pts ?? null,
       sinceLaunch: p.subject_vs_baseline_since_launch?.difference_pts ?? null,

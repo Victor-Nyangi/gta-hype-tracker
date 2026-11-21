@@ -76,6 +76,8 @@ pnpm screenshots              # Playwright captures of a running build (see scri
   Trailer 2, the delays, Launch) that fall inside the data. X is the trading-day index. Chips:
   latest close, launch-day move (Nov 18 → Nov 19 close), since launch (Nov 18 → latest), and
   each against QQQ in percentage points; the peers' since-launch moves sit under the chart.
+  A ticker whose newest close is over 10 days behind the others' (EA after it went private)
+  is left out, by the collector and again by `adaptPrices`.
   The guard checks `prices` on its own (a missing or malformed block hides only the chart),
   and fewer than two TTWO closes hide it too. The bundled fallback only ever holds what the
   collector wrote: until the box has fetched prices, the chart is simply not there. On day

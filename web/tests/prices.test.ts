@@ -50,7 +50,7 @@ describe("prices adapter", () => {
     const p = adaptPrices(makePrices())!;
     expect(p.subject.symbol).toBe("TTWO");
     expect(p.baseline?.symbol).toBe("QQQ");
-    expect(p.peers.map((t) => t.symbol)).toEqual(["EA", "SONY"]);
+    expect(p.peers.map((t) => t.symbol)).toEqual(["RBLX", "SONY"]);
     expect(p.subject.launchDay).toMatchObject({ from: "2026-11-18", to: "2026-11-19" });
     expect(p.subject.launchDay!.pct).toBeLessThan(-7);
     expect(p.subject.sinceLaunch).toMatchObject({ from: "2026-11-18", to: "2026-11-20" });
@@ -65,6 +65,34 @@ describe("prices adapter", () => {
     const none = clone(makePrices());
     none.tickers = none.tickers.filter((t) => t.symbol !== "TTWO");
     expect(adaptPrices(none)).toBeNull();
+  });
+  it("leaves out a ticker whose closes stopped over 10 days before the others'", () => {
+    // EA, as the live file had it: taken private, last close 2026-08-04, no since-launch move
+    const p = clone(makePrices());
+    const ea = clone(p.tickers[1]);
+    Object.assign(ea, { symbol: "EA", name: "Electronic Arts", launch_day: null, since_launch: null });
+    ea.closes = ea.closes.filter((c) => c.date <= "2026-08-04");
+    ea.latest_date = "2026-08-04";
+    ea.latest_close = ea.closes.at(-1)!.close;
+    p.tickers.splice(1, 0, ea);
+    const a = adaptPrices(p)!;
+    expect(a.peers.map((t) => t.symbol)).toEqual(["RBLX", "SONY"]);
+
+    // the line is at 10 days: 2026-11-10 is kept, 2026-11-09 is not
+    const edge = clone(makePrices());
+    const cut = (t: (typeof edge.tickers)[number], last: string) => {
+      t.closes = t.closes.filter((c) => c.date <= last);
+      t.latest_date = last;
+      t.latest_close = t.closes.at(-1)!.close;
+    };
+    cut(edge.tickers[1], "2026-11-10");
+    cut(edge.tickers[2], "2026-11-09");
+    expect(adaptPrices(edge)!.peers.map((t) => t.symbol)).toEqual(["RBLX"]);
+
+    // a stale baseline goes too; the chart stays, drawn without it
+    const base = clone(makePrices());
+    cut(base.tickers[3], "2026-08-04");
+    expect(adaptPrices(base)!.baseline).toBeNull();
   });
   it("keeps the chart without a baseline", () => {
     const p = clone(makePrices());

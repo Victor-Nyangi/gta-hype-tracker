@@ -135,7 +135,7 @@ export function makePrices({ from = "2026-07-01", to = "2026-11-20" }: { from?: 
     ticker("TTWO", "Take-Two Interactive", "subject", days, (i) =>
       launch < 0 || i < launch ? 200 + i * 0.5 : 180 + i * 0.5 + (i - launch) * 5,
     ),
-    ticker("EA", "Electronic Arts", "peer", days, (i) => 150 + (i % 5)),
+    ticker("RBLX", "Roblox", "peer", days, (i) => 60 + (i % 5)),
     ticker("SONY", "Sony Group (ADR)", "peer", days, (i) => 25 + i * 0.01),
     ticker("QQQ", "Invesco QQQ Trust (Nasdaq-100)", "baseline", days, (i) => 500 + i),
   ];

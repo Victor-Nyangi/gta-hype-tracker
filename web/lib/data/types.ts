@@ -178,7 +178,7 @@ export interface SharePrices {
   subject: TickerSeries;
   /** QQQ, the market baseline the chart rebases; null when it has no closes. */
   baseline: TickerSeries | null;
-  /** EA, Sony. */
+  /** Roblox and Sony by default (the collector's PRICES_TICKERS); stale ones are left out. */
   peers: TickerSeries[];
   /** subject minus baseline, in percentage points; null unless both cover the window. */
   vsBaseline: { launchDay: number | null; sinceLaunch: number | null };

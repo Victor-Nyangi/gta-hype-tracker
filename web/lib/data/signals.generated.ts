@@ -457,6 +457,9 @@ export interface PriceSignals {
    * Market baseline symbol (QQQ)
    */
   baseline: string;
+  /**
+   * The configured tickers that have closes, subject first and baseline last. A ticker whose newest close is over 10 days older than the newest of the others (delisted, or no longer served) is left out
+   */
   tickers: TickerPrices[];
   /**
    * TTWO vs QQQ over launch_day; null unless both have it
@@ -473,12 +476,12 @@ export interface PriceSignals {
  */
 export interface TickerPrices {
   /**
-   * TTWO, EA, SONY, QQQ
+   * By default TTWO, RBLX, SONY, QQQ (PRICES_TICKERS)
    */
   symbol: string;
   name: string;
   /**
-   * subject: Take-Two; peer: other publishers; baseline: the market (QQQ)
+   * subject: Take-Two; peer: other game companies; baseline: the market (QQQ)
    */
   role: "subject" | "peer" | "baseline";
   /**
